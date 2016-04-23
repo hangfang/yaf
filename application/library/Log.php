@@ -78,7 +78,7 @@ class Log {
 	 */
 	public function __construct()
 	{
-		$config = \Yaf\Registry::get('config');
+		$config = Yaf_Registry::get('config');
 
 		$this->_log_path = ($config['application']['logPath'] !== '') ? $config['application']['log_path'] : APPLICATION_PATH.'/logs/';
 		$this->_file_ext = (isset($config['application']['logFileExtension']) && $config['application']['logFileExtension'] !== '')

@@ -11,7 +11,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/database/
  */
-class MysqliUtility extends \Database\DbUtility {
+class Database_Drivers_Mysqli_MysqliUtility extends Database_DbUtility {
 
 	/**
 	 * List databases statement

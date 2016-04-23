@@ -1,8 +1,7 @@
 <?php
-namespace Database\Drivers\Pdo\Subdrivers;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
-class PdoMysqlDriver extends \Database\Drivers\Pdo\PdoDriver {
+class Database_Drivers_Pdo_Subdrivers_PdoMysqlDriver extends Database_Drivers_Pdo_PdoDriver {
 
 	/**
 	 * Sub-driver
@@ -81,7 +80,7 @@ class PdoMysqlDriver extends \Database\Drivers\Pdo\PdoDriver {
 		 */
 		if ( ! is_php('5.3.6') && ! empty($this->char_set))
 		{
-			$this->options[\PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET NAMES '.$this->char_set
+			$this->options[PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET NAMES '.$this->char_set
 				.(empty($this->dbcollat) ? '' : ' COLLATE '.$this->dbcollat);
 		}
 
@@ -105,34 +104,34 @@ class PdoMysqlDriver extends \Database\Drivers\Pdo\PdoDriver {
 
 			if ( ! empty($sql))
 			{
-				if (empty($this->options[\PDO::MYSQL_ATTR_INIT_COMMAND]))
+				if (empty($this->options[PDO::MYSQL_ATTR_INIT_COMMAND]))
 				{
-					$this->options[\PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET SESSION sql_mode = '.$sql;
+					$this->options[PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET SESSION sql_mode = '.$sql;
 				}
 				else
 				{
-					$this->options[\PDO::MYSQL_ATTR_INIT_COMMAND] .= ', @@session.sql_mode = '.$sql;
+					$this->options[PDO::MYSQL_ATTR_INIT_COMMAND] .= ', @@session.sql_mode = '.$sql;
 				}
 			}
 		}
 
 		if ($this->compress === TRUE)
 		{
-			$this->options[\PDO::MYSQL_ATTR_COMPRESS] = TRUE;
+			$this->options[PDO::MYSQL_ATTR_COMPRESS] = TRUE;
 		}
 
-		// SSL support was added to \PDO_MYSQL in PHP 5.3.7
+		// SSL support was added to PDO_MYSQL in PHP 5.3.7
 		if (is_array($this->encrypt) && is_php('5.3.7'))
 		{
 			$ssl = array();
-			empty($this->encrypt['ssl_key'])    OR $ssl[\PDO::MYSQL_ATTR_SSL_KEY]    = $this->encrypt['ssl_key'];
-			empty($this->encrypt['ssl_cert'])   OR $ssl[\PDO::MYSQL_ATTR_SSL_CERT]   = $this->encrypt['ssl_cert'];
-			empty($this->encrypt['ssl_ca'])     OR $ssl[\PDO::MYSQL_ATTR_SSL_CA]     = $this->encrypt['ssl_ca'];
-			empty($this->encrypt['ssl_capath']) OR $ssl[\PDO::MYSQL_ATTR_SSL_CAPATH] = $this->encrypt['ssl_capath'];
-			empty($this->encrypt['ssl_cipher']) OR $ssl[\PDO::MYSQL_ATTR_SSL_CIPHER] = $this->encrypt['ssl_cipher'];
+			empty($this->encrypt['ssl_key'])    OR $ssl[PDO::MYSQL_ATTR_SSL_KEY]    = $this->encrypt['ssl_key'];
+			empty($this->encrypt['ssl_cert'])   OR $ssl[PDO::MYSQL_ATTR_SSL_CERT]   = $this->encrypt['ssl_cert'];
+			empty($this->encrypt['ssl_ca'])     OR $ssl[PDO::MYSQL_ATTR_SSL_CA]     = $this->encrypt['ssl_ca'];
+			empty($this->encrypt['ssl_capath']) OR $ssl[PDO::MYSQL_ATTR_SSL_CAPATH] = $this->encrypt['ssl_capath'];
+			empty($this->encrypt['ssl_cipher']) OR $ssl[PDO::MYSQL_ATTR_SSL_CIPHER] = $this->encrypt['ssl_cipher'];
 
 			// DO NOT use array_merge() here!
-			// It re-indexes numeric keys and the \PDO_MYSQL_ATTR_SSL_* constants are integers.
+			// It re-indexes numeric keys and the PDO_MYSQL_ATTR_SSL_* constants are integers.
 			empty($ssl) OR $this->options += $ssl;
 		}
 
@@ -140,11 +139,11 @@ class PdoMysqlDriver extends \Database\Drivers\Pdo\PdoDriver {
 		if (
 			($pdo = parent::db_connect($persistent)) !== FALSE
 			&& ! empty($ssl)
-			&& version_compare($pdo->getAttribute(\PDO::ATTR_CLIENT_VERSION), '5.7.3', '<=')
+			&& version_compare($pdo->getAttribute(PDO::ATTR_CLIENT_VERSION), '5.7.3', '<=')
 			&& empty($pdo->query("SHOW STATUS LIKE 'ssl_cipher'")->fetchObject()->Value)
 		)
 		{
-			$message = '\PDO_MYSQL was configured for an SSL connection, but got an unencrypted connection instead!';
+			$message = 'PDO_MYSQL was configured for an SSL connection, but got an unencrypted connection instead!';
 			log_message('error', $message);
 			return ($this->db->db_debug) ? $this->db->display_error($message, '', TRUE) : FALSE;
 		}

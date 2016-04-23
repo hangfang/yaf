@@ -1,5 +1,4 @@
 <?php
-namespace Database;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 /**
@@ -14,7 +13,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @link		https://codeigniter.com/user_guide/database/
  */
 
-abstract class DbQueryBuilder extends DbDriver {
+abstract class Database_DbQueryBuilder extends Database_DbDriver {
 
 	/**
 	 * Return DELETE SQL flag
