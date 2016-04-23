@@ -44,4 +44,4 @@ if ($argc > 1) {
 }
 
 
-$app->getDispatcher()->dispatch($request);
+$app->getDispatcher()->throwException(false)->setErrorHandler(array('Error', ''))->dispatch($request);
