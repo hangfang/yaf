@@ -7,39 +7,105 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @see http://www.php.net/manual/en/class.yaf-controller-abstract.php
  */
 class IndexController extends Yaf_Controller_Abstract {
+    public $_msg_stock = <<<EOF
+<p class="weui_media_desc blue">%s</p>
+<p class="weui_media_desc">股票代码: %s</p>
+<p class="weui_media_desc">日期: %s</p>
+<p class="weui_media_desc">时间: %s</p>
+<p class="weui_media_desc">开盘价: %s元</p>
+<p class="weui_media_desc">收盘价: %s元</p>
+<p class="weui_media_desc">当前价格: %s元</p>
+<p class="weui_media_desc">最高价: %s元</p>
+<p class="weui_media_desc">最低价: %s元</p>
+<p class="weui_media_desc">买一报价: %s元</p>
+<p class="weui_media_desc">卖一报价: %s元</p>
+<p class="weui_media_desc">成交量: %s万手</p>
+<p class="weui_media_desc">成交额: %s亿</p>
+<p class="weui_media_desc">涨幅: %s</p>
+<p class="weui_media_desc">买一: %s手  %s元</p>
+<p class="weui_media_desc">买二: %s手  %s元</p>
+<p class="weui_media_desc">买三: %s手  %s元</p>
+<p class="weui_media_desc">买四: %s手  %s元</p>
+<p class="weui_media_desc">买五: %s手  %s元</p>
+<p class="weui_media_desc">卖一: %s手  %s元</p>
+<p class="weui_media_desc">卖二: %s手  %s元</p>
+<p class="weui_media_desc">卖三: %s手  %s元</p>
+<p class="weui_media_desc">卖四: %s手  %s元</p>
+<p class="weui_media_desc">卖五: %s手  %s元</p>
+<p class="weui_media_desc">分时图: <img src="%s"/></p>
+<p class="weui_media_desc">日K线: <img src="%s"/></p>
+<p class="weui_media_desc">周K线: <img src="%s"/></p>
+<p class="weui_media_desc">月K线: <img src="%s"/></p>
 
+<p class="weui_media_desc blue">仅供参考，非投资依据。</p>
+EOF;
+    
+    public $_msg_weather = <<<EOF
+<p class="weui_media_desc">%s天气：</p>
+<p class="weui_media_desc">    日期：%s</p>
+<p class="weui_media_desc">    发布时间：%s</p>
+<p class="weui_media_desc">    天气：%s</p>
+<p class="weui_media_desc">    当前气温：%s℃</p>
+<p class="weui_media_desc">    最高：%s℃</p>
+<p class="weui_media_desc">    最低：%s℃</p>
+<p class="weui_media_desc">    风向：%s</p>
+<p class="weui_media_desc">    风力：%s</p>
+<p class="weui_media_desc">    日出时间：%s</p>
+<p class="weui_media_desc">    日落时间：%s</p>      
+EOF;
+    
+    public $_msg_news = <<<EOF
+<div class="container-fluid">
+<!--<div class="hd">
+<h1 class="page_title">资讯</h1>
+</div>-->
+<div class="bd">
+<ul class="list-group">%s%s</ul>
+</div>
+</div>
+EOF;
+
+    public $_msg_news_banner = <<<EOF
+<li class="list-group-item">
+<a class="bg-wrapper" href="%s">
+<img src="%s" class="carousel-inner img-responsive" />
+<div class="banner">
+<h5 class="font16">%s</h5>
+</div>
+</a>
+</li>    
+EOF;
+    
+    public $_msg_news_list = <<<EOF
+<li class="list-group-item">
+<a class="row" href="%s">
+<div class="col-xs-9 no-new-line">
+<div class="txt"><span>%s</span></div>
+</div>
+<div class="col-xs-3"><img src="%s" class="pull-right img"/></div>
+</a>
+</li>    
+EOF;
+    
+    
 	/** 
      * 默认动作
      * Yaf支持直接把Yaf_Request_Abstract::getParam()得到的同名参数作为Action的形参
      * 对于如下的例子, 当访问http://yourhost/sample/index/index/index/name/root 的时候, 你就会发现不同
      */
 	public function indexAction($name = "Stranger") {
-		//1. fetch query
-		$get = $this->getRequest()->getQuery("get", "default value");
-
-		//2. fetch model
-		$model = new SampleModel();
-
-		//3. assign
-		$this->getView()->assign("content", $model->selectSample());
-		$this->getView()->assign("name", $name);
-
-		//4. render by Yaf, 如果这里返回FALSE, Yaf将不会调用自动视图引擎Render模板
-        return TRUE;
+		$data = array();
+        $data['title'] = 'WeApp首页';
+        
+        $this->getView()->assign('data', $data);
+        $this->getView()->display('index/index.php');
 	}
     
     public function demoAction(){
-        //实例化表单对象，并传入需要验证的参数数组
-        //其中键表示字段名
-        $form = new \Forms\User\LoginModel($this->getRequest()->getParams());
-        //调用表单对象的校验方法，该方法会根据字段设置校验所有字段
-        if (!$form->validate()) {
-            //校验失败，可以通过getMessages获取有错误字段的错误信息
-            var_dump($form->getMessages());
-            exit();
-        }
-        //表单校验通过，通过getFieldValue获取所有字段的值
-        $params = $form->getFieldValue();
-        var_dump($params);
+        $data = array();
+        $data['title'] = '页面样例';
+        
+        $this->getView()->assign('data', $data);
+        $this->getView()->display('index/demo.php');
     }
 }

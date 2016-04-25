@@ -1,4 +1,6 @@
 <?php
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+
 define("YAF_VERSION", "2.2.9");
 define("YAF_ENVIRON", "product");
 define("YAF_ERR_STARTUP_FAILED", 512);
@@ -966,7 +968,7 @@ public function display($tpl, array $tpl_vars = null);
  * @param array $tpl_vars
  * @return string
  */
-public function eval111111111($tpl_content, array $tpl_vars = null);
+public function eval($tpl_content, array $tpl_vars = null);
 /**
  * @param string $name
  */

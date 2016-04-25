@@ -1,4 +1,5 @@
 <?php
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * @name Bootstrap
  * @author root
@@ -24,8 +25,9 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
 
 	public function _initPlugin(Yaf_Dispatcher $dispatcher) {
 		//注册一个插件
-		$objSamplePlugin = new SamplePlugin();
-		$dispatcher->registerPlugin($objSamplePlugin);
+		$smarty = new Smarty_Adapter(null, Yaf_Registry::get('config')->get('smarty'));  
+        Yaf_Dispatcher::getInstance()->setView($smarty)->disableView();//disableView作用是禁用yaf本身的模板引擎，否则会在smarty渲染完后，yaf在自动渲染一次，导致页面有重复
+        $smarty->assign('environ', ini_get('yaf.environ'));
 	}
 
 	public function _initRoute(Yaf_Dispatcher $dispatcher) {
