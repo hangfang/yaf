@@ -28,7 +28,7 @@ class LotteryController extends Yaf_Controller_Abstract {
 	}
     
     public function checkLotteryAction(){
-
+        log_message('error', 'checkLotteryAction');
         $lotteryType = $this->getRequest()->getQuery('lottery_type', 'ssq');
         
         

@@ -1677,10 +1677,9 @@ abstract class Database_DbDriver {
 	 * @param	bool	whether to localize the message
 	 * @return	string	sends the application/views/errors/error_db.php template
 	 */
-	public function display_error($error = '', $swap = '')
+	public function display_error($error = '')
 	{
-
-		$message = is_array($error) ?: (array) $error;
+		$message = is_array($error) ? $error : (array) $error;
 
 		// Find the most likely culprit of the error by going through
 		// the backtrace until the source file is no longer in the
@@ -1688,7 +1687,7 @@ abstract class Database_DbDriver {
 		$trace = debug_backtrace();
 		foreach ($trace as $call)
 		{
-			if (isset($call['file'], $call['class']))
+			if (isset($call['file'], $call['class'], $call['line']))
 			{
 				// We'll need this on Windows, as APPPATH and BASEPATH will always use forward slashes
 				if (DIRECTORY_SEPARATOR !== '/')

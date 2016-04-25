@@ -123,13 +123,18 @@ class Exceptions {
 			$message = '<p>'.(is_array($message) ? implode('</p><p>', $message) : $message).'</p>';
 			$template = 'html'.DIRECTORY_SEPARATOR.$template;
 		}
-
+        
+        $ext = trim($config['application']['errorFileExtension'], '.');
+        if(empty($ext)){
+            $ext = 'php';
+        }
+        
 		if (ob_get_level() > $this->ob_level + 1)
 		{
 			ob_end_flush();
 		}
 		ob_start();
-		include($templates_path.$template.'.php');
+		include($templates_path.$template.'.'.$ext);
 		$buffer = ob_get_contents();
 		ob_end_clean();
 		return $buffer;
@@ -139,12 +144,18 @@ class Exceptions {
 
 	public function show_exception($exception)
 	{
-		$templates_path = config_item('error_views_path');
+		$config = Yaf_Registry::get('config');
+		$templates_path = $config['application']['errorViewsPath'];
 		if (empty($templates_path))
 		{
-			$templates_path = VIEWPATH.'errors'.DIRECTORY_SEPARATOR;
+			$templates_path = APPLICATION_PATH.'/application/views/error'.DIRECTORY_SEPARATOR;
 		}
-
+        
+        $ext = $config['application']['errorFileExtension'];
+        if(empty($ext)){
+            $ext = 'php';
+        }
+        
 		$message = $exception->getMessage();
 		if (empty($message))
 		{
@@ -167,7 +178,7 @@ class Exceptions {
 		}
 
 		ob_start();
-		include($templates_path.'error_exception.php');
+		include($templates_path.'error_exception.'.$ext);
 		$buffer = ob_get_contents();
 		ob_end_clean();
 		echo $buffer;
@@ -186,11 +197,17 @@ class Exceptions {
 	 */
 	public function show_php_error($severity, $message, $filepath, $line)
 	{
-		$templates_path = config_item('error_views_path');
+        $config = Yaf_Registry::get('config');
+		$templates_path = $config['application']['errorViewsPath'];
 		if (empty($templates_path))
 		{
-			$templates_path = VIEWPATH.'errors'.DIRECTORY_SEPARATOR;
+			$templates_path = APPLICATION_PATH.'/application/views/error'.DIRECTORY_SEPARATOR;
 		}
+        
+        $ext = $config['application']['errorFileExtension'];
+        if(empty($ext)){
+            $ext = 'php';
+        }
 
 		$severity = isset($this->levels[$severity]) ? $this->levels[$severity] : $severity;
 
@@ -216,7 +233,7 @@ class Exceptions {
 			ob_end_flush();
 		}
 		ob_start();
-		include($templates_path.$template.'.php');
+		include($templates_path.$template.'.'.$ext);
 		$buffer = ob_get_contents();
 		ob_end_clean();
 		echo $buffer;

@@ -145,7 +145,7 @@ class Database_Drivers_Pdo_Subdrivers_PdoMysqlDriver extends Database_Drivers_Pd
 		{
 			$message = 'PDO_MYSQL was configured for an SSL connection, but got an unencrypted connection instead!';
 			log_message('error', $message);
-			return ($this->db->db_debug) ? $this->db->display_error($message, '', TRUE) : FALSE;
+			return ($this->db->db_debug) ? $this->db->display_error($message) : FALSE;
 		}
 
 		return $pdo;

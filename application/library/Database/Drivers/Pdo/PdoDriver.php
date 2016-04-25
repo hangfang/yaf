@@ -89,7 +89,7 @@ class Database_Drivers_Pdo_PdoDriver extends Database_Db {
 		{
 			if ($this->db_debug && empty($this->failover))
 			{
-				$this->display_error($e->getMessage(), '', TRUE);
+				$this->display_error($e->getMessage());
 			}
 
 			return FALSE;

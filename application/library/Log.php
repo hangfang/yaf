@@ -80,9 +80,9 @@ class Log {
 	{
 		$config = Yaf_Registry::get('config');
 
-		$this->_log_path = ($config['application']['logPath'] !== '') ? $config['application']['log_path'] : APPLICATION_PATH.'/logs/';
-		$this->_file_ext = (isset($config['application']['logFileExtension']) && $config['application']['logFileExtension'] !== '')
-			? ltrim($config['log_file_extension'], '.') : 'php';
+		$this->_log_path = $config['application']['logPath'] ? $config['application']['logPath'] : APPLICATION_PATH.'/logs/';
+		$this->_file_ext = (isset($config['application']['logFileExtension']) && $config['application']['logFileExtension'])
+			? ltrim($config['application']['logFileExtension'], '.') : 'log';
 
 		file_exists($this->_log_path) OR mkdir($this->_log_path, 0755, TRUE);
 

@@ -176,7 +176,7 @@ class Database_Drivers_Mysqli_MysqliDriver extends Database_Db {
 				$this->_mysqli->close();
 				$message = 'MySQLi was configured for an SSL connection, but got an unencrypted connection instead!';
 				log_message('error', $message);
-				return ($this->db->db_debug) ? $this->db->display_error($message, '', TRUE) : FALSE;
+				return ($this->db->db_debug) ? $this->db->display_error($message) : FALSE;
 			}
 
 			return $this->_mysqli;

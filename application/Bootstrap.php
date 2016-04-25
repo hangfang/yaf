@@ -8,14 +8,18 @@
  * 调用的次序, 和申明的次序相同
  */
 class Bootstrap extends Yaf_Bootstrap_Abstract{
+    public function _initErrorAndExceptionHandler(){
+        
+        require APPLICATION_PATH .'/application/helper/function.php';
+        require APPLICATION_PATH .'/application/helper/file.php';
+        set_error_handler('_error_handler');
+        set_exception_handler('_exception_handler');
+    }
 
     public function _initConfig() {
 		//把配置保存起来
 		$arrConfig = Yaf_Application::app()->getConfig();
 		Yaf_Registry::set('config', $arrConfig);
-        
-        require APPLICATION_PATH .'/application/helper/function.php';
-        require APPLICATION_PATH .'/application/helper/file.php';
 	}
 
 	public function _initPlugin(Yaf_Dispatcher $dispatcher) {
@@ -31,4 +35,8 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
 	public function _initView(Yaf_Dispatcher $dispatcher){
 		//在这里注册自己的view控制器，例如smarty,firekylin
 	}
+    
+    public function _initName(Yaf_Dispatcher $dispatcher){
+        $dispatcher->setDefaultModule("Index")->setDefaultController("Index")->setDefaultAction("index");
+    }
 }
