@@ -1,5 +1,4 @@
 <?php
-namespace Database\Drivers\Mysqli;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 /**
@@ -11,7 +10,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/database/
  */
-class MysqliForge extends \Database\DbForge {
+class Database_Drivers_Mysqli_MysqliForge extends Database_DbForge {
 
 	/**
 	 * CREATE DATABASE statement

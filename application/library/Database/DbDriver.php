@@ -683,7 +683,7 @@ abstract class Database_DbDriver {
 			// resource ID won't be any good once we've cached the
 			// result object, so we'll have to compile the data
 			// and save it)
-			$CR = new \Database\DbResult($this);
+			$CR = new Database_DbResult($this);
 			$CR->result_object	= $RES->result_object();
 			$CR->result_array	= $RES->result_array();
 			$CR->num_rows		= $RES->num_rows();

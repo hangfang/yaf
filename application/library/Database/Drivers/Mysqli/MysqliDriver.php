@@ -100,6 +100,7 @@ class Database_Drivers_Mysqli_MysqliDriver extends Database_Db {
 		$this->_mysqli = mysqli_init();
 
 		$this->_mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
+		$this->_mysqli->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE);
 
 		if (isset($this->stricton))
 		{

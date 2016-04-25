@@ -78,6 +78,8 @@ class Database_Drivers_Pdo_PdoDriver extends Database_Db {
 	public function db_connect($persistent = FALSE)
 	{
 		$this->options[PDO::ATTR_PERSISTENT] = $persistent;
+		$this->options[PDO::ATTR_STRINGIFY_FETCHES] = false;
+        $this->options[PDO::ATTR_EMULATE_PREPARES] = false;
 
 		try
 		{

@@ -10,10 +10,10 @@ class LotteryModel{
     public function checkLottery($data, $lotteryType){
         $db = Database::getInstance();
         foreach($data as $_k=>$_v){
-            $db->where($_k, $_v, true);
+            //$db->where($_k, $_v, true);
         }
         $query = $db->get('app_'.$lotteryType);
-        var_dump($query->result_array());
+        var_dump($query->row_array());
         exit;
 
         return $this->fList(array('where'=>$data));
