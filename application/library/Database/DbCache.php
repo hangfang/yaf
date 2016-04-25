@@ -1,5 +1,4 @@
 <?php
-namespace Database;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 /**
@@ -9,7 +8,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/database/
  */
-class DbCache {
+class Database_DbCache {
 
 	/**
 	 * Database object
@@ -95,7 +94,7 @@ class DbCache {
 	 */
 	public function read($sql)
 	{
-        $request = new \Yaf\Request\Simple();
+        $request = new Yaf_Request_Simple();
 		$segment_one = $request->getControllerName() ?  : 'default';
 		$segment_two = $request->getActionName() ?  : 'index';
 		$filepath = $this->db->cachedir.$segment_one.'_'.$segment_two.'/'.md5($sql);
@@ -119,7 +118,7 @@ class DbCache {
 	 */
 	public function write($sql, $object)
 	{
-		$request = new \Yaf\Request\Simple();
+		$request = new Yaf_Request_Simple();
 		$segment_one = $request->getControllerName() ?  : 'default';
 		$segment_two = $request->getActionName() ?  : 'index';
 		$dir_path = $this->db->cachedir.$segment_one.'_'.$segment_two.'/';
@@ -150,7 +149,7 @@ class DbCache {
 	 */
 	public function delete($segment_one = '', $segment_two = '')
 	{
-        $request = new \Yaf\Request\Simple();
+        $request = new Yaf_Request_Simple();
 		if ($segment_one === '')
 		{
             $segment_one = $request->getControllerName() ?  : 'default';

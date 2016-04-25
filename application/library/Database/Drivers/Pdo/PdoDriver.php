@@ -1,8 +1,7 @@
 <?php
-namespace Database\Drivers\Pdo;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
-class PdoDriver extends \Database\Db {
+class Database_Drivers_Pdo_PdoDriver extends Database_Db {
 
 	/**
 	 * Database driver
@@ -78,11 +77,11 @@ class PdoDriver extends \Database\Db {
 	 */
 	public function db_connect($persistent = FALSE)
 	{
-		$this->options[\PDO::ATTR_PERSISTENT] = $persistent;
+		$this->options[PDO::ATTR_PERSISTENT] = $persistent;
 
 		try
 		{
-			return new \PDO($this->dsn, $this->username, $this->password, $this->options);
+			return new PDO($this->dsn, $this->username, $this->password, $this->options);
 		}
 		catch (PDOException $e)
 		{

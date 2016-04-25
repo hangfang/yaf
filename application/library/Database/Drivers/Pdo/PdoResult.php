@@ -1,5 +1,4 @@
 <?php
-namespace Database\Drivers\Pdo;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 /**
@@ -13,7 +12,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/database/
  */
-class PdoResult extends \Database\DbResult {
+class Database_Drivers_Pdo_PdoResult extends Database_DbResult {
 
 	/**
 	 * Number of rows in the result set
@@ -142,7 +141,7 @@ class PdoResult extends \Database\DbResult {
 	 */
 	protected function _fetch_assoc()
 	{
-		return $this->result_id->fetch(\PDO::FETCH_ASSOC);
+		return $this->result_id->fetch(PDO::FETCH_ASSOC);
 	}
 
 	// --------------------------------------------------------------------

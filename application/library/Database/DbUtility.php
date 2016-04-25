@@ -1,5 +1,4 @@
 <?php
-namespace Database;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 /**
@@ -9,7 +8,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/database/
  */
-abstract class DbUtility {
+abstract class Database_DbUtility {
 
 	/**
 	 * Database object

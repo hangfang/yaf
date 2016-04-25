@@ -1,5 +1,4 @@
 <?php
-namespace Database\Drivers\Pdo;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 /**
@@ -11,7 +10,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/database/
  */
-class PdoForge extends \Database\Drivers\Pdo\DbForge {
+class Database_Drivers_Pdo_PdoForge extends Database_DbForge {
 
 	/**
 	 * CREATE TABLE IF statement

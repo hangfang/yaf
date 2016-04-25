@@ -1,8 +1,7 @@
 <?php
-namespace Database;
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
-abstract class DbDriver {
+abstract class Database_DbDriver {
 
 	/**
 	 * Data Source Name / Connect string
@@ -708,7 +707,7 @@ abstract class DbDriver {
 	 */
 	public function load_rdriver()
 	{
-		$driver = '\\Database\\Drivers\\'.ucfirst($this->dbdriver).'\\'.ucfirst($this->dbdriver).'Result';
+		$driver = 'Database_Drivers_'.ucfirst($this->dbdriver).'_'.ucfirst($this->dbdriver).'Result';
 		return $driver;
 	}
 
@@ -1634,7 +1633,7 @@ abstract class DbDriver {
 			return TRUE;
 		}
 
-		$this->CACHE = new \Database\DbCache($this); // pass db object to support multiple db connections and returned db objects
+		$this->CACHE = new Database_DbCache($this); // pass db object to support multiple db connections and returned db objects
 		return TRUE;
 	}
 
@@ -1678,21 +1677,10 @@ abstract class DbDriver {
 	 * @param	bool	whether to localize the message
 	 * @return	string	sends the application/views/errors/error_db.php template
 	 */
-	public function display_error($error = '', $swap = '', $native = FALSE)
+	public function display_error($error = '', $swap = '')
 	{
-		$LANG =& load_class('Lang', 'core');
-		$LANG->load('db');
 
-		$heading = $LANG->line('db_error_heading');
-
-		if ($native === TRUE)
-		{
-			$message = (array) $error;
-		}
-		else
-		{
-			$message = is_array($error) ? $error : array(str_replace('%s', $swap, $LANG->line($error)));
-		}
+		$message = is_array($error) ?: (array) $error;
 
 		// Find the most likely culprit of the error by going through
 		// the backtrace until the source file is no longer in the
@@ -1708,18 +1696,18 @@ abstract class DbDriver {
 					$call['file'] = str_replace('\\', '/', $call['file']);
 				}
 
-				if (strpos($call['file'], BASEPATH.'database') === FALSE && strpos($call['class'], 'Loader') === FALSE)
+				if (strpos($call['file'], APPLICATION_PATH.'/library/Database') === FALSE && strpos($call['class'], 'Loader') === FALSE)
 				{
 					// Found it - use a relative path for safety
-					$message[] = 'Filename: '.str_replace(array(APPPATH, BASEPATH), '', $call['file']);
+					$message[] = 'Filename: '.str_replace(APPLICATION_PATH, '', $call['file']);
 					$message[] = 'Line Number: '.$call['line'];
 					break;
 				}
 			}
 		}
 
-		$error =& load_class('Exceptions', 'core');
-		echo $error->show_error($heading, $message, 'error_db');
+		$error = new Exceptions();
+		echo $error->show_error('A Database Error Occurred', $message, 'error_db');
 		exit(8); // EXIT_DATABASE
 	}
 

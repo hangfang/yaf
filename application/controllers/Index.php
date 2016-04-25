@@ -1,4 +1,5 @@
 <?php
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * @name IndexController
  * @author root

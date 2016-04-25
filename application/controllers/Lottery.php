@@ -1,10 +1,11 @@
 <?php
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * @name LotteryController
  * @author hangfang
  * @see http://www.php.net/manual/en/class.yaf-controller-abstract.php
  */
-class LotteryController extends Yaf\Controller_Abstract {
+class LotteryController extends Yaf_Controller_Abstract {
 
 	/** 
      * 默认动作
