@@ -26,20 +26,20 @@ class KuaidiModel extends BaseModel{
             return $rt;
         }
         
-        Yaf_Loader::import(APPLICATION_PATH.'/conf/kdniao.php');
+        $kdniao = get_var_from_conf('kdniao');
         $kdniao = array_flip($kdniao);
         
-        Yaf_Loader::import(APPLICATION_PATH.'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['Success'] === false){
                         
             $data = $_send_format['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
             
-            $data['text']['content'] = sprintf($_msg_kuaidi, $kdniao[$rt['ShipperCode']], $rt['LogisticCode'], $rt['Reason']);
+            $data['text']['content'] = sprintf($msgformat['msg_kuaidi'], $kdniao[$rt['ShipperCode']], $rt['LogisticCode'], $rt['Reason']);
             return $data;
         }
-        $data = $_send_format['text'];
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
 
@@ -49,7 +49,7 @@ class KuaidiModel extends BaseModel{
             $_trace .= '    时间:'. date('m月d日 H:i:s', strtotime($_v['AcceptTime'])) ."\n";
             $_trace .= '    信息:'. $_v['AcceptStation'] ."\n";
         }
-        $data['text']['content'] = sprintf($_msg_kuaidi, $kdniao[$rt['ShipperCode']], $rt['LogisticCode'], strlen($_trace)>10 ? $_trace : $rt['Reason']);
+        $data['text']['content'] = sprintf($msgformat['msg_kuaidi'], $kdniao[$rt['ShipperCode']], $rt['LogisticCode'], strlen($_trace)>10 ? $_trace : $rt['Reason']);
         return $data;
     }
 }

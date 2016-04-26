@@ -477,7 +477,7 @@ class WechatController extends Yaf_Controller_Abstract {
         
         
         $request = new Yaf_Request_Http();
-        $baseUrl = $request->getHttpHost();
+        $baseUrl = $request->getRequest();
         $data['text']['content'] = sprintf($msgformat['msg_to_large'], $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         
         $wechatModel = new WechatModel();
