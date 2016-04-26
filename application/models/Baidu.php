@@ -45,10 +45,10 @@ class BaiduModel extends BaseModel{
             return $rt;
         }
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['errNum'] === 0){
                         
-            $data = $_send_format['text'];
+            $data = $msgformat['send_format']['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
             
@@ -56,7 +56,7 @@ class BaiduModel extends BaseModel{
             $data['text']['content'] = sprintf($_msg_stock, $stockInfo['name'], $stockInfo['code'], $stockInfo['date'], $stockInfo['time'], $stockInfo['OpenningPrice'], $stockInfo['closingPrice'], $stockInfo['currentPrice'], $stockInfo['hPrice'], $stockInfo['lPrice'], $stockInfo['competitivePrice'], $stockInfo['auctionPrice'], number_format($stockInfo['totalNumber']/1000000, 1), number_format($stockInfo['turnover']/100000000, 2), number_format($stockInfo['increase'], 2).'%', $stockInfo['buyOne'], $stockInfo['buyOnePrice'], $stockInfo['buyTwo'], $stockInfo['buyTwoPrice'], $stockInfo['buyThree'], $stockInfo['buyThreePrice'], $stockInfo['buyFour'], $stockInfo['buyFourPrice'], $stockInfo['buyFive'], $stockInfo['buyFivePrice'], $stockInfo['sellOne'], $stockInfo['sellOnePrice'], $stockInfo['sellTwo'], $stockInfo['sellTwoPrice'], $stockInfo['sellThree'], $stockInfo['sellThreePrice'], $stockInfo['sellFour'], $stockInfo['sellFourPrice'], $stockInfo['sellFive'], $stockInfo['sellFivePrice'], $stockInfo['minurl'], $stockInfo['dayurl'], $stockInfo['weekurl'], $stockInfo['monthurl']);
             return $data;
         }
-        $data = $_send_format['text'];
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '糟糕，未查到“'. $stockid .'”';
@@ -74,10 +74,10 @@ class BaiduModel extends BaseModel{
             return $rt;
         }
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['errNum'] === 0){
 
-            $data = $_send_format['text'];
+            $data = $msgformat['send_format']['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
 
@@ -86,7 +86,7 @@ class BaiduModel extends BaseModel{
             $data['text']['content'] = sprintf($_msg_weather, $weather['city'], $weather['date'], $weather['time'], $weather['weather'], $weather['temp'], $weather['h_tmp'], $weather['l_tmp'], $weather['WD'], $weather['WS'], $weather['sunrise'], $weather['sunset']);
             return $data;
         }
-        $data = $_send_format['text'];
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '咦，你很关心“'. $contents[0] .'”地区？';
@@ -109,7 +109,7 @@ class BaiduModel extends BaseModel{
         $msgformat = get_var_from_conf('msgformat');
         if($rt['code'] === 200){
 
-            $data = $_send_format['news'];
+            $data = $msgformat['send_format']['news'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
             
@@ -146,10 +146,10 @@ class BaiduModel extends BaseModel{
             return $rt;
         }
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['code'] === 200){
 
-            $data = $_send_format['news'];
+            $data = $msgformat['send_format']['news'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
 
@@ -181,10 +181,10 @@ class BaiduModel extends BaseModel{
             return $rt;
         }
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['code'] === 200){
 
-            $data = $_send_format['news'];
+            $data = $msgformat['send_format']['news'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
 
@@ -222,21 +222,21 @@ class BaiduModel extends BaseModel{
             return $rt;
         }
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['errNum'] === 0){
             $tmp = $rt['retData']['data'][0];
             
-            $data = $_send_format['text'];
+            $data = $msgformat['send_format']['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
             
-            Yaf_Loader::import(APPLICATION_PATH .'/conf/lottery.php');
+            $lottery = get_var_from_conf('lottery');
             $lottery = array_flip($lottery);
             $data['text']['content'] = sprintf($_msg_lottery, $lottery[$rt['retData']['lotteryCode']], $tmp['expect'], $tmp['openTime'], $tmp['openCode']);
             return $data;
         }
         
-        $data = $_send_format['text'];
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '别着急，还未开奖...';
@@ -256,11 +256,11 @@ class BaiduModel extends BaseModel{
             return $rt;
         }
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['res_code'] === 0){
             $tmp = $rt['res_body']['JokeList'][rand(0,19)];
             
-            $data = $_send_format['text'];
+            $data = $msgformat['send_format']['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
             
@@ -268,7 +268,7 @@ class BaiduModel extends BaseModel{
             return $data;
         }
         
-        $data = $_send_format['text'];
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '准备好，段子即将开讲...';
