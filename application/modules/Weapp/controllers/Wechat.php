@@ -90,7 +90,7 @@ class WechatController extends Yaf_Controller_Abstract {
                 }else if(in_array($contents[0], array_keys($weather))){//天气
                     $this->getWeather($weather[$contents[0]], $msgXml);
                 }else if(in_array($contents[0], $wechat['daigou'])){//图文广告
-                    $this->daigou();
+                    $this->daigou($msgXml);
                 }else if(in_array($contents[0], $wechat['at'])){//关注微信号
                     $this->hopeSubscribe($msgXml);
                 }elseif(in_array($contents[0], $wechat['position'])){//提示发送位置信息

@@ -53,7 +53,7 @@ class BaiduModel extends BaseModel{
             $data['fromuser'] = $msgXml['ToUserName'];
             
             $stockInfo = $rt['retData']['stockinfo'][0];
-            $data['text']['content'] = sprintf($_msg_stock, $stockInfo['name'], $stockInfo['code'], $stockInfo['date'], $stockInfo['time'], $stockInfo['OpenningPrice'], $stockInfo['closingPrice'], $stockInfo['currentPrice'], $stockInfo['hPrice'], $stockInfo['lPrice'], $stockInfo['competitivePrice'], $stockInfo['auctionPrice'], number_format($stockInfo['totalNumber']/1000000, 1), number_format($stockInfo['turnover']/100000000, 2), number_format($stockInfo['increase'], 2).'%', $stockInfo['buyOne'], $stockInfo['buyOnePrice'], $stockInfo['buyTwo'], $stockInfo['buyTwoPrice'], $stockInfo['buyThree'], $stockInfo['buyThreePrice'], $stockInfo['buyFour'], $stockInfo['buyFourPrice'], $stockInfo['buyFive'], $stockInfo['buyFivePrice'], $stockInfo['sellOne'], $stockInfo['sellOnePrice'], $stockInfo['sellTwo'], $stockInfo['sellTwoPrice'], $stockInfo['sellThree'], $stockInfo['sellThreePrice'], $stockInfo['sellFour'], $stockInfo['sellFourPrice'], $stockInfo['sellFive'], $stockInfo['sellFivePrice'], $stockInfo['minurl'], $stockInfo['dayurl'], $stockInfo['weekurl'], $stockInfo['monthurl']);
+            $data['text']['content'] = sprintf($msgformat['msg_stock'], $stockInfo['name'], $stockInfo['code'], $stockInfo['date'], $stockInfo['time'], $stockInfo['OpenningPrice'], $stockInfo['closingPrice'], $stockInfo['currentPrice'], $stockInfo['hPrice'], $stockInfo['lPrice'], $stockInfo['competitivePrice'], $stockInfo['auctionPrice'], number_format($stockInfo['totalNumber']/1000000, 1), number_format($stockInfo['turnover']/100000000, 2), number_format($stockInfo['increase'], 2).'%', $stockInfo['buyOne'], $stockInfo['buyOnePrice'], $stockInfo['buyTwo'], $stockInfo['buyTwoPrice'], $stockInfo['buyThree'], $stockInfo['buyThreePrice'], $stockInfo['buyFour'], $stockInfo['buyFourPrice'], $stockInfo['buyFive'], $stockInfo['buyFivePrice'], $stockInfo['sellOne'], $stockInfo['sellOnePrice'], $stockInfo['sellTwo'], $stockInfo['sellTwoPrice'], $stockInfo['sellThree'], $stockInfo['sellThreePrice'], $stockInfo['sellFour'], $stockInfo['sellFourPrice'], $stockInfo['sellFive'], $stockInfo['sellFivePrice'], $stockInfo['minurl'], $stockInfo['dayurl'], $stockInfo['weekurl'], $stockInfo['monthurl']);
             return $data;
         }
         $data = $msgformat['send_format']['text'];
@@ -83,7 +83,7 @@ class BaiduModel extends BaseModel{
 
             $weather = $rt['retData'];
 
-            $data['text']['content'] = sprintf($_msg_weather, $weather['city'], $weather['date'], $weather['time'], $weather['weather'], $weather['temp'], $weather['h_tmp'], $weather['l_tmp'], $weather['WD'], $weather['WS'], $weather['sunrise'], $weather['sunset']);
+            $data['text']['content'] = sprintf($msgformat['msg_weather'], $weather['city'], $weather['date'], $weather['time'], $weather['weather'], $weather['temp'], $weather['h_tmp'], $weather['l_tmp'], $weather['WD'], $weather['WS'], $weather['sunrise'], $weather['sunset']);
             return $data;
         }
         $data = $msgformat['send_format']['text'];
@@ -232,7 +232,7 @@ class BaiduModel extends BaseModel{
             
             $lottery = get_var_from_conf('lottery');
             $lottery = array_flip($lottery);
-            $data['text']['content'] = sprintf($_msg_lottery, $lottery[$rt['retData']['lotteryCode']], $tmp['expect'], $tmp['openTime'], $tmp['openCode']);
+            $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$rt['retData']['lotteryCode']], $tmp['expect'], $tmp['openTime'], $tmp['openCode']);
             return $data;
         }
         
@@ -264,7 +264,7 @@ class BaiduModel extends BaseModel{
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
             
-            $data['text']['content'] = sprintf($_msg_joke, $tmp['JokeTitle'], $tmp['JokeContent']);
+            $data['text']['content'] = sprintf($msgformat['msg_joke'], $tmp['JokeTitle'], $tmp['JokeContent']);
             return $data;
         }
         
