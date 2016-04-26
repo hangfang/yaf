@@ -1,5 +1,4 @@
-</div>
-    
+    </div>
     <!-- start-已完成-start -->
     <div id="toast" style="display: none;">
         <div class="weui_mask_transparent"></div>
@@ -82,25 +81,25 @@
 
             </div>
             <div class="weui_tabbar">
-                <a href="/app/index" class="weui_tabbar_item <?php if($class==='app'){echo 'weui_bar_item_on';}?>">
+                <a href="/index/index" class="weui_tabbar_item <?php if($data['class']==='app'){echo 'weui_bar_item_on';}?>">
                     <div class="weui_tabbar_icon">
                         <img src="/static/weui/images/icon_nav_button.png" alt="">
                     </div>
                     <p class="weui_tabbar_label">微信</p>
                 </a>
-                <a href="/contact/index" id="contact" class="weui_tabbar_item <?php if($class==='contact'){echo 'weui_bar_item_on';}?>">
+                <a href="/contact/index" id="contact" class="weui_tabbar_item <?php if($data['class']==='contact'){echo 'weui_bar_item_on';}?>">
                     <div class="weui_tabbar_icon">
                         <img src="/static/weui/images/icon_nav_msg.png" alt="">
                     </div>
                     <p class="weui_tabbar_label">通讯录</p>
                 </a>
-                <a href="/map/index" class="weui_tabbar_item <?php if($class==='map'){echo 'weui_bar_item_on';}?>">
+                <a href="/map/index" class="weui_tabbar_item <?php if($data['class']==='map'){echo 'weui_bar_item_on';}?>">
                     <div class="weui_tabbar_icon">
                         <img src="/static/weui/images/icon_nav_article.png" alt="">
                     </div>
                     <p class="weui_tabbar_label">发现</p>
                 </a>
-                <a href="/user/index" class="weui_tabbar_item <?php if($class==='user'){echo 'weui_bar_item_on';}?>">
+                <a href="/user/index" class="weui_tabbar_item <?php if($data['class']==='user'){echo 'weui_bar_item_on';}?>">
                     <div class="weui_tabbar_icon">
                         <img src="/static/weui/images/icon_nav_cell.png" alt="">
                     </div>

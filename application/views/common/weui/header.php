@@ -5,7 +5,7 @@
         var _speedMark = new Date();
     </script>
     <meta charset="utf-8">
-    <title>{#$data['title']#}</title>
+    <title><?php echo $data['title'];?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
 <!--    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">-->
@@ -18,11 +18,11 @@
         p.weui_tabbar_label {padding: 0; margin:0;}
         .weui_tabbar_icon + .weui_tabbar_label {margin: 0;}
     </style>
-    {#if $environ eq 'production'#}
+    <?php if(ini_get('environ') === 'production'){ ?>
     <script>
         window.onerror = function(){return true;};
     </script>
-    {#/if#}
+    <?php }?>
 </head>
 <body>
     <div id="container">

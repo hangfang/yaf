@@ -1,4 +1,4 @@
-{#include file="../common/weui/header.php"#}
+<?php include dirname(dirname(__FILE__)).'/common/weui/header.php';?>
 </div>
  <style>
     body { color: #666; font-family: sans-serif; line-height: 1.4; }
@@ -35,14 +35,14 @@
     
     .weui_toast_content {overflow : hidden; text-overflow: ellipsis; display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;}
 </style>
-<script type="text/html" id="tpl_home">
+<div class="home">
     <div class="hd">
         <h1 class="page_title">WeApp</h1>
         <p class="page_desc">为微信Web服务量身定制</p>
     </div>
     <div class="bd">
         <div class="weui_grids">
-            <a href="#/query" class="weui_grid">
+            <a href="/index/query" class="weui_grid">
                 <div class="weui_grid_icon">
                     <i class="icon icon_actionSheet"></i>
                 </div>
@@ -77,68 +77,5 @@
             </a>
         </div>
     </div>
-</script>
-<script type="text/html" id="tpl_query">
-    <div class="hd">
-        <h1 class="page_title">生活查询</h1>
-    </div>
-    <div class="bd">
-        <form class="form-horizontal" action="/app/express" method="post" target="_self" id="form_express">
-            <div class="weui_cells">
-                <div class="weui_cell weui_cell_select weui_select_before">
-                    <div class="weui_cell_hd">
-                        <select name="com" id="com" class="weui_select" data-live-search="true" autocomplete="on">
-                        <?php
-                            foreach($expressList as $_k=>$_v){
-                                echo <<<EOF
-<option value="{$_v}">{$_k}</optoin>
-EOF;
-                            }
-                        ?>
-                        </select>
-                    </div>
-                    <div class="weui_cell_bd weui_cell_primary">
-                        <input class="weui_input" type="text" name="nu" id="nu" placeholder="快递单号"/>
-                    </div>
-                </div>
-            </div>
-            <button class="weui_btn weui_btn_primary" type="submit" id="submit_express">查询快递</button>
-        </form>
-        <form class="form-horizontal" action="/app/weather" method="post" target="_self" id="form_weather">
-            <div class="weui_cell">
-                <!--<div class="weui_cell_hd">
-                    <label class="weui_label">城市</label>
-                </div>-->
-                <div class="weui_cell_bd weui_cell_primary">
-                    <input class="weui_input" type="text" id="cityid" name="cityid" placeholder="请输入城市">
-                </div>
-            </div>
-            <button class="weui_btn weui_btn_primary" type="submit" id="submit_weather">查询天气</button>
-        </form>
-        
-        <form class="form-horizontal" action="/app/stock" method="post" target="_self" id="form_stock">
-            <div class="weui_cell">
-                <!--<div class="weui_cell_hd">
-                    <label class="weui_label">股票代码</label>
-                </div>-->
-                <div class="weui_cell_bd weui_cell_primary">
-                    <input class="weui_input" type="number" id="stockid" name="stockid" placeholder="请输入股票代码">
-                </div>
-            </div>
-            <button class="weui_btn weui_btn_primary" type="submit" id="submit_stock">查询股票</button>
-        </form>
-    </div>
-</script>
-
-<div class="weui_panel" id="result" style="display: none;">
-    <div class="weui_panel_hd">查询结果</div>
-    <div class="weui_panel_bd">
-        <div class="weui_media_box weui_media_text">
-            <p class="weui_media_desc"></p>
-        </div>
-    </div>
 </div>
-<script src="/static/weui/js/zepto.min.js?d=20160110"></script>
-<script src="/static/weui/js/router.min.js?d=20160110"></script>
-<script src="/static/public/js/app/index.js?d=20160110"></script>
-{#include file="../common/weui/footer.php"#}
+<?php include dirname(dirname(__FILE__)).'/common/weui/footer.php';?>

@@ -96,16 +96,25 @@ EOF;
 	public function indexAction($name = "Stranger") {
 		$data = array();
         $data['title'] = 'WeApp首页';
-        
+        $data['class'] = 'app';
+
         $this->getView()->assign('data', $data);
-        $this->getView()->display('index/index.php');
 	}
     
     public function demoAction(){
         $data = array();
         $data['title'] = '页面样例';
+        $data['class'] = 'app';
         
         $this->getView()->assign('data', $data);
-        $this->getView()->display('index/demo.php');
+    }
+    
+    public function queryAction(){
+        
+        $data = array();
+        $data['title'] = '生活查询';
+        $data['class'] = 'app';
+
+        $this->getView()->assign('data', $data);
     }
 }
