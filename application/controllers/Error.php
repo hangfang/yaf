@@ -9,6 +9,16 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 class ErrorController extends Yaf_Controller_Abstract {
      
     public function errorAction($exception){
+        switch($exception->getCode()) {
+            case YAF_ERR_NOTFOUND_CONTROLLER:
+            case YAF_ERR_NOTFOUND_ACTION:
+            case YAF_ERR_NOTFOUND_MODULE:
+            case YAF_ERR_NOTFOUND_VIEW:
+                //404
+                header( "location: /index/missing" );
+                return false;
+        }
+
         $conent = $exception->getTraceString();
         log_message('error', $conent);
         $this->getView()->assign('content', $conent);

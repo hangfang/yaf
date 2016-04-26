@@ -32,7 +32,7 @@ class IndexController extends Yaf_Controller_Abstract {
     public function queryAction(){
         
         $data = array();
-        $data['title'] = '生活查询';
+        $data['title'] = '便利';
         $data['class'] = 'app';
                 
         Yaf_Loader::import(APPLICATION_PATH.'/conf/kdniao.php');
