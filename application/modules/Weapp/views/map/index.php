@@ -3,26 +3,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 include APPLICATION_PATH.'/application/views/common/weui/header.php';
 ?>
 </div>
-<style>
-    #container {height:95%; margin-top: 0px;width: 100%;}
-    #top-panel {position: absolute; top: 4px; right: 57px; width: 69%;}
-    #top-panel .weui_cells {background: transparent; margin-top: 0px;}
-    #top-panel .weui_input {width: 100%; padding-bottom: 2px; background-color: rgb(255, 255, 255); border: 1px solid rgb(179, 179, 179); box-shadow: rgba(0, 0, 0, 0.298039) 0px 0px 3px;}
-    #top-panel .weui_btn {width: 20%;}
-    #top-panel .weui_panel {margin-top: 0;}
-    #right-menu {position: absolute;}
-    
-    .weui_actionsheet_cell {cursor: pointer;}
-    
-    .anchorTR {top: 4px !important; right: 4px !important;}
-    .anchorTL {top: 4px !important; left: 4px !important;}
-    .anchorBL {bottom: 20px !important; left: 4px !important;}
-    .anchorBR {bottom: 20px !important; right: 4px !important;}
-    
-    .pano_close {top: 4px !important;}
-    
-    .weui_actionsheet_menu {max-height: 193px; overflow: auto;}
-</style>
+<link rel='stylesheet' href='/static/public/css/map/index.css?v=20160426'/>
 <div id="top-panel">
     <div class="weui_cells">
         <div class="weui_cell_bd weui_cell_primary">

@@ -2,16 +2,7 @@
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 include APPLICATION_PATH.'/application/views/common/weui/header.php';
 ?>
-<style>
-    #container {height:95%; margin: 0; width: 100%;}
-    #top-panel {position: absolute; top: 5.5%; left: 0; width: 100%;}
-    #top-panel .weui_cells {background: transparent; margin-top: 0px;}
-    #top-panel .weui_input {width: 70%; margin-left:6%; padding-bottom: 2px; background-color: rgb(255, 255, 255); border: 1px solid #04BE02;}
-    #top-panel .weui_btn {width: 20%;}
-    #right-menu {position: absolute;}
-    
-    .weui_actionsheet_cell {cursor: pointer;}
-</style>
+<link rel='stylesheet' href='/static/public/css/map/txmap.css?v=20160426'/>
 </div>
 <div id="top-panel">
     <div class="weui_cells">
