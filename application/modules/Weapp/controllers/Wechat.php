@@ -229,7 +229,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $data['fromuser'] = $msgXml['ToUserName'];
         
         $request = new Yaf_Request_Http();
-        $baseUrl = 'http://'. $request->server('HTTP_HOST');
+        $baseUrl = 'http://'. $request->getServer('HTTP_HOST');
         $data['text']['content'] = $rt==='new' ? sprintf($msgformat['msg_welcome_newbeing'], $baseUrl, $baseUrl, $baseUrl, $baseUrl) : sprintf($msgformat['msg_welcome_back'], $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         $wechatModel->sendMessage($data);
     }
@@ -355,7 +355,7 @@ class WechatController extends Yaf_Controller_Abstract {
         
         
         $request = new Yaf_Request_Http();
-        $baseUrl = 'http://'. $request->server('HTTP_HOST');
+        $baseUrl = 'http://'. $request->getServer('HTTP_HOST');
         $data['text']['content'] = sprintf($msgformat['msg_unrecognized'], $msg, $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         
         $wechatModel = new WechatModel();
@@ -477,7 +477,7 @@ class WechatController extends Yaf_Controller_Abstract {
         
         
         $request = new Yaf_Request_Http();
-        $baseUrl = 'http://'. $request->server('HTTP_HOST');
+        $baseUrl = 'http://'. $request->getServer('HTTP_HOST');
         $data['text']['content'] = sprintf($msgformat['msg_to_large'], $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         
         $wechatModel = new WechatModel();
