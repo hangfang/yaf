@@ -27,6 +27,7 @@ class IndexController extends Yaf_Controller_Abstract {
         $data['class'] = 'app';
         
         $this->getView()->assign('data', $data);
+        $this->getView()->display('index/demo.php');
     }
     
     public function queryAction(){
