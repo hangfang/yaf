@@ -9,21 +9,22 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 class ErrorController extends Yaf_Controller_Abstract {
      
     public function errorAction($exception){
+        $request = new Yaf_Request_Http();
         switch($exception->getCode()) {
             case YAF_ERR_NOTFOUND_CONTROLLER:
-                log_message('error', 'YAF_ERR_NOTFOUND_CONTROLLER');
+                log_message('error', 'YAF_ERR_NOTFOUND_CONTROLLER: '. $request->getControllerName());
                 header( "location: /index/missing" );
                 return false;
             case YAF_ERR_NOTFOUND_ACTION:
-                log_message('error', 'YAF_ERR_NOTFOUND_ACTION');
+                log_message('error', 'YAF_ERR_NOTFOUND_ACTION: '. $request->getActionName());
                 header( "location: /index/missing" );
                 return false;
             case YAF_ERR_NOTFOUND_MODULE:
-                log_message('error', 'YAF_ERR_NOTFOUND_MODULE');
+                log_message('error', 'YAF_ERR_NOTFOUND_MODULE: '. $request->getModuleName());
                 header( "location: /index/missing" );
                 return false;
             case YAF_ERR_NOTFOUND_VIEW:
-                log_message('error', 'YAF_ERR_NOTFOUND_VIEW');
+                log_message('error', 'YAF_ERR_NOTFOUND_VIEW: controller='. $request->getControllerName() .' actoin='. $request->getActionName());
                 header( "location: /index/missing" );
                 return false;
         }
