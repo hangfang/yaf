@@ -194,7 +194,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
-        $data['text']['content'] = sprintf($_msg_position, $msgXml['Label']);
+        $data['text']['content'] = sprintf($msgformat['msg_position'], $msgXml['Label']);
         
         $wechatModel = new WechatModel();
         $wechatModel->sendMessage($data);
@@ -230,7 +230,7 @@ class WechatController extends Yaf_Controller_Abstract {
         
         $request = new Yaf_Request_Http();
         $baseUrl = $request->getHttpHost();
-        $data['text']['content'] = $rt==='new' ? sprintf($_msg_welcome_newbeing, $baseUrl, $baseUrl, $baseUrl, $baseUrl) : sprintf($_msg_welcome_back, $baseUrl, $baseUrl, $baseUrl, $baseUrl);
+        $data['text']['content'] = $rt==='new' ? sprintf($msgformat['msg_welcome_newbeing'], $baseUrl, $baseUrl, $baseUrl, $baseUrl) : sprintf($msgformat['msg_welcome_back'], $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         $wechatModel->sendMessage($data);
     }
 
@@ -352,7 +352,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
-        $data['text']['content'] = sprintf($_msg_unrecognized, $msg, $baseUrl, $baseUrl, $baseUrl, $baseUrl);
+        $data['text']['content'] = sprintf($msgformat['msg_unrecognized'], $msg, $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         
         $wechatModel = new WechatModel();
         $wechatModel->sendMessage($data);
@@ -398,7 +398,7 @@ class WechatController extends Yaf_Controller_Abstract {
             $data = $msgformat['send_format']['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
-            $data['text']['content'] = sprintf($_msg_position_expired, $friendlydate->timeDiff($lastMsg['CreateTime']));
+            $data['text']['content'] = sprintf($msgformat['msg_position_expired'], $friendlydate->timeDiff($lastMsg['CreateTime']));
             
             $wechatModel = new WechatModel();
             $wechatModel->sendMessage($data);
@@ -470,7 +470,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
-        $data['text']['content'] = sprintf($_msg_to_large, $baseUrl, $baseUrl, $baseUrl, $baseUrl);
+        $data['text']['content'] = sprintf($msgformat['msg_to_large'], $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         
         $wechatModel = new WechatModel();
         $wechatModel->sendMessage($data);
