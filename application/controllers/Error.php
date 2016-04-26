@@ -14,7 +14,7 @@ class ErrorController extends Yaf_Controller_Abstract {
             case YAF_ERR_NOTFOUND_ACTION:
             case YAF_ERR_NOTFOUND_MODULE:
             case YAF_ERR_NOTFOUND_VIEW:
-                //404
+                log_message('error', $exception->getTraceString());
                 header( "location: /index/missing" );
                 return false;
         }
