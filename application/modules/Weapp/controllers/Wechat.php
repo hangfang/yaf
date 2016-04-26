@@ -34,7 +34,7 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     public function messageAction(){
-        $this->valid();exit;
+        //$this->valid();exit;//验证微信token
         $data = file_get_contents('php://input');
         /**
          * 微信消息结构
