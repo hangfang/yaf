@@ -101,7 +101,7 @@ class WechatModel extends BaseModel{
             $data['url'] = sprintf('%s/ticket/getticket?access_token=%s&type=jsapi', WX_CGI_ADDR, $this->access_token);
             $rt = $this->http($data);
             
-            if(isset($rt['errcode'])){
+            if(isset($rt['errcode']) && $rt['errcode']>0){
                 log_message('error', 'get jsapi_ticket from wechat error, msg: '. json_encode($rt));
                 if($rt['errcode'] === 42001){//access_token过期
                     $this->accessTokenExpired();
