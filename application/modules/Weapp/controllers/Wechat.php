@@ -3,11 +3,11 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 class WechatController extends Yaf_Controller_Abstract {
 
-    public function index(){
+    public function indexAction(){
         header('location: /');
     }
     
-    public function message(){
+    public function messageAction(){
         $data = file_get_contents('php://input');
         /**
          * 微信消息结构
@@ -273,7 +273,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function daigou($msgXml){
+    private function daigou($msgXml){
         Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
         $data = $_send_format['news'];
         $data['touser'] = $msgXml['FromUserName'];
@@ -293,7 +293,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getExpressCom($msg, $msgXml){
+    private function getExpressCom($msg, $msgXml){
         Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
         $data = $_send_format['text'];
         $data['touser'] = $msgXml['FromUserName'];
@@ -304,7 +304,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getStock($stockid, $msgXml){
+    private function getStock($stockid, $msgXml){
         if(preg_match('/^6[\d]{5}$/i', $stockid) === 1){
             $stockid = 'sh'. $stockid;//上海
         }elseif(preg_match('/^0[\d]{5}|3[\d]{5}$/i', $stockid) === 1){
@@ -320,7 +320,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function unrecognize($msg, $msgXml){
+    private function unrecognize($msg, $msgXml){
         Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
         $data = $_send_format['text'];
         $data['touser'] = $msgXml['FromUserName'];
@@ -331,7 +331,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function hopeSubscribe($msgXml){
+    private function hopeSubscribe($msgXml){
         Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
         $data = $_send_format['text'];
         $data['touser'] = $msgXml['FromUserName'];
@@ -342,7 +342,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function tellMeYourPosition($msgXml){
+    private function tellMeYourPosition($msgXml){
         Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
         $data = $_send_format['text'];
         $data['touser'] = $msgXml['FromUserName'];
@@ -353,7 +353,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function searchAround($msg, $msgXml){
+    private function searchAround($msg, $msgXml){
         Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
         $wechatModel = new WechatModel();
         $lastMsg = $wechatModel->getLastReceiveMsg($msgXml, array('MsgType'=>'location'));
@@ -384,7 +384,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getRecentExpress($msgXml){
+    private function getRecentExpress($msgXml){
         $wechatModel = new WechatModel();
         $lastMessage = $wechatModel->getLastSendMsg($msgXml, array('msgtype'=>'text'), array('content'=>array('value'=>'公司名称', 'side'=>'after')));
                     
@@ -405,7 +405,7 @@ class WechatController extends Yaf_Controller_Abstract {
         }
     }
     
-    public function getRecentWeather($msgXml){
+    private function getRecentWeather($msgXml){
         $wechatModel = new WechatModel();
         $lastMessage = $wechatModel->getLastSendMsg($msgXml, array('msgtype'=>'text'), array('content'=>array('value'=>'天气', 'side'=>'after')));    
         if(!empty($lastMessage)){
@@ -430,7 +430,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getExpress($com, $nu, $msgXml){
+    private function getExpress($com, $nu, $msgXml){
         $kuaidiModel = new KuaidiModel();
         $data = $kuaidiModel->kdniao($com, $nu, $msgXml);
         
@@ -438,7 +438,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function complexedMessage($msgXml){
+    private function complexedMessage($msgXml){
         Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
         $data = $_send_format['text'];
         $data['touser'] = $msgXml['FromUserName'];
@@ -449,7 +449,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getGirls($msgXml){
+    private function getGirls($msgXml){
         $data = array();
         $data['num'] = 5;
         $baiduModel = new BaiduModel();
@@ -459,7 +459,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getNews($keyword, $msgXml){
+    private function getNews($keyword, $msgXml){
         $data = array();
         $keyword && $data['word'] = $keyword;
         $data['page'] = $keyword ? rand(1,5) : rand(1, 999);
@@ -476,7 +476,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getSocials($keyword, $msgXml){
+    private function getSocials($keyword, $msgXml){
         $data = array();
         $data['page'] = rand(1, 999);
         $data['num'] = 5;
@@ -491,7 +491,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getLottery($lotteryCode, $msgXml){
+    private function getLottery($lotteryCode, $msgXml){
         $data = array();
         $data['lotterycode'] = $lotteryCode;
         $data['recordcnt'] = 1;
@@ -502,7 +502,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function getJoke($msgXml){
+    private function getJoke($msgXml){
         $data = array();
         $data['page'] = rand(1, 260);
         $baiduModel = new BaiduModel();
@@ -512,7 +512,7 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel->sendMessage($data);
     }
     
-    public function genLottery($msg, $msgXml){
+    private function genLottery($msg, $msgXml){
         $num = array('一'=>1 ,'二'=>2,'两'=>2,'三'=>3,'四'=>4,'五'=>5);
         $type = array('双色球'=>'Ssq');
         
