@@ -352,6 +352,10 @@ class WechatController extends Yaf_Controller_Abstract {
         $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
+        
+        
+        $request = new Yaf_Request_Http();
+        $baseUrl = $request->getHttpHost();
         $data['text']['content'] = sprintf($msgformat['msg_unrecognized'], $msg, $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         
         $wechatModel = new WechatModel();
@@ -470,6 +474,10 @@ class WechatController extends Yaf_Controller_Abstract {
         $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
+        
+        
+        $request = new Yaf_Request_Http();
+        $baseUrl = $request->getHttpHost();
         $data['text']['content'] = sprintf($msgformat['msg_to_large'], $baseUrl, $baseUrl, $baseUrl, $baseUrl);
         
         $wechatModel = new WechatModel();
