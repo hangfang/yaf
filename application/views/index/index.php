@@ -1,4 +1,7 @@
-<?php include dirname(dirname(__FILE__)).'/common/weui/header.php';?>
+<?php 
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+include dirname(dirname(__FILE__)).'/common/weui/header.php';
+?>
 </div>
  <style>
     body { color: #666; font-family: sans-serif; line-height: 1.4; }
@@ -47,7 +50,7 @@
                     <i class="icon icon_actionSheet"></i>
                 </div>
                 <p class="weui_grid_label">
-                    生活查询
+                    便利
                 </p>
             </a>
             <a href="/lottery/index" class="weui_grid">

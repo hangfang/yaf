@@ -1,4 +1,7 @@
-{#include file="../common/weui/header.php"#}
+<?php 
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+include dirname(dirname(__FILE__)).'/common/weui/header.php';
+?>
 </div>
 <script type="text/html" id="tpl_home">
     <div class="hd">
@@ -1092,4 +1095,4 @@
 <script src="/static/weui/js/zepto.min.js"></script>
 <script src="/static/weui/js/router.min.js"></script>
 <script src="/static/public/js/app/demo.js"></script>
-{#include file="../common/weui/footer.php"#}
+<?php include dirname(dirname(__FILE__)).'/common/weui/footer.php';?>

@@ -1,16 +1,19 @@
-<?php include dirname(dirname(__FILE__)).'/common/weui/header.php';?>
+<?php 
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+include dirname(dirname(__FILE__)).'/common/weui/header.php';
+?>
 <div class="query">
     <div class="hd">
-        <h1 class="page_title">生活查询</h1>
+        <h1 class="page_title">便利</h1>
     </div>
     <div class="bd">
-        <form class="form-horizontal" action="/app/express" method="post" target="_self" id="form_express">
+        <form class="form-horizontal" action="/weapp/app/express" method="post" target="_self" id="form_express">
             <div class="weui_cells">
                 <div class="weui_cell weui_cell_select weui_select_before">
                     <div class="weui_cell_hd">
                         <select name="com" id="com" class="weui_select" data-live-search="true" autocomplete="on">
                         <?php
-                            foreach($expressList as $_k=>$_v){
+                            foreach($data['expressList'] as $_k=>$_v){
                                 echo <<<EOF
 <option value="{$_v}">{$_k}</optoin>
 EOF;
@@ -25,7 +28,7 @@ EOF;
             </div>
             <button class="weui_btn weui_btn_primary" type="submit" id="submit_express">查询快递</button>
         </form>
-        <form class="form-horizontal" action="/app/weather" method="post" target="_self" id="form_weather">
+        <form class="form-horizontal" action="/weapp/app/weather" method="post" target="_self" id="form_weather">
             <div class="weui_cell">
                 <!--<div class="weui_cell_hd">
                     <label class="weui_label">城市</label>
@@ -37,7 +40,7 @@ EOF;
             <button class="weui_btn weui_btn_primary" type="submit" id="submit_weather">查询天气</button>
         </form>
         
-        <form class="form-horizontal" action="/app/stock" method="post" target="_self" id="form_stock">
+        <form class="form-horizontal" action="/weapp/app/stock" method="post" target="_self" id="form_stock">
             <div class="weui_cell">
                 <!--<div class="weui_cell_hd">
                     <label class="weui_label">股票代码</label>
