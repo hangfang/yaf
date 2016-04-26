@@ -23,20 +23,20 @@ class NewsController extends Yaf_Controller_Abstract{
         $data['rtn'] = 0;
         $data['msg'] = $msg_news_list = $msg_news_banner = '';
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['code']!==200){
             $msg_news_banner = sprintf($_msg_news_banner, 'javascript:void(0)', '/static/public/images/app/1.jpg', '新闻飞走了');
             $data['msg'] = sprintf($_msg_news_web, $msg_news_banner, '');
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
-                    $msg_news_banner = sprintf($_msg_news_banner, $_v['url'], $_v['picUrl'], $_v['title']);
+                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], $_v['title']);
                 }else{
-                    $msg_news_list .= sprintf($_msg_news_list, $_v['url'], $_v['title'], $_v['picUrl']);
+                    $msg_news_list .= sprintf($msgformat['msg_news_list'], $_v['url'], $_v['title'], $_v['picUrl']);
                 }
                 
                 if(($_k+1)%5 === 0){
-                    $data['msg'] .= sprintf($_msg_news_web, $msg_news_banner, $msg_news_list);
+                    $data['msg'] .= sprintf($msgformat['msg_news_web'], $msg_news_banner, $msg_news_list);
                     $msg_news_list = '';
                 }
             }
@@ -69,20 +69,20 @@ class NewsController extends Yaf_Controller_Abstract{
         $data['rtn'] = 0;
         $data['msg'] = $msg_news_list = $msg_news_banner = '';
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['code']!==200){
-            $msg_news_banner = sprintf($_msg_news_banner, 'javascript:void(0)', '/static/public/images/app/1.jpg', '老夫夜关天象，今日并无大事发生');
-            $data['msg'] = sprintf($_msg_news_web, $msg_news_banner, '');
+            $msg_news_banner = sprintf($msgformat['msg_news_banner'], 'javascript:void(0)', '/static/public/images/app/1.jpg', '老夫夜关天象，今日并无大事发生');
+            $data['msg'] = sprintf($msgformat['msg_news_web'], $msg_news_banner, '');
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
-                    $msg_news_banner = sprintf($_msg_news_banner, $_v['url'], $_v['picUrl'], $_v['title']);
+                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], $_v['title']);
                 }else{
-                    $msg_news_list .= sprintf($_msg_news_list, $_v['url'], $_v['title'], $_v['picUrl']);
+                    $msg_news_list .= sprintf($msgformat['msg_news_list'], $_v['url'], $_v['title'], $_v['picUrl']);
                 }
                 
                 if(($_k+1)%5 === 0){
-                    $data['msg'] .= sprintf($_msg_news_web, $msg_news_banner, $msg_news_list);
+                    $data['msg'] .= sprintf($msgformat['msg_news_web'], $msg_news_banner, $msg_news_list);
                     $msg_news_list = '';
                 }
             }
@@ -114,20 +114,20 @@ class NewsController extends Yaf_Controller_Abstract{
         $data['rtn'] = 0;
         $data['msg'] = $msg_news_list = $msg_news_banner = '';
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['code']!==200){
-            $msg_news_banner = sprintf($_msg_news_banner, 'javascript:void(0)', '/static/public/images/app/1.jpg', '新闻飞走了');
-            $data['msg'] = sprintf($_msg_news_web, $msg_news_banner, '');
+            $msg_news_banner = sprintf($msgformat['msg_news_banner'], 'javascript:void(0)', '/static/public/images/app/1.jpg', '新闻飞走了');
+            $data['msg'] = sprintf($msgformat['msg_news_web'], $msg_news_banner, '');
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
-                    $msg_news_banner = sprintf($_msg_news_banner, $_v['url'], $_v['picUrl'], $_v['title']);
+                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], $_v['title']);
                 }else{
-                    $msg_news_list .= sprintf($_msg_news_list, $_v['url'], $_v['title'], $_v['picUrl']);
+                    $msg_news_list .= sprintf($msgformat['msg_news_list'], $_v['url'], $_v['title'], $_v['picUrl']);
                 }
                 
                 if(($_k+1)%5 === 0){
-                    $data['msg'] .= sprintf($_msg_news_web, $msg_news_banner, $msg_news_list);
+                    $data['msg'] .= sprintf($msgformat['msg_news_web'], $msg_news_banner, $msg_news_list);
                     $msg_news_list = '';
                 }
             }
@@ -160,20 +160,20 @@ class NewsController extends Yaf_Controller_Abstract{
         $data['rtn'] = 0;
         $data['msg'] = $msg_news_list = $msg_news_banner = '';
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['code']!==200){
-            $msg_news_banner = sprintf($_msg_news_banner, 'javascript:void(0)', '/static/public/images/app/1.jpg', '新闻飞走了');
-            $data['msg'] = sprintf($_msg_news_web, $msg_news_banner, '');
+            $msg_news_banner = sprintf($msgformat['msg_news_banner'], 'javascript:void(0)', '/static/public/images/app/1.jpg', '新闻飞走了');
+            $data['msg'] = sprintf($msgformat['msg_news_web'], $msg_news_banner, '');
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
-                    $msg_news_banner = sprintf($_msg_news_banner, $_v['url'], $_v['picUrl'], $_v['title']);
+                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], $_v['title']);
                 }else{
-                    $msg_news_list .= sprintf($_msg_news_list, $_v['url'], $_v['title'], $_v['picUrl']);
+                    $msg_news_list .= sprintf($msgformat['msg_news_list'], $_v['url'], $_v['title'], $_v['picUrl']);
                 }
                 
                 if(($_k+1)%5 === 0){
-                    $data['msg'] .= sprintf($_msg_news_web, $msg_news_banner, $msg_news_list);
+                    $data['msg'] .= sprintf($msgformat['msg_news_web'], $msg_news_banner, $msg_news_list);
                     $msg_news_list = '';
                 }
             }

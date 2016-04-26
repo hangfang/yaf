@@ -1,7 +1,8 @@
 <?php
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
-$_msg_weather = <<<EOF
+$msgformat = array();
+$msgformat['msg_weather'] = <<<EOF
 天气(%s)
     日期：%s
     发布时间：%s
@@ -15,7 +16,7 @@ $_msg_weather = <<<EOF
     日落时间：%s        
 EOF;
     
-$_msg_stock = <<<EOF
+$msgformat['msg_stock'] = <<<EOF
 %s:
     股票代码: %s
     日期: %s
@@ -48,20 +49,20 @@ $_msg_stock = <<<EOF
 仅供参考，非投资依据。
 EOF;
     
-$_msg_lottery = <<<EOF
+$msgformat['msg_lottery'] = <<<EOF
 彩种：%s
 期号：%s
 时间：%s
 号码：%s
 EOF;
     
-$_msg_joke = <<<EOF
+$msgformat['msg_joke'] = <<<EOF
 标题：%s
             
 %s
 EOF;
 
-$_msg_unrecognized = <<<EOF
+$msgformat['msg_unrecognized'] = <<<EOF
 咦，您是说“%s”吗？
 可小i尚小，未能处理ㄒoㄒ
 
@@ -75,7 +76,7 @@ $_msg_unrecognized = <<<EOF
 感谢关注
 EOF;
         
-$_msg_to_large = <<<EOF
+$msgformat['msg_to_large'] = <<<EOF
 额，信息量太大
 请说重点(*≧▽≦*)
 
@@ -89,7 +90,7 @@ $_msg_to_large = <<<EOF
 感谢关注
 EOF;
 
-$_msg_welcome_back = <<<EOF
+$msgformat['msg_welcome_back'] = <<<EOF
 热烈欢迎老伙伴回归！
 
 1、发送如“北京”<a href="%s/#/query">查询</a>天气
@@ -102,7 +103,7 @@ $_msg_welcome_back = <<<EOF
 感谢关注
 EOF;
 
-$_msg_welcome_newbeing = <<<EOF
+$msgformat['msg_welcome_newbeing'] = <<<EOF
 撒花欢迎新朋友到来！
 
 1、发送如“北京”<a href="%s/#/query">查询</a>天气
@@ -115,25 +116,25 @@ $_msg_welcome_newbeing = <<<EOF
 感谢关注
 EOF;
        
-$_msg_position = <<<EOF
+$msgformat['msg_position'] = <<<EOF
 OK，我记住了
 您在%s！
 试试搜索周边？如酒店、美食...
 EOF;
     
-$_msg_position_expired = <<<EOF
+$msgformat['msg_position_expired'] = <<<EOF
 您的位置信息已很久远
 于[%s]定位
 为精确搜索周边，请重新发送位置
 EOF;
 
-$_msg_kuaidi = <<<EOF
+$msgformat['msg_kuaidi'] = <<<EOF
 公司名称：%s
 快递单号：%s
 物流信息：%s
 EOF;
 
-$_text_format = <<<EOF
+$msgformat['text_format'] = <<<EOF
 <xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -143,7 +144,7 @@ $_text_format = <<<EOF
 </xml>
 EOF;
     
-$_image_format = <<<EOF
+$msgformat['image_format'] = <<<EOF
 <xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -155,7 +156,7 @@ $_image_format = <<<EOF
 </xml>
 EOF;
     
-$_voice_format = <<<EOF
+$msgformat['voice_format'] = <<<EOF
 <xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -167,7 +168,7 @@ $_voice_format = <<<EOF
 </xml>
 EOF;
 
-$_video_format = <<<EOF
+$msgformat['video_format'] = <<<EOF
 <xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -181,7 +182,7 @@ $_video_format = <<<EOF
 </xml>
 EOF;
 
-$_music_format = <<<EOF
+$msgformat['music_format'] = <<<EOF
 <xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -197,7 +198,7 @@ $_music_format = <<<EOF
 </xml>
 EOF;
     
-$_news_format = <<<EOF
+$msgformat['news_format'] = <<<EOF
 <xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -208,7 +209,7 @@ $_news_format = <<<EOF
 </xml> 
 EOF;
     
-$_send_format = array(
+$msgformat['send_format'] = array(
     'text' => array('touser'=>'', 'msgtype'=>'text', 'text'=>array('content'=>'')),
     'image' => array('touser'=>'', 'msgtype'=>'image', 'image'=>array('media_id'=>'')),
     'voice' => array('touser'=>'', 'msgtype'=>'voice', 'voice'=>array('media_id'=>'')),
@@ -237,7 +238,7 @@ $_send_format = array(
 *  ToUserName	开发者微信号
 * @var array
 */
-$_receive_format = array(
+$msgformat['receive_format'] = array(
     'text' => array('ToUserName', 'FromUserName', 'CreateTime', 'MsgType', 'Content', 'MsgId'),
     'image' => array('ToUserName', 'FromUserName', 'CreateTime', 'MsgType', 'PicUrl', 'MediaId', 'MsgId'),
     'voice' => array('ToUserName', 'FromUserName', 'CreateTime', 'MsgType', 'MediaId', 'Format', 'MsgId', 'Recognition'),
@@ -248,7 +249,7 @@ $_receive_format = array(
     'event' => array('ToUserName', 'FromUserName', 'CreateTime', 'MsgType', 'Event', 'EventKey', 'Latitude', 'Longitude', 'Precision', 'Ticket', 'MsgId'),
 );
 
-$_msg_lottery_web = <<<EOF
+$msgformat['msg_lottery_web'] = <<<EOF
 <p class="weui_media_desc">彩种：%s</p>
 <p class="weui_media_desc">期号：%s</p>
 <p class="weui_media_desc">时间：%s</p>
@@ -256,13 +257,13 @@ $_msg_lottery_web = <<<EOF
 %s
 EOF;
     
-$_msg_lottery_extra = <<<EOF
+$msgformat['msg_lottery_extra'] = <<<EOF
 <p class="weui_media_desc">销量：%s</p>
 <p class="weui_media_desc">奖池：%s</p>
 %s
 EOF;
     
-$_ssq_pride = <<<EOF
+$msgformat['ssq_pride'] = <<<EOF
 <p class="weui_media_desc">一等奖：奖金%s&nbsp;&nbsp;共%s注</p>
 <p class="weui_media_desc">二等奖：奖金%s&nbsp;&nbsp;共%s注</p>
 <p class="weui_media_desc">三等奖：奖金%s&nbsp;&nbsp;共%s注</p>
@@ -271,7 +272,7 @@ $_ssq_pride = <<<EOF
 <p class="weui_media_desc">六等奖：奖金%s&nbsp;&nbsp;共%s注</p>
 EOF;
     
-$_dlt_pride = <<<EOF
+$msgformat['dlt_pride'] = <<<EOF
 <p class="weui_media_desc">一等奖追加：奖金%s&nbsp;&nbsp;共%s注</p>
 <p class="weui_media_desc">一&nbsp;&nbsp;&nbsp;等&nbsp;&nbsp;&nbsp;奖：奖金%s&nbsp;&nbsp;共%s注</p>
 <p class="weui_media_desc">二等奖追加：奖金%s&nbsp;&nbsp;共%s注</p>
@@ -285,21 +286,21 @@ $_dlt_pride = <<<EOF
 <p class="weui_media_desc">六&nbsp;&nbsp;&nbsp;等&nbsp;&nbsp;&nbsp;奖：奖金%s&nbsp;&nbsp;共%s注</p>
 EOF;
     
-$_fc3d_pride = <<<EOF
+$msgformat['fc3d_pride'] = <<<EOF
 <p class="weui_media_desc">直选：奖金%s&nbsp;&nbsp;共%s注</p>
 <p class="weui_media_desc">%s：奖金%s&nbsp;&nbsp;共%s注</p>
 EOF;
         
-$_pl3_pride = <<<EOF
+$msgformat['pl3_pride'] = <<<EOF
 <p class="weui_media_desc">直选：奖金%s&nbsp;&nbsp;共%s注</p>
 <p class="weui_media_desc">%s：奖金%s&nbsp;&nbsp;共%s注</p>
 EOF;
     
-$_pl5_pride = <<<EOF
+$msgformat['pl5_pride'] = <<<EOF
 <p class="weui_media_desc">直选：奖金%s&nbsp;&nbsp;共%s注</p>
 EOF;
 
-$_qxc_pride = <<<EOF
+$msgformat['qxc_pride'] = <<<EOF
 <p class="weui_media_desc">一等奖：奖金%s&nbsp;&nbsp;共%s注</p>
 <p class="weui_media_desc">二等奖：奖金%s&nbsp;&nbsp;共%s注</p>
 <p class="weui_media_desc">三等奖：奖金%s&nbsp;&nbsp;共%s注</p>
@@ -308,7 +309,7 @@ $_qxc_pride = <<<EOF
 <p class="weui_media_desc">六等奖：奖金%s&nbsp;&nbsp;共%s注</p>
 EOF;
 
-$_msg_stock_web = <<<EOF
+$msgformat['msg_stock_web'] = <<<EOF
 <p class="weui_media_desc blue">%s</p>
 <p class="weui_media_desc">股票代码: %s</p>
 <p class="weui_media_desc">日期: %s</p>
@@ -341,7 +342,7 @@ $_msg_stock_web = <<<EOF
 <p class="weui_media_desc blue">仅供参考，非投资依据。</p>
 EOF;
     
-$_msg_weather_web = <<<EOF
+$msgformat['msg_weather_web'] = <<<EOF
 <p class="weui_media_desc">%s天气：</p>
 <p class="weui_media_desc">    日期：%s</p>
 <p class="weui_media_desc">    发布时间：%s</p>
@@ -355,7 +356,7 @@ $_msg_weather_web = <<<EOF
 <p class="weui_media_desc">    日落时间：%s</p>      
 EOF;
     
-$_msg_news_web = <<<EOF
+$msgformat['msg_news_web'] = <<<EOF
 <div class="container-fluid">
 <!--<div class="hd">
 <h1 class="page_title">资讯</h1>
@@ -366,7 +367,7 @@ $_msg_news_web = <<<EOF
 </div>
 EOF;
 
-$_msg_news_banner = <<<EOF
+$msgformat['msg_news_banner'] = <<<EOF
 <li class="list-group-item">
 <a class="bg-wrapper" href="%s">
 <img src="%s" class="carousel-inner img-responsive" />
@@ -377,7 +378,7 @@ $_msg_news_banner = <<<EOF
 </li>    
 EOF;
     
-$_msg_news_list = <<<EOF
+$msgformat['msg_news_list'] = <<<EOF
 <li class="list-group-item">
 <a class="row" href="%s">
 <div class="col-xs-9 no-new-line">

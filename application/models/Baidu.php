@@ -106,7 +106,7 @@ class BaiduModel extends BaseModel{
             return $rt;
         }
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         if($rt['code'] === 200){
 
             $data = $_send_format['news'];
@@ -127,7 +127,7 @@ class BaiduModel extends BaseModel{
             return $data;
         }
         
-        $data = $_send_format['text'];
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '悲剧，美女都表示不约...';

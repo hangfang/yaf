@@ -633,3 +633,17 @@ if(!function_exists('ip_address')){
          return $ip;  
 	}
 }
+
+if(!function_exists('get_var_from_conf')){
+    function get_var_from_conf($filename){
+        $filename = basename($filename, '.php');
+        $var = Yaf_Registry::get($filename);
+		if(!$var){
+            Yaf_Loader::import(APPLICATION_PATH .'/conf/'.$filename.'.php');
+            Yaf_Registry::set($filename, $$filename);
+            return $$filename;
+        }else{
+            return $var;
+        }
+	}
+}

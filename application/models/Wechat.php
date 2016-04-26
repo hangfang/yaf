@@ -241,16 +241,16 @@ class WechatModel extends BaseModel{
     }
     
     public function autoAnwserWxMessage($msg){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         switch($msg['msgtype']){
             case 'image':
-                $msg = sprintf($_image_format, $msg['touser'], $msg['fromuser'], time(), $msg['image']['media_id']);
+                $msg = sprintf($msgformat['image_format'], $msg['touser'], $msg['fromuser'], time(), $msg['image']['media_id']);
                 break;
             case 'video':
-                $msg = sprintf($_video_format, $msg['touser'], $msg['fromuser'], time(), $msg['video']['media_id']);
+                $msg = sprintf($msgformat['video_format'], $msg['touser'], $msg['fromuser'], time(), $msg['video']['media_id']);
                 break;
             case 'music':
-                $msg = sprintf($_music_format, $msg['touser'], $msg['fromuser'], time(), $msg['music']['title'], $msg['music']['description'], $msg['music']['musicurl'], $msg['music']['hqmusicurl'], $msg['music']['hqmusicurl'], $msg['music']['thumbmediaid']);
+                $msg = sprintf($msgformat['music_format'], $msg['touser'], $msg['fromuser'], time(), $msg['music']['title'], $msg['music']['description'], $msg['music']['musicurl'], $msg['music']['hqmusicurl'], $msg['music']['hqmusicurl'], $msg['music']['thumbmediaid']);
                 break;
             case 'news':
                 $article_template = <<<EOF
@@ -265,10 +265,10 @@ EOF;
                 foreach($msg['articles'] as $_article){
                     $articles .= sprintf($article_template, $_article['title'], $_article['description'], $_article['picurl'], $_article['url']);
                 }
-                $msg = sprintf($_news_format, $msg['touser'], $msg['fromuser'], time(), count($msg['articles']), $articles);
+                $msg = sprintf($msgformat['news_format'], $msg['touser'], $msg['fromuser'], time(), count($msg['articles']), $articles);
                 break;
             default:
-                $msg = sprintf($_text_format, $msg['touser'], $msg['fromuser'], time(), $msg['text']['content']);
+                $msg = sprintf($msgformat['text_format'], $msg['touser'], $msg['fromuser'], time(), $msg['text']['content']);
                 break;
             
         }

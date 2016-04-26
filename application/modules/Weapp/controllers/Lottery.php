@@ -132,7 +132,7 @@ class LotteryController extends Yaf_Controller_Abstract{
         $data['class'] = 'lottery';
         
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/lottery.php');
+        $lottery = get_var_from_conf('lottery');
         $lottery = array_flip(array_unique(array_flip($lottery)));
         
         $data['lotteryList'] = $lottery;
@@ -181,7 +181,7 @@ class LotteryController extends Yaf_Controller_Abstract{
         $request = new Yaf_Request_Http();
         $response = new Yaf_Response_Http();
         if(!$request->isXmlHttpRequest()){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['request_not_allowed']));
             $response->response();
@@ -196,7 +196,7 @@ class LotteryController extends Yaf_Controller_Abstract{
         $data['recordcnt'] = $data['recordcnt'] ? $data['recordcnt'] : 1;
 
         if(!$data['lotterycode']){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['lottery_lack_of_lotterycode_error']));
             $response->response();
@@ -207,17 +207,17 @@ class LotteryController extends Yaf_Controller_Abstract{
         $rt = $lotteryModel->getLottery($data);
 
         if(empty($rt)){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['get_lottery_no_result_found']));
             $response->response();
             return false;
         }
 
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/lottery.php');
+        $lottery = get_var_from_conf('lottery');
         $lottery = array_flip($lottery);
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         foreach($rt as $_v){
             $code = array();
             isset($_v['a']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($_v['a'], 2, 0, STR_PAD_LEFT) : $_v['a'];
@@ -231,33 +231,33 @@ class LotteryController extends Yaf_Controller_Abstract{
             $prideInfo = '';
             switch($data['lotterycode']){
                 case 'ssq':
-                    $prideInfo = sprintf($_ssq_pride, $_v['first'], $_v['first_num'], $_v['second'], $_v['second_num'], $_v['third'], $_v['third_num'], $_v['forth'], $_v['forth_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
+                    $prideInfo = sprintf($msgformat['ssq_pride'], $_v['first'], $_v['first_num'], $_v['second'], $_v['second_num'], $_v['third'], $_v['third_num'], $_v['forth'], $_v['forth_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
                     $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', array_slice($code, 0, 6)).'</span><span class="ballbg_blue">'.$code[6].'</span>';
                     break;
                 case 'dlt':
-                    $prideInfo = sprintf($_dlt_pride, $_v['first_add'], $_v['first_add_num'], $_v['first'], $_v['first_num'], $_v['second_add'], $_v['second_add_num'], $_v['second'], $_v['second_num'], $_v['third_add'], $_v['third_add_num'], $_v['third'], $_v['third_num'], $_v['forth_add'], $_v['forth_add_num'], $_v['forth'], $_v['forth_num'], $_v['fivth_add'], $_v['fivth_add_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
+                    $prideInfo = sprintf($msgformat['dlt_pride'], $_v['first_add'], $_v['first_add_num'], $_v['first'], $_v['first_num'], $_v['second_add'], $_v['second_add_num'], $_v['second'], $_v['second_num'], $_v['third_add'], $_v['third_add_num'], $_v['third'], $_v['third_num'], $_v['forth_add'], $_v['forth_add_num'], $_v['forth'], $_v['forth_num'], $_v['fivth_add'], $_v['fivth_add_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
                     $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', array_slice($code, 0, 5)).'</span><span class="ballbg_blue">'.implode('</span><span class="ballbg_blue">', array_slice($code, 5, 2)).'</span>';
                     break;
                 case 'fc3d':
-                    $prideInfo = sprintf($_fc3d_pride, $_v['first'], $_v['first_num'], $_v['second']>200?'组三':'组六', $_v['second'], $_v['second_num']);
+                    $prideInfo = sprintf($msgformat['fc3d_pride'], $_v['first'], $_v['first_num'], $_v['second']>200?'组三':'组六', $_v['second'], $_v['second_num']);
                     $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
                     break;
                 case 'pl3':
-                    $prideInfo = sprintf($_pl3_pride, $_v['first'], $_v['first_num'], $_v['second']>200?'组三':'组六', $_v['second'], $_v['second_num']);
+                    $prideInfo = sprintf($msgformat['pl3_pride'], $_v['first'], $_v['first_num'], $_v['second']>200?'组三':'组六', $_v['second'], $_v['second_num']);
                     $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
                     break;
                 case 'pl5':
-                    $prideInfo = sprintf($_pl5_pride, $_v['first'], $_v['first_num']);
+                    $prideInfo = sprintf($msgformat['pl5_pride'], $_v['first'], $_v['first_num']);
                     $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
                     break;
                 case 'qxc':
-                    $prideInfo = sprintf($_qxc_pride, $_v['first'], $_v['first_num'], $_v['second'], $_v['second_num'], $_v['third'], $_v['third_num'], $_v['forth'], $_v['forth_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
+                    $prideInfo = sprintf($msgformat['qxc_pride'], $_v['first'], $_v['first_num'], $_v['second'], $_v['second_num'], $_v['third'], $_v['third_num'], $_v['forth'], $_v['forth_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
                     $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
                     break;
             }
 
-            $extra = sprintf($_msg_lottery_extra, number_format($_v['remain'], 0, '', ','), number_format($_v['sell'], 0, '', ','), $prideInfo);
-            $msg = sprintf($_msg_lottery_web, $lottery[$data['lotterycode']], $_v['expect'], substr($_v['insert_time'], 0, 10), $openCode, $extra);
+            $extra = sprintf($msgformat['msg_lottery_extra'], number_format($_v['remain'], 0, '', ','), number_format($_v['sell'], 0, '', ','), $prideInfo);
+            $msg = sprintf($msgformat['msg_lottery_web'], $lottery[$data['lotterycode']], $_v['expect'], substr($_v['insert_time'], 0, 10), $openCode, $extra);
         }
 
         $data = array();

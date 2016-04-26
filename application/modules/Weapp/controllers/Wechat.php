@@ -54,8 +54,8 @@ class WechatController extends Yaf_Controller_Abstract {
             
             $msg = array();
             
-            Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-            foreach($_receive_format[$msgXml['MsgType']] as $_v){
+            $msgformat = get_var_from_conf('msgformat');
+            foreach($msgformat['receive_format'][$msgXml['MsgType']] as $_v){
                 if($msgXml['MsgType']==='event'){
                     if(in_array($_v, array('EventKey', 'Latitude', 'Longitude', 'Precision'))){
                         empty($msgXml[$_v]) && $msg[$_v] = $msgXml[$_v] = '';
@@ -79,10 +79,10 @@ class WechatController extends Yaf_Controller_Abstract {
         $contents = trim(str_replace(array('，', ','), array(' ', ' '), $contents));
         $contents = explode(' ', $contents);
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/kdniao.php');
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/weather.php');
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/wechat.php');
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/lottery.php');
+        $kdniao = get_var_from_conf('kdniao');
+        $weather = get_var_from_conf('weather');
+        $wechat = get_var_from_conf('wechat');
+        $lottery = get_var_from_conf('lottery');
         switch(count($contents)){
             case 1:
                 if(in_array($contents[0], array_keys($kdniao))){//快递公司
@@ -127,8 +127,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function image($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '抱歉，图片处理comming soon...';
@@ -144,8 +144,8 @@ class WechatController extends Yaf_Controller_Abstract {
         }
         
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '正在接入语音机器人...';
@@ -155,8 +155,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function video($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '分享视频真的好吗？';
@@ -166,8 +166,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function shortvideo($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = 'Oh, I like it';
@@ -190,8 +190,8 @@ class WechatController extends Yaf_Controller_Abstract {
 //            $this->WechatModel->sendMessage($data);
 //
 //        }
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = sprintf($_msg_position, $msgXml['Label']);
@@ -202,8 +202,8 @@ class WechatController extends Yaf_Controller_Abstract {
     
     private function link($msgXml){
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '等等，对，这链接有毒！';
@@ -223,8 +223,8 @@ class WechatController extends Yaf_Controller_Abstract {
         $wechatModel = new WechatModel();
         $rt = $wechatModel->subscribe($msgXml['FromUserName']);
 
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         
@@ -246,8 +246,8 @@ class WechatController extends Yaf_Controller_Abstract {
     * @todo 扫描二维码的事件推送
     */
     private function eventScan($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '扫描结果：'. $msgXml['EventKey'];
@@ -262,8 +262,8 @@ class WechatController extends Yaf_Controller_Abstract {
     private function eventLocation($msgXml){
         //$rt = $this->WechatModel->location($msgXml);
 
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = $msgXml['FromUserName'] .'上报位置';
@@ -276,8 +276,8 @@ class WechatController extends Yaf_Controller_Abstract {
     * @todo 点击菜单拉取消息的事件推送
     */
     private function eventClick($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = $msgXml['FromUserName'] .'点击菜单';
@@ -290,8 +290,8 @@ class WechatController extends Yaf_Controller_Abstract {
     * @todo 点击菜单跳转链接时的事件推送
     */
     private function eventView($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = $msgXml['FromUserName'] .'菜单跳转';
@@ -301,8 +301,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function daigou($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['news'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['news'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
 
@@ -321,8 +321,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function getExpressCom($msg, $msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '咳，终于找到“'. $msg .'”公司...';
@@ -348,8 +348,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function unrecognize($msg, $msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = sprintf($_msg_unrecognized, $msg, $baseUrl, $baseUrl, $baseUrl, $baseUrl);
@@ -359,8 +359,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function hopeSubscribe($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '搜索“'. WX_HK_ACCOUNT .'”吧'."\n".'期待您的关注n(*≧▽≦*)n';
@@ -370,8 +370,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function tellMeYourPosition($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '爽快点，告诉我你的位置吧？';
@@ -381,11 +381,11 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function searchAround($msg, $msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
+        $msgformat = get_var_from_conf('msgformat');
         $wechatModel = new WechatModel();
         $lastMsg = $wechatModel->getLastReceiveMsg($msgXml, array('MsgType'=>'location'));
         if(empty($lastMsg)){
-            $data = $_send_format['text'];
+            $data = $msgformat['send_format']['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
             $data['text']['content'] = '请发送您的位置，以精准定位';
@@ -395,7 +395,7 @@ class WechatController extends Yaf_Controller_Abstract {
         }elseif(time()-strtotime($lastMsg['CreateTime']) > 300){
             
             $friendlyDate = new FriendlyDate();
-            $data = $_send_format['text'];
+            $data = $msgformat['send_format']['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
             $data['text']['content'] = sprintf($_msg_position_expired, $friendlydate->timeDiff($lastMsg['CreateTime']));
@@ -424,7 +424,7 @@ class WechatController extends Yaf_Controller_Abstract {
             list($tmp, $nu) = explode('：', $com_nu[1]);
             
             
-            Yaf_Loader::import(APPLICATION_PATH .'/conf/kdniao.php');
+            $kdniao = get_var_from_conf('kdniao');
             $kuaidiModel = new KuaidiModel();
             $data = $kuaidiModel->kdniao($kdniao[$com], $nu, $msgXml);
 
@@ -440,7 +440,7 @@ class WechatController extends Yaf_Controller_Abstract {
             $city = explode("\n", $lastMessage['content']);
 
             preg_match_all('/\((.+)\)/', $city[0], $match);
-            Yaf_Loader::import(APPLICATION_PATH .'/conf/weather.php');
+            $weather = get_var_from_conf('weather');
             $baiduModel = new BaiduModel();
             $data = $baiduModel->getWeather($weather[$match[1][0]], $msgXml);
             
@@ -466,8 +466,8 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function complexedMessage($msgXml){
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = sprintf($_msg_to_large, $baseUrl, $baseUrl, $baseUrl, $baseUrl);

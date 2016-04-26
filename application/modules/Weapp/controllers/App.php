@@ -8,7 +8,7 @@ class AppController extends Yaf_Controller_Abstract{
         $request = new Yaf_Request_Http();
         $response = new Yaf_Response_Http();
         if(!$request->isXmlHttpRequest()){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['request_not_allowed']));
             $response->response();
@@ -19,7 +19,7 @@ class AppController extends Yaf_Controller_Abstract{
         $nu = $request->getPost('nu');
 
         if(!$com){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['express_lack_of_com_error']));
             $response->response();
@@ -27,7 +27,7 @@ class AppController extends Yaf_Controller_Abstract{
         }
 
         if(!$nu){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['express_lack_of_nu_error']));
             $response->response();
@@ -69,7 +69,7 @@ class AppController extends Yaf_Controller_Abstract{
         $request = new Yaf_Request_Http();
         $response = new Yaf_Response_Http();
         if(!$request->isXmlHttpRequest()){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['request_not_allowed']));
             $response->response();
@@ -78,7 +78,7 @@ class AppController extends Yaf_Controller_Abstract{
         
         $stockid = $request->getPost('stockid');
         if(!$stockid){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['stock_lack_of_stockid_error']));
             $response->response();
@@ -108,8 +108,8 @@ class AppController extends Yaf_Controller_Abstract{
         }
 
         $stockInfo = $rt['retData']['stockinfo'][0];
-        Yaf_Loader::import(APPLICATION_PATH.'/conf/msgformat.php');
-        $msg = sprintf($_msg_stock_web, $stockInfo['name'], $stockInfo['code'], $stockInfo['date'], $stockInfo['time'], $stockInfo['OpenningPrice'], $stockInfo['closingPrice'], $stockInfo['currentPrice'], $stockInfo['hPrice'], $stockInfo['lPrice'], $stockInfo['competitivePrice'], $stockInfo['auctionPrice'], number_format($stockInfo['totalNumber']/1000000, 1), number_format($stockInfo['turnover']/100000000, 2), number_format($stockInfo['increase']-0, 2).'%', number_format($stockInfo['buyOne']/100, 0), $stockInfo['buyOnePrice'], number_format($stockInfo['buyTwo']/100, 0), $stockInfo['buyTwoPrice'], number_format($stockInfo['buyThree']/100, 0), $stockInfo['buyThreePrice'], number_format($stockInfo['buyFour']/100, 0), $stockInfo['buyFourPrice'], number_format($stockInfo['buyFive']/100, 0), $stockInfo['buyFivePrice'], number_format($stockInfo['sellOne']/100, 0), $stockInfo['sellOnePrice'], number_format($stockInfo['sellTwo']/100, 0), $stockInfo['sellTwoPrice'], number_format($stockInfo['sellThree']/100, 0), $stockInfo['sellThreePrice'], number_format($stockInfo['sellFour']/100, 0), $stockInfo['sellFourPrice'], number_format($stockInfo['sellFive']/100, 0), $stockInfo['sellFivePrice'], $stockInfo['minurl'], $stockInfo['dayurl'], $stockInfo['weekurl'], $stockInfo['monthurl']);
+        $msgformat = get_var_from_conf('msgformat');
+        $msg = sprintf($msgformat['msg_stock_web'], $stockInfo['name'], $stockInfo['code'], $stockInfo['date'], $stockInfo['time'], $stockInfo['OpenningPrice'], $stockInfo['closingPrice'], $stockInfo['currentPrice'], $stockInfo['hPrice'], $stockInfo['lPrice'], $stockInfo['competitivePrice'], $stockInfo['auctionPrice'], number_format($stockInfo['totalNumber']/1000000, 1), number_format($stockInfo['turnover']/100000000, 2), number_format($stockInfo['increase']-0, 2).'%', number_format($stockInfo['buyOne']/100, 0), $stockInfo['buyOnePrice'], number_format($stockInfo['buyTwo']/100, 0), $stockInfo['buyTwoPrice'], number_format($stockInfo['buyThree']/100, 0), $stockInfo['buyThreePrice'], number_format($stockInfo['buyFour']/100, 0), $stockInfo['buyFourPrice'], number_format($stockInfo['buyFive']/100, 0), $stockInfo['buyFivePrice'], number_format($stockInfo['sellOne']/100, 0), $stockInfo['sellOnePrice'], number_format($stockInfo['sellTwo']/100, 0), $stockInfo['sellTwoPrice'], number_format($stockInfo['sellThree']/100, 0), $stockInfo['sellThreePrice'], number_format($stockInfo['sellFour']/100, 0), $stockInfo['sellFourPrice'], number_format($stockInfo['sellFive']/100, 0), $stockInfo['sellFivePrice'], $stockInfo['minurl'], $stockInfo['dayurl'], $stockInfo['weekurl'], $stockInfo['monthurl']);
 
         $data = array();
         $data['rtn'] = 0;
@@ -125,7 +125,7 @@ class AppController extends Yaf_Controller_Abstract{
         $request = new Yaf_Request_Http();
         $response = new Yaf_Response_Http();
         if(!$request->isXmlHttpRequest()){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['request_not_allowed']));
             $response->response();
@@ -135,7 +135,7 @@ class AppController extends Yaf_Controller_Abstract{
         $cityid = $request->getPost('cityid');
 
         if(!$cityid){
-            Yaf_Loader::import(APPLICATION_PATH.'/conf/error.php');
+            $error = get_var_from_conf('error');
             $response->setHeader('Content-Type', 'application/json', true);
             $response->setBody(json_encode($error['weather_lack_of_cityid_error']));
             $response->response();
@@ -143,7 +143,7 @@ class AppController extends Yaf_Controller_Abstract{
         }
 
 
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/weather.php');
+        $weather = get_var_from_conf('weather');
         $baiduModel = new BaiduModel();
         $rt = $baiduModel->getWeather($weather[$cityid]);
 
@@ -159,8 +159,8 @@ class AppController extends Yaf_Controller_Abstract{
         }
         
         $weather = $rt['retData'];
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $msg = sprintf($_msg_weather_web, $weather['city'], $weather['date'], $weather['time'], $weather['weather'], $weather['temp'], $weather['h_tmp'], $weather['l_tmp'], $weather['WD'], $weather['WS'], $weather['sunrise'], $weather['sunset']);
+        $msgformat = get_var_from_conf('msgformat');
+        $msg = sprintf($msgformat['msg_weather_web'], $weather['city'], $weather['date'], $weather['time'], $weather['weather'], $weather['temp'], $weather['h_tmp'], $weather['l_tmp'], $weather['WD'], $weather['WS'], $weather['sunrise'], $weather['sunset']);
 
         $data = array();
         $data['rtn'] = 0;
