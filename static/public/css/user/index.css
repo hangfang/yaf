@@ -1,0 +1,28 @@
+body {background-color: #efeff4;}
+ p { font-size:14px;}
+
+ #container {margin-top: 10px; padding: 0px;}
+ .weui_panel_hd {text-align: center;}
+ .panel1 .weui_panel_bd {background:url(/static/public/img/user/bg.png) no-repeat; height: 115px}
+ .head-img {position: absolute; top: 1.65rem; left: 4.62rem; width: 75px; height: 75px; border-radius: 39px; background-color: #fff;}
+ .head-dsb {position: absolute; top: 2.85rem; left: 12.78rem;}
+ .head-dsb p {;color: #fff;}
+ .dsb-id { margin-top: 0.08rem;}
+
+ .panel2 {width: 100%; height: 12%; margin-top: 0.26rem; background-color: #fff;}
+ .panel2 ul {list-style: none;}
+ .panel2 ul li { position: relative; float: left; width: 30%; height: 28px; text-align: center; margin-left: 10px;}
+ .idt {display: block; position: absolute; left: 0.68rem; float: left; width: 20px; height: 18px; background: url(/static/public/img/user/indent.png) no-repeat; background-size: 20px 18px;}
+ .clt {display: block; position: absolute; left: 0.68rem; float: left; width: 20px; height: 18px; background: url(/static/public/img/user/clt.png) no-repeat; background-size: 20px 18px;}
+ .rcm {display: block; position: absolute; left: 0.68rem; float: left; width: 20px; height: 18px; background: url(/static/public/img/user/rcm.png) no-repeat; background-size: 20px 18px;}
+
+ .panel3, .panel4, .panel5 {padding: 0px;}
+ .panel3 .bd, .panel4 .bd, .panel5 .bd {width: 100%;}
+ .panel3 .weui_cell, .panel4 .weui_cell, .panel5 .weui_cell {text-decoration: none;}
+ .panel3 .weui_cell_bd p, .panel4 .weui_cell_bd p, .panel5 .weui_cell_bd p {margin: 0px; color: #838383;}
+
+ .panel4 .weui_switch { height: 22px;}
+ .panel4 .weui_switch:before { height: 20px;}
+ .panel4 .weui_switch:after { height: 20px;}
+ .panel4 .weui_cell_ft:after {display: none;}
+ .panel4 .weui_cell {padding-top: 5px; padding-bottom: 5px;}
