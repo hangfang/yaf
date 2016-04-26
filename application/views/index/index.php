@@ -8,6 +8,8 @@ include dirname(dirname(__FILE__)).'/common/weui/header.php';
     h1 { color: #444; font-size: 1.2em; padding: 14px 2px 12px; margin: 0px; }
     h1 em { font-style: normal; color: #999; }
     a { color: #888; text-decoration: none; }
+    
+    #container {margin: 0px;}
     #wrapper { width: 400px; margin: 40px auto; }
 
     #play_list { padding: 0px; margin: 0px; list-style: decimal-leading-zero inside; color: #ccc; border-top: 1px solid #ccc; font-size: 0.9em; }
