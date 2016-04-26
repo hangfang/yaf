@@ -11,10 +11,19 @@ class ErrorController extends Yaf_Controller_Abstract {
     public function errorAction($exception){
         switch($exception->getCode()) {
             case YAF_ERR_NOTFOUND_CONTROLLER:
+                log_message('error', 'YAF_ERR_NOTFOUND_CONTROLLER');
+                header( "location: /index/missing" );
+                return false;
             case YAF_ERR_NOTFOUND_ACTION:
+                log_message('error', 'YAF_ERR_NOTFOUND_ACTION');
+                header( "location: /index/missing" );
+                return false;
             case YAF_ERR_NOTFOUND_MODULE:
+                log_message('error', 'YAF_ERR_NOTFOUND_MODULE');
+                header( "location: /index/missing" );
+                return false;
             case YAF_ERR_NOTFOUND_VIEW:
-                log_message('error', print_r($exception->getTrace(), true));
+                log_message('error', 'YAF_ERR_NOTFOUND_VIEW');
                 header( "location: /index/missing" );
                 return false;
         }
