@@ -53,7 +53,7 @@ include dirname(dirname(__FILE__)).'/common/weui/header.php';
                     便利
                 </p>
             </a>
-            <a href="/lottery/index" class="weui_grid">
+            <a href="/weapp/lottery/index" class="weui_grid">
                 <div class="weui_grid_icon">
                     <i class="icon icon_toast"></i>
                 </div>
@@ -62,7 +62,7 @@ include dirname(dirname(__FILE__)).'/common/weui/header.php';
                 </p>
             </a>
            
-            <a href="/app/news" class="weui_grid">
+            <a href="/weapp/news/wxhot" class="weui_grid">
                 <div class="weui_grid_icon">
                     <i class="icon icon_progress"></i>
                 </div>
@@ -70,7 +70,7 @@ include dirname(dirname(__FILE__)).'/common/weui/header.php';
                     新闻资讯
                 </p>
             </a>
-            <a href="/map/index" class="weui_grid">
+            <a href="/weapp/map/index" class="weui_grid">
                 <div class="weui_grid_icon">
                     <i class="icon icon_button"></i>
                 </div>

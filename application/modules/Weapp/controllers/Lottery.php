@@ -129,6 +129,7 @@ class LotteryController extends Yaf_Controller_Abstract{
     public function indexAction(){
         $data = array();
         $data['title'] = '彩票查询';
+        $data['class'] = 'lottery';
         
         
         Yaf_Loader::import(APPLICATION_PATH .'/conf/lottery.php');

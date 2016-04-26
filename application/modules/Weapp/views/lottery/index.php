@@ -74,4 +74,4 @@ EOF;
 </div>
 
 <script src="/static/public/js/lottery/lottery.js?d=20160110"></script>
-<?php APPLICATION_PATH.'/application/views/common/weui/footer.php';?>
+<?php include APPLICATION_PATH.'/application/views/common/weui/footer.php';?>

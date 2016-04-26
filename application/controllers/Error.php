@@ -30,6 +30,7 @@ class ErrorController extends Yaf_Controller_Abstract {
 
         $conent = print_r($exception->getTrace(), true);
         log_message('error', $conent);
-        $this->getView()->assign('content', $conent);
+        header( "location: /index/broken" );
+        return false;
     }
 }
