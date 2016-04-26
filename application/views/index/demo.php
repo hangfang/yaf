@@ -1094,5 +1094,5 @@ include dirname(dirname(__FILE__)).'/common/weui/header.php';
 
 <script src="/static/weui/js/zepto.min.js"></script>
 <script src="/static/weui/js/router.min.js"></script>
-<script src="/static/public/js/app/demo.js"></script>
+<script src="/static/public/js/index/demo.js"></script>
 <?php include dirname(dirname(__FILE__)).'/common/weui/footer.php';?>
