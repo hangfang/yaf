@@ -2,6 +2,13 @@
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 $msgformat = array();
+$msgformat['msg_around'] = <<<EOF
+搜索周边：%s
+%s
+
+注：以%s的位置计算
+EOF;
+
 $msgformat['msg_weather'] = <<<EOF
 天气(%s)
     日期：%s
