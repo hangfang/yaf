@@ -1,7 +1,7 @@
 <?php
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
-class Jobnew extends Yaf_Controller_Abstract {
+class JobNewController extends Yaf_Controller_Abstract {
     public function dltAction(){
         $request = new Yaf_Request_Http();
         $expect = $request->getQuery('eventname', '');
