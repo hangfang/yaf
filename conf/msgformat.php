@@ -54,6 +54,7 @@ $msgformat['msg_lottery'] = <<<EOF
 期号：%s
 时间：%s
 号码：%s
+%s
 EOF;
     
 $msgformat['msg_joke'] = <<<EOF

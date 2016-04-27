@@ -530,8 +530,8 @@ class WechatController extends Yaf_Controller_Abstract {
         $data = array();
         $data['lotterycode'] = $lotteryCode;
         $data['recordcnt'] = 1;
-        $baiduModel = new BaiduModel();
-        $data = $baiduModel->getLottery($data, $msgXml);
+        $lotteryModel = new LotteryModel();
+        $data = $lotteryModel->getLottery($data, $msgXml);
         
         $wechatModel = new WechatModel();
         $wechatModel->sendMessage($data);

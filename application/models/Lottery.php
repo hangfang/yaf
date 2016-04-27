@@ -129,9 +129,100 @@ class LotteryModel extends BaseModel{
         return array();
     }
     
-    public function getLottery($data){
+    public function getLottery($data, $msgXml=array()){
         $db = Database::getInstance();
         $query = $db->order_by('id', 'desc')->limit($data['recordcnt'], 0)->get('app_'. $data['lotterycode']);
-        return $query && $query->num_rows()>0 ? $query->result_array() : array();
+        $rt = $query && $query->num_rows()>0 ? $query->result_array() : array();
+        
+        if(empty($rt)){
+            $baiduModel = new BaiduModel();
+            return $baiduModel->getLottery($data, $msgXml);
+        }
+        
+        if(empty($msgXml)){
+            return $rt;
+        }
+        
+        $msgformat = get_var_from_conf('msgformat');
+            
+        $data = $msgformat['send_format']['text'];
+        $data['touser'] = $msgXml['FromUserName'];
+        $data['fromuser'] = $msgXml['ToUserName'];
+
+        $lottery = get_var_from_conf('lottery');
+        $lottery = array_flip($lottery);
+        switch($data['lotterycode']){
+            case 'ssq':
+                $msg_extra = <<<EOF
+销量: %s
+奖池: %s
+一等奖: 奖金%s, 共%s注
+二等奖: 奖金%s, 共%s注
+三等奖: 奖金%s, 共%s注
+四等奖: 奖金%s, 共%s注
+五等奖: 奖金%s, 共%s注
+六等奖: 奖金%s, 共%s注
+EOF;
+                $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
+                break;
+            case 'fc3d':
+                $msg_extra = <<<EOF
+销量: %s
+奖池: %s
+一等奖: 奖金%s, 共%s注
+二等奖: 奖金%s, 共%s注
+EOF;
+                $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num']);
+                break;
+            case 'dlt':
+                $msg_extra = <<<EOF
+销量: %s
+奖池: %s
+一等奖: 奖金%s, 共%s注
+一等奖追加: 奖金%s, 共%s注
+二等奖: 奖金%s, 共%s注
+二等奖追加: 奖金%s, 共%s注
+三等奖: 奖金%s, 共%s注
+三等奖追加: 奖金%s, 共%s注
+四等奖: 奖金%s, 共%s注
+四等奖追加: 奖金%s, 共%s注
+五等奖: 奖金%s, 共%s注
+五等奖追加: 奖金%s, 共%s注
+六等奖: 奖金%s, 共%s注
+EOF;
+                $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['first_add'], $rt['first_add_num'], $rt['second'], $rt['second_num'], $rt['second_add'], $rt['second_add_num'], $rt['third'], $rt['third_num'], $rt['third_add'], $rt['third_add_num'], $rt['forth'], $rt['forth_num'], $rt['forth_add'], $rt['forth_add_num'], $rt['fivth'], $rt['fivth_num'], $rt['fivth_add'], $rt['fivth_add_num'], $rt['sixth'], $rt['sixth_num']);
+                case 'pls':
+                    $msg_extra = <<<EOF
+销量: %s
+奖池: %s
+一等奖: 奖金%s, 共%s注
+二等奖: 奖金%s, 共%s注
+EOF;
+                    $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num']);
+                    break;
+                case 'plw':
+                    $msg_extra = <<<EOF
+销量: %s
+奖池: %s
+一等奖: 奖金%s, 共%s注
+EOF;
+                    $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num']);
+                    break;
+                case 'qxc':
+                    $msg_extra = <<<EOF
+销量: %s
+奖池: %s
+一等奖: 奖金%s, 共%s注
+二等奖: 奖金%s, 共%s注
+三等奖: 奖金%s, 共%s注
+四等奖: 奖金%s, 共%s注
+五等奖: 奖金%s, 共%s注
+六等奖: 奖金%s, 共%s注
+EOF;
+                    $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
+                    break;
+        }
+        $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$data['lotteryCode']], $tmp['expect'], $tmp['openTime'], $tmp['openCode'], $msg_extra);
+        return $data;
     }
 }
