@@ -157,7 +157,7 @@ class LotteryModel extends BaseModel{
 六等奖: 奖金%s, 共%s注
 EOF;
                 $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
-                $rt['openCode'] = str_pad($rt['a'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['b'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['c'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['d'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['e'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['f'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['g'], 2, '0', STR_PAD_LEFT);
+                $rt['openCode'] = str_pad($rt['a'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['b'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['c'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['d'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['e'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['f'], 2, '0', STR_PAD_LEFT).'+'.str_pad($rt['g'], 2, '0', STR_PAD_LEFT);
                 break;
             case 'fc3d':
                 $msg_extra = <<<EOF
@@ -168,7 +168,6 @@ EOF;
 EOF;
                 $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num']);
                 $rt['openCode'] = $rt['a'].','.$rt['b'].','.$rt['c'];
-                
                 break;
             case 'dlt':
                 $msg_extra = <<<EOF
@@ -188,6 +187,7 @@ EOF;
 EOF;
                 $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['first_add'], $rt['first_add_num'], $rt['second'], $rt['second_num'], $rt['second_add'], $rt['second_add_num'], $rt['third'], $rt['third_num'], $rt['third_add'], $rt['third_add_num'], $rt['forth'], $rt['forth_num'], $rt['forth_add'], $rt['forth_add_num'], $rt['fivth'], $rt['fivth_num'], $rt['fivth_add'], $rt['fivth_add_num'], $rt['sixth'], $rt['sixth_num']);
                 $rt['openCode'] = str_pad($rt['a'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['b'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['c'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['d'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['e'], 2, '0', STR_PAD_LEFT).'+'.str_pad($rt['f'], 2, '0', STR_PAD_LEFT).' '.str_pad($rt['g'], 2, '0', STR_PAD_LEFT);
+                break;
             case 'pls':
                 $msg_extra = <<<EOF
 销量: %s
