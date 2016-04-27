@@ -218,47 +218,45 @@ class LotteryController extends Yaf_Controller_Abstract{
         $lottery = array_flip($lottery);
         
         $msgformat = get_var_from_conf('msgformat');
-        foreach($rt as $_v){
-            $code = array();
-            isset($_v['a']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($_v['a'], 2, 0, STR_PAD_LEFT) : $_v['a'];
-            isset($_v['b']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($_v['b'], 2, 0, STR_PAD_LEFT) : $_v['b'];
-            isset($_v['c']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($_v['c'], 2, 0, STR_PAD_LEFT) : $_v['c'];
-            isset($_v['d']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($_v['d'], 2, 0, STR_PAD_LEFT) : $_v['d'];
-            isset($_v['e']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($_v['e'], 2, 0, STR_PAD_LEFT) : $_v['e'];
-            isset($_v['f']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($_v['f'], 2, 0, STR_PAD_LEFT) : $_v['f'];
-            isset($_v['g']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($_v['g'], 2, 0, STR_PAD_LEFT) : $_v['g'];
+        $code = array();
+        isset($rt['a']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($rt['a'], 2, 0, STR_PAD_LEFT) : $rt['a'];
+        isset($rt['b']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($rt['b'], 2, 0, STR_PAD_LEFT) : $rt['b'];
+        isset($rt['c']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($rt['c'], 2, 0, STR_PAD_LEFT) : $rt['c'];
+        isset($rt['d']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($rt['d'], 2, 0, STR_PAD_LEFT) : $rt['d'];
+        isset($rt['e']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($rt['e'], 2, 0, STR_PAD_LEFT) : $rt['e'];
+        isset($rt['f']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($rt['f'], 2, 0, STR_PAD_LEFT) : $rt['f'];
+        isset($rt['g']) && $code[] = in_array($data['lotterycode'], array('ssq', 'dlt', 'qlc')) ? str_pad($rt['g'], 2, 0, STR_PAD_LEFT) : $rt['g'];
 
-            $prideInfo = '';
-            switch($data['lotterycode']){
-                case 'ssq':
-                    $prideInfo = sprintf($msgformat['ssq_pride'], $_v['first'], $_v['first_num'], $_v['second'], $_v['second_num'], $_v['third'], $_v['third_num'], $_v['forth'], $_v['forth_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
-                    $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', array_slice($code, 0, 6)).'</span><span class="ballbg_blue">'.$code[6].'</span>';
-                    break;
-                case 'dlt':
-                    $prideInfo = sprintf($msgformat['dlt_pride'], $_v['first_add'], $_v['first_add_num'], $_v['first'], $_v['first_num'], $_v['second_add'], $_v['second_add_num'], $_v['second'], $_v['second_num'], $_v['third_add'], $_v['third_add_num'], $_v['third'], $_v['third_num'], $_v['forth_add'], $_v['forth_add_num'], $_v['forth'], $_v['forth_num'], $_v['fivth_add'], $_v['fivth_add_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
-                    $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', array_slice($code, 0, 5)).'</span><span class="ballbg_blue">'.implode('</span><span class="ballbg_blue">', array_slice($code, 5, 2)).'</span>';
-                    break;
-                case 'fc3d':
-                    $prideInfo = sprintf($msgformat['fc3d_pride'], $_v['first'], $_v['first_num'], $_v['second']>200?'组三':'组六', $_v['second'], $_v['second_num']);
-                    $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
-                    break;
-                case 'pl3':
-                    $prideInfo = sprintf($msgformat['pl3_pride'], $_v['first'], $_v['first_num'], $_v['second']>200?'组三':'组六', $_v['second'], $_v['second_num']);
-                    $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
-                    break;
-                case 'pl5':
-                    $prideInfo = sprintf($msgformat['pl5_pride'], $_v['first'], $_v['first_num']);
-                    $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
-                    break;
-                case 'qxc':
-                    $prideInfo = sprintf($msgformat['qxc_pride'], $_v['first'], $_v['first_num'], $_v['second'], $_v['second_num'], $_v['third'], $_v['third_num'], $_v['forth'], $_v['forth_num'], $_v['fivth'], $_v['fivth_num'], $_v['sixth'], $_v['sixth_num']);
-                    $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
-                    break;
-            }
-
-            $extra = sprintf($msgformat['msg_lottery_extra'], number_format($_v['remain'], 0, '', ','), number_format($_v['sell'], 0, '', ','), $prideInfo);
-            $msg = sprintf($msgformat['msg_lottery_web'], $lottery[$data['lotterycode']], $_v['expect'], substr($_v['insert_time'], 0, 10), $openCode, $extra);
+        $prideInfo = '';
+        switch($data['lotterycode']){
+            case 'ssq':
+                $prideInfo = sprintf($msgformat['ssq_pride'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
+                $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', array_slice($code, 0, 6)).'</span><span class="ballbg_blue">'.$code[6].'</span>';
+                break;
+            case 'dlt':
+                $prideInfo = sprintf($msgformat['dlt_pride'], $rt['first_add'], $rt['first_add_num'], $rt['first'], $rt['first_num'], $rt['second_add'], $rt['second_add_num'], $rt['second'], $rt['second_num'], $rt['third_add'], $rt['third_add_num'], $rt['third'], $rt['third_num'], $rt['forth_add'], $rt['forth_add_num'], $rt['forth'], $rt['forth_num'], $rt['fivth_add'], $rt['fivth_add_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
+                $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', array_slice($code, 0, 5)).'</span><span class="ballbg_blue">'.implode('</span><span class="ballbg_blue">', array_slice($code, 5, 2)).'</span>';
+                break;
+            case 'fc3d':
+                $prideInfo = sprintf($msgformat['fc3d_pride'], $rt['first'], $rt['first_num'], $rt['second']>200?'组三':'组六', $rt['second'], $rt['second_num']);
+                $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
+                break;
+            case 'pl3':
+                $prideInfo = sprintf($msgformat['pl3_pride'], $rt['first'], $rt['first_num'], $rt['second']>200?'组三':'组六', $rt['second'], $rt['second_num']);
+                $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
+                break;
+            case 'pl5':
+                $prideInfo = sprintf($msgformat['pl5_pride'], $rt['first'], $rt['first_num']);
+                $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
+                break;
+            case 'qxc':
+                $prideInfo = sprintf($msgformat['qxc_pride'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
+                $openCode = '<span class="ballbg_red">'.implode('</span><span class="ballbg_red">', $code).'</span>';
+                break;
         }
+
+        $extra = sprintf($msgformat['msg_lottery_extra'], number_format($rt['remain'], 0, '', ','), number_format($rt['sell'], 0, '', ','), $prideInfo);
+        $msg = sprintf($msgformat['msg_lottery_web'], $lottery[$data['lotterycode']], $rt['expect'], substr($rt['insert_time'], 0, 10), $openCode, $extra);
 
         $data = array();
         $data['rtn'] = 0;
