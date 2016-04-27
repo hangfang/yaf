@@ -157,6 +157,7 @@ class LotteryModel extends BaseModel{
 六等奖: 奖金%s, 共%s注
 EOF;
                 $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
+                $rt['openCode'] = str_pad($rt['a'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['b'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['c'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['d'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['e'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['f'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['g'], 2, '0', STR_PAD_LEFT);
                 break;
             case 'fc3d':
                 $msg_extra = <<<EOF
@@ -166,6 +167,8 @@ EOF;
 二等奖: 奖金%s, 共%s注
 EOF;
                 $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num']);
+                $rt['openCode'] = $rt['a'].','.$rt['b'].','.$rt['c'];
+                
                 break;
             case 'dlt':
                 $msg_extra = <<<EOF
@@ -184,25 +187,28 @@ EOF;
 六等奖: 奖金%s, 共%s注
 EOF;
                 $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['first_add'], $rt['first_add_num'], $rt['second'], $rt['second_num'], $rt['second_add'], $rt['second_add_num'], $rt['third'], $rt['third_num'], $rt['third_add'], $rt['third_add_num'], $rt['forth'], $rt['forth_num'], $rt['forth_add'], $rt['forth_add_num'], $rt['fivth'], $rt['fivth_num'], $rt['fivth_add'], $rt['fivth_add_num'], $rt['sixth'], $rt['sixth_num']);
-                case 'pls':
-                    $msg_extra = <<<EOF
+                $rt['openCode'] = str_pad($rt['a'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['b'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['c'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['d'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['e'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['f'], 2, '0', STR_PAD_LEFT).','.str_pad($rt['g'], 2, '0', STR_PAD_LEFT);
+            case 'pls':
+                $msg_extra = <<<EOF
 销量: %s
 奖池: %s
 一等奖: 奖金%s, 共%s注
 二等奖: 奖金%s, 共%s注
 EOF;
-                    $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num']);
-                    break;
-                case 'plw':
-                    $msg_extra = <<<EOF
+                $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num']);
+                $rt['openCode'] = $rt['a'].','.$rt['b'].','.$rt['c'];
+                break;
+            case 'plw':
+                $msg_extra = <<<EOF
 销量: %s
 奖池: %s
 一等奖: 奖金%s, 共%s注
 EOF;
-                    $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num']);
-                    break;
-                case 'qxc':
-                    $msg_extra = <<<EOF
+                $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num']);
+                $rt['openCode'] = $rt['a'].','.$rt['b'].','.$rt['c'].','.$rt['d'].','.$rt['e'];
+                break;
+            case 'qxc':
+                $msg_extra = <<<EOF
 销量: %s
 奖池: %s
 一等奖: 奖金%s, 共%s注
@@ -212,8 +218,9 @@ EOF;
 五等奖: 奖金%s, 共%s注
 六等奖: 奖金%s, 共%s注
 EOF;
-                    $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
-                    break;
+                $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
+                $rt['openCode'] = $rt['a'].','.$rt['b'].','.$rt['c'].','.$rt['d'].','.$rt['e'].','.$rt['f'].','.$rt['g'];
+                break;
         }
         
         $msgformat = get_var_from_conf('msgformat');
@@ -224,7 +231,7 @@ EOF;
 
         $lottery = get_var_from_conf('lottery');
         $lottery = array_flip($lottery);
-        $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$lotteryCode], $rt['expect'], $rt['openTime'], $rt['openCode'], $msg_extra);
+        $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$lotteryCode], $rt['expect'], date('Y-m-d H:i:s', $rt['insert_time']), $rt['openCode'], $msg_extra);
         return $data;
     }
 }
