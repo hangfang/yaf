@@ -7,7 +7,7 @@ class JobLotteryModel extends BaseModel{
         $db = Database::getInstance();
         
         if($db->where('expect', $pride['expect'])->get('app_'. $type)->num_rows()>0){
-            echo $pride['expect'] .' '. $type .' exists' . "\n";
+            log_message('error', $pride['expect'] .' '. $type .' exists');
             return false;
         }
         
@@ -15,7 +15,7 @@ class JobLotteryModel extends BaseModel{
             return true;
         }
         
-        log_message('error', $expect .' '. $type .' keep error: '. $db->last_query(). "\n");
+        log_message('error', $expect .' '. $type .' keep error: '. $db->last_query());
         return false;
     }
     

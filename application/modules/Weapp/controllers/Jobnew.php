@@ -13,14 +13,14 @@ class JobnewController extends Yaf_Controller_Abstract {
         
         
         if(!$info || !isset($info['detail']) || !isset($info['detail']['EventName']{4})){
-            echo $expect .' not sell ' . "\n";
+            echo date('Y-m-d H:i:s'). ' dlt '. $expect .' not sell ' . "\n";
             return false;
         }
         $info = $info['detail'];
         
         $jobLotteryModel = new JobLotteryModel();
         if($jobLotteryModel->isLoaded($info['EventName'], 'dlt')){
-            echo $info['EventName'] . ' exists' . "\n";
+            echo date('Y-m-d H:i:s'). ' dlt '. $info['EventName'] . ' exists' . "\n";
             return false;
         }
         
@@ -68,11 +68,11 @@ class JobnewController extends Yaf_Controller_Abstract {
         $pride['expect'] = $info['EventName'];
         
         if(!$jobLotteryModel->load($pride, 'dlt')){
-            echo $pride['expect'] . ' load error' . "\n";
+            echo date('Y-m-d H:i:s'). ' dlt '. $pride['expect'] . ' load error' . "\n";
             return false;
         }
         
-        echo $pride['expect'] . ' load ok' . "\n";
+        echo date('Y-m-d H:i:s'). ' dlt '. $pride['expect'] . ' load ok' . "\n";
         return false;
     }
     
@@ -88,12 +88,12 @@ class JobnewController extends Yaf_Controller_Abstract {
         $html->clear();
         
         if(!isset($expect{6})){
-            echo 'get expect error: '. print_r($expect) . "\n";
+            echo date('Y-m-d H:i:s'). ' ssq '. 'get expect error: '. print_r($expect) . "\n";
             return false;
         }
         $jobLotteryModel = new JobLotteryModel();
         if($jobLotteryModel->isLoaded($expect, 'ssq')){
-            echo $expect . ' exists' . "\n";
+            echo date('Y-m-d H:i:s'). ' ssq '. $expect . ' exists' . "\n";
             return false;
         }
 
@@ -130,11 +130,11 @@ class JobnewController extends Yaf_Controller_Abstract {
         $pride['expect'] = $info['KJ_ISSUE'];
         
         if(!$jobLotteryModel->load($pride, 'ssq')){
-            echo $expect . ' load error' . "\n";
+            echo date('Y-m-d H:i:s'). ' ssq '. $expect . ' load error' . "\n";
             return false;
         }
         
-        echo $expect . ' load ok' . "\n";
+        echo date('Y-m-d H:i:s'). ' ssq '. $expect . ' load ok' . "\n";
         return false;
     }
 }
