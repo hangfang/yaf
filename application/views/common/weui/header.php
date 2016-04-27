@@ -25,4 +25,4 @@
     <?php }?>
 </head>
 <body>
-    <div id="container" class='container'>
+    <div id="container" class=''>
