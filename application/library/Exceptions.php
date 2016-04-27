@@ -112,7 +112,8 @@ class Exceptions {
 	public function show_error($heading, $message, $template = 'error_general', $status_code = 500)
 	{
 		$templates_path = APPLICATION_PATH.'/application/views/error/'.DIRECTORY_SEPARATOR;
-		if (is_cli())
+        $request = new Yaf_Request_Http();
+		if ($request->isCli())
 		{
 			$message = "\t".(is_array($message) ? implode("\n\t", $message) : $message);
 			$template = 'cli'.DIRECTORY_SEPARATOR.$template;
@@ -124,6 +125,7 @@ class Exceptions {
 			$template = 'html'.DIRECTORY_SEPARATOR.$template;
 		}
         
+        $config = Yaf_Registry::get('config');
         $ext = trim($config['application']['errorFileExtension'], '.');
         if(empty($ext)){
             $ext = 'php';
