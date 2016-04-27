@@ -548,10 +548,11 @@ class WechatController extends Yaf_Controller_Abstract {
     }
     
     private function genLottery($msg, $msgXml){
-        $num = array('一'=>1 ,'二'=>2,'两'=>2,'三'=>3,'四'=>4,'五'=>5);
+        $ch2num = array('一'=>1 ,'二'=>2,'两'=>2,'三'=>3,'四'=>4,'五'=>5);
         $type = array('双色球'=>'Ssq');
         
-        foreach($num as $_k=>$_v){
+        $num = 1;
+        foreach($ch2num as $_k=>$_v){
             if(strpos($msg, $_k) !== false){
                 $num = $_v;
                 break;
