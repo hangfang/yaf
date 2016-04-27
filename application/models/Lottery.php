@@ -34,8 +34,8 @@ class LotteryModel extends BaseModel{
         
         $num2ch = array(1=>'一', 2=>'二', 2=>'两', 3=>'三', 4=>'四', 5=>'五');
         
-        Yaf_Loader::import(APPLICATION_PATH .'/conf/msgformat.php');
-        $data = $_send_format['text'];
+        $msgformat = get_var_from_conf('msgformat');
+        $data = $msgformat['send_format']['text'];
         $data['touser'] = $msgXml['FromUserName'];
         $data['fromuser'] = $msgXml['ToUserName'];
         $data['text']['content'] = '随机双色球'.$num2ch[$num].'注'."\n".implode("\n", $lottery);
