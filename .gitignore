@@ -1,4 +1,5 @@
 /nbproject/private/
 /cache/
 /logs/
-./index.php
+/cache/
+/session/
