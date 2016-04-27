@@ -402,7 +402,7 @@ class WechatController extends Yaf_Controller_Abstract {
             $data = $msgformat['send_format']['text'];
             $data['touser'] = $msgXml['FromUserName'];
             $data['fromuser'] = $msgXml['ToUserName'];
-            $data['text']['content'] = sprintf($msgformat['msg_position_expired'], $friendlydate->timeDiff($lastMsg['CreateTime']));
+            $data['text']['content'] = sprintf($msgformat['msg_position_expired'], $friendlyDate->timeDiff($lastMsg['CreateTime']));
             
             $wechatModel = new WechatModel();
             $wechatModel->sendMessage($data);
