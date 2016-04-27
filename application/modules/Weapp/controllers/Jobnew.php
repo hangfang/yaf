@@ -64,7 +64,7 @@ class JobnewController extends Yaf_Controller_Abstract {
         $pride['sixth_add'] = $info['DrawDetailss'][23];
         $pride['sixth_add_num'] = $info['DrawDetailss'][22];
         
-        $pride['insert_time'] = date('Y-m-d H:i:s', strtotime(str_replace(array('年', '月', '日'), array('-', '-', ''), $info['DrawDate'].":00")));
+        $pride['insert_time'] = str_replace(array('年', '月', '日'), array('-', '-', ''), $info['DrawDate'].":00");
         $pride['expect'] = $info['EventName'];
         
         if(!$jobLotteryModel->load($pride, 'dlt')){
