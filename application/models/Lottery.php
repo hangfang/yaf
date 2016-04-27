@@ -130,8 +130,9 @@ class LotteryModel extends BaseModel{
     }
     
     public function getLottery($data, $msgXml=array()){
+        $lotteryCode = $data['lotterycode'];
         $db = Database::getInstance();
-        $query = $db->order_by('id', 'desc')->limit($data['recordcnt'], 0)->get('app_'. $data['lotterycode']);
+        $query = $db->order_by('id', 'desc')->limit($data['recordcnt'], 0)->get('app_'. $lotteryCode);
         $rt = $query && $query->num_rows()>0 ? $query->row_array() : array();
         
         if(empty($rt)){
@@ -143,7 +144,7 @@ class LotteryModel extends BaseModel{
             return $rt;
         }
         
-        switch($data['lotterycode']){
+        switch($lotteryCode){
             case 'ssq':
                 $msg_extra = <<<EOF
 销量: %s
@@ -223,7 +224,7 @@ EOF;
 
         $lottery = get_var_from_conf('lottery');
         $lottery = array_flip($lottery);
-        $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$data['lotteryCode']], $tmp['expect'], $tmp['openTime'], $tmp['openCode'], $msg_extra);
+        $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$lotteryCode], $rt['expect'], $rt['openTime'], $rt['openCode'], $msg_extra);
         return $data;
     }
 }
