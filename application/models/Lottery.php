@@ -132,7 +132,7 @@ class LotteryModel extends BaseModel{
     public function getLottery($data, $msgXml=array()){
         $db = Database::getInstance();
         $query = $db->order_by('id', 'desc')->limit($data['recordcnt'], 0)->get('app_'. $data['lotterycode']);
-        $rt = $query && $query->num_rows()>0 ? $query->result_array() : array();
+        $rt = $query && $query->num_rows()>0 ? $query->row_array() : array();
         
         if(empty($rt)){
             $baiduModel = new BaiduModel();
