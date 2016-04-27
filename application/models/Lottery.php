@@ -143,14 +143,6 @@ class LotteryModel extends BaseModel{
             return $rt;
         }
         
-        $msgformat = get_var_from_conf('msgformat');
-            
-        $data = $msgformat['send_format']['text'];
-        $data['touser'] = $msgXml['FromUserName'];
-        $data['fromuser'] = $msgXml['ToUserName'];
-
-        $lottery = get_var_from_conf('lottery');
-        $lottery = array_flip($lottery);
         switch($data['lotterycode']){
             case 'ssq':
                 $msg_extra = <<<EOF
@@ -222,6 +214,15 @@ EOF;
                     $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['second'], $rt['second_num'], $rt['third'], $rt['third_num'], $rt['forth'], $rt['forth_num'], $rt['fivth'], $rt['fivth_num'], $rt['sixth'], $rt['sixth_num']);
                     break;
         }
+        
+        $msgformat = get_var_from_conf('msgformat');
+            
+        $data = $msgformat['send_format']['text'];
+        $data['touser'] = $msgXml['FromUserName'];
+        $data['fromuser'] = $msgXml['ToUserName'];
+
+        $lottery = get_var_from_conf('lottery');
+        $lottery = array_flip($lottery);
         $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$data['lotteryCode']], $tmp['expect'], $tmp['openTime'], $tmp['openCode'], $msg_extra);
         return $data;
     }
