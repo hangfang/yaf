@@ -232,7 +232,7 @@ class BaiduModel extends BaseModel{
             
             $lottery = get_var_from_conf('lottery');
             $lottery = array_flip($lottery);
-            $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$rt['retData']['lotteryCode']], $tmp['expect'], $tmp['openTime'], $tmp['openCode'], '');
+            $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$rt['retData']['lotteryCode']], $tmp['expect'], $tmp['openCode'], '');
             return $data;
         }
         

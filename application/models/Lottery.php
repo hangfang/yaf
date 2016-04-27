@@ -174,15 +174,15 @@ EOF;
 销量: %s
 奖池: %s
 一等奖: 奖金%s, 共%s注
-一等奖追加: 奖金%s, 共%s注
+追加: 奖金%s, 共%s注
 二等奖: 奖金%s, 共%s注
-二等奖追加: 奖金%s, 共%s注
+追加: 奖金%s, 共%s注
 三等奖: 奖金%s, 共%s注
-三等奖追加: 奖金%s, 共%s注
+追加: 奖金%s, 共%s注
 四等奖: 奖金%s, 共%s注
-四等奖追加: 奖金%s, 共%s注
+追加: 奖金%s, 共%s注
 五等奖: 奖金%s, 共%s注
-五等奖追加: 奖金%s, 共%s注
+追加: 奖金%s, 共%s注
 六等奖: 奖金%s, 共%s注
 EOF;
                 $msg_extra = sprintf($msg_extra, $rt['sell'], $rt['remain'], $rt['first'], $rt['first_num'], $rt['first_add'], $rt['first_add_num'], $rt['second'], $rt['second_num'], $rt['second_add'], $rt['second_add_num'], $rt['third'], $rt['third_num'], $rt['third_add'], $rt['third_add_num'], $rt['forth'], $rt['forth_num'], $rt['forth_add'], $rt['forth_add_num'], $rt['fivth'], $rt['fivth_num'], $rt['fivth_add'], $rt['fivth_add_num'], $rt['sixth'], $rt['sixth_num']);
@@ -231,7 +231,7 @@ EOF;
 
         $lottery = get_var_from_conf('lottery');
         $lottery = array_flip($lottery);
-        $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$lotteryCode], $rt['expect'], $rt['insert_time'], $rt['openCode'], $msg_extra);
+        $data['text']['content'] = sprintf($msgformat['msg_lottery'], $lottery[$lotteryCode], $rt['expect'], $rt['openCode'], $msg_extra);
         return $data;
     }
 }

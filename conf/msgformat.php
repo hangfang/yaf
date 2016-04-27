@@ -52,7 +52,6 @@ EOF;
 $msgformat['msg_lottery'] = <<<EOF
 彩种：%s
 期号：%s
-时间：%s
 号码：%s
 %s
 EOF;
