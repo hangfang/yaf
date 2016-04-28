@@ -65,3 +65,9 @@ define('BAIDU_LOTTERY_API_URL', 'http://apis.baidu.com/apistore/lottery/lotteryq
 
 /*百度笑话*/
 define('BAIDU_JOKE_API_URL', 'http://apis.baidu.com/hihelpsme/chinajoke/getjokelist');
+
+
+/*腾讯优图*/
+define('YOUTU_APP_ID', '1006952');
+define('YOUTU_SECRET_ID', 'AKIDatt8wGamPiolphD0VdqUWupR35oEYeOk');
+define('YOUTU_SECRET_KEY', 'JKxyKHjeGVr75CHTYULPfj0d3mu36KeD');

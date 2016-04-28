@@ -8,9 +8,6 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  */
 class Youtu{
     
-    private $_app_id = 1006952;
-    private $_secret_id = 'AKIDatt8wGamPiolphD0VdqUWupR35oEYeOk';
-    private $_secret_key = 'JKxyKHjeGVr75CHTYULPfj0d3mu36KeD';
     private $_api_url = array(
                                 'detectface' => 'http://api.youtu.qq.com/youtu/api/detectface',//人脸检测
                                 'faceshape' => 'http://api.youtu.qq.com/youtu/api/faceshape',//人脸定位
@@ -47,10 +44,13 @@ class Youtu{
             return false;
         }
         
+        $origin = sprintf('u=%s&a=%s&k=%s&e=%s&t=%s&r=%s&f=', '470739703', YOUTU_APP_ID, YOUTU_SECRET_ID, time(), time()+30, rand(0, 99999));
+        $signature = Base64_encode(hash_hmac('sha1', $origin, YOUTU_SECRET_KEY, true). $origin);
+        $preparedHeader = array('Host'=>'api.youtu.qq.com', 'Content-Length'=>strlen(json_encode($params)), 'Content-Type'=>'text/json', 'Authorization'=>$signature);
         $data = array();
         $data['url'] = $this->_api_url[$type];
-        $data['data'] = $params;
-        $data['header'] = $header;
+        $data['data'] = json_encode($params);
+        $data['header'] = array_merge($header, $preparedHeader);
         $data['method'] = 'post';
         
         return http($data);

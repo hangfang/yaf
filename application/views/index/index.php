@@ -80,6 +80,14 @@ include dirname(dirname(__FILE__)).'/common/weui/header.php';
                     地图服务
                 </p>
             </a>
+            <a href="/weapp/map/index" class="weui_grid">
+                <div class="weui_grid_icon">
+                    <i class="icon icon icon_panel"></i>
+                </div>
+                <p class="weui_grid_label">
+                    图像处理
+                </p>
+            </a>
         </div>
     </div>
 </div>

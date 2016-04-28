@@ -688,7 +688,7 @@ if(!function_exists('http')){
                 'errmsg' => 'request interface fatal'
             );
         }
-
+var_dump($result,  curl_getinfo($ch));exit;
         curl_close($ch);
 
         $return = json_decode($result ,true);

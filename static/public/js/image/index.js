@@ -18,6 +18,10 @@ $(function(){
     }else{
         $('#container').on('change', '#file', function(e){
             var val = $('#file').val();
+            if(!val){
+                return false;
+            }
+            
             var valArr = val.split('.');
             var ext = valArr.pop();
             var imgExt = 'jpeg,png,bmp';
@@ -42,21 +46,54 @@ $(function(){
     $('#dialog1').on('click', '.weui_btn_dialog', function(e){
         $('#dialog1').hide();
     });
+    
+    $('#container').on('click', '#locate', function(e){
+        if($('#img-responsive').attr('src').indexOf('upload')===-1){
+            $('#dialog2').find('.weui_dialog_bd').html('请添加图片').end().show();
+            return false;
+        }
+        $('#loadingToast').find('.weui_toast_content').html('处理中').end().show();
+        
+        var data = {url: location.protocol +'//'+ location.host + $('#img-responsive').attr('src')};
+        $.ajax({
+           url: '/weapp/image/shape',
+           data: data,
+           type: 'post',
+           dataType: 'json',
+           success: function(data, textStatus, xhr){
+               $('#loadingToast').hide();
+               console.log(data);
+           }
+           
+        });
+        
+    });
+    
+    $('#container').on('click', '#alasys', function(e){
+        if($('#img-responsive').attr('src').indexOf('upload')===-1){
+            $('#dialog2').find('.weui_dialog_bd').html('请添加图片').end().show();
+            return false;
+        }
+    });
+    
+    $('#container').on('click', '#compare', function(e){
+        if($('#img-responsive').attr('src').indexOf('upload')===-1){
+            $('#dialog2').find('.weui_dialog_bd').html('请添加图片').end().show();
+            return false;
+        }
+    });
+    
+    $('#container').on('click', '#verify', function(e){
+        if($('#img-responsive').attr('src').indexOf('upload')===-1){
+            $('#dialog2').find('.weui_dialog_bd').html('请添加图片').end().show();
+            return false;
+        }
+    });
+    
+    $('#container').on('click', '#identify', function(e){
+        if($('#img-responsive').attr('src').indexOf('upload')===-1){
+            $('#dialog2').find('.weui_dialog_bd').html('请添加图片').end().show();
+            return false;
+        }
+    });
 });
-
-image.uploadHandler = function(data){
-    $('#file').val('');
-    if(!data){
-        $('#loadingToast').hide();
-        $('#dialog2').find('.weui_dialog_bd').html('上传失败').end().show();
-        return false;
-    }
-    
-    if(data.rtn > 0){
-        $('#loadingToast').hide();
-        $('#dialog2').find('.weui_dialog_bd').html(data.msg).end().show();
-        return false;
-    }
-    
-    console.log(data);
-}

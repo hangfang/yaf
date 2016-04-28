@@ -48,5 +48,9 @@ $error = array(
     'upload_no_file_types' => array('errcode'=>44, 'errmsg'=>'You have not specified any allowed file types.'),
     'upload_bad_filename' => array('errcode'=>45, 'errmsg'=>'The file name you submitted already exists on the server.'),
     'upload_not_writable' => array('errcode'=>46, 'errmsg'=>'The upload destination folder does not appear to be writable.'),
+    'image_url_empty' => array('errcode'=>47, 'errmsg'=>'The image url cannot be empty.'),
+    
+    
+    'service_unavailable' => array('errcode'=>48, 'errmsg'=>'service is unavailable now, please try later.'),
 
 );

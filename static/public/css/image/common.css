@@ -11,7 +11,8 @@ body {background-color: rgb(235,235,235);}
 .container-fluid {margin-top:9px; padding: 0 5px; border-radius: 5px;}
 .list-group {margin-bottom: 0px;}
 .list-group-item{border-color: rgb(197,197,197); padding:2px;}
-.list-group-item a {display:block; color: #000;}
+.list-group-item a {display:block; color: #000; text-decoration: none; color: #888;}
+.list-group-item:last-child a {padding: 0; font-size: 12px;}
 .img-responsive {width:403px; height:268px;}
 .pull-right {width:43px; height:43px;}
 

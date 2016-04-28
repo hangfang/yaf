@@ -46,6 +46,15 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
                     <div class="col-xs-3"><a href="javascript:;" class="weui_btn weui_btn_plain_primary">按钮</a></div>
                 </div>
             </li>
+            <li class="list-group-item">
+                <div class="row" >
+                    <div class="col-xs-3"><a href="javascript:;" class="weui_btn weui_btn_plain_primary" id="locate">五官定位</a></div>
+                    <div class="col-xs-3"><a href="javascript:;" class="weui_btn weui_btn_plain_primary" id="alasys">表情分析</a></div>
+                    <div class="col-xs-3"><a href="javascript:;" class="weui_btn weui_btn_plain_primary" id="compare">人脸对比</a></div>
+                    <div class="col-xs-3"><a href="javascript:;" class="weui_btn weui_btn_plain_primary" id="verify">人脸验证</a></div>
+                    <div class="col-xs-3"><a href="javascript:;" class="weui_btn weui_btn_plain_primary" id="identify">人脸识别</a></div>
+                </div>
+            </li>
         </ul>
     </div>
 </div>

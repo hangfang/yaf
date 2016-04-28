@@ -48,4 +48,44 @@ class ImageController extends Yaf_Controller_Abstract{
         $response->response();
         return false;
     }
+    
+    public function shapeAction(){
+        $data = array();
+        $request = new Yaf_Request_Http();
+        $response = new Yaf_Response_Http();
+        $response->setHeader('Content-Type', 'application/json');
+        $data['url'] = $request->getPost('url', '');
+        
+        $error = get_var_from_conf('error');
+        if(!isset($data['url']{10})){
+            
+            $data = array();
+            $data['rtn'] = $error['image_url_empty']['errcode'];
+            $data['msg'] = $error['image_url_empty']['errmsg'];
+            $response->setBody(json_encode($data));
+            $response->response();
+            return FALSE;
+        }
+        
+        $data['app_id'] = YOUTU_APP_ID;
+        $data['mode'] = 0;
+        
+        $youtu = new Youtu();
+        $rt = $youtu->request('faceshape', $data);
+
+        if(!$rt){
+            $data['rtn'] = $error['service_unavailable']['errcode'];
+            $data['msg'] = $error['service_unavailable']['errmsg'];
+            $response->setBody(json_encode($data));
+            $response->response();
+            return FALSE;
+        }
+        
+        $rt['errcode'] = $rt['errorcode'];
+        $rt['errmsg'] = $rt['errormsg'];
+        unset($rt['errorcode'], $rt['errormsg']);
+        $response->setBody(json_encode($data));
+        $response->response();
+        return FALSE;
+    }
 }
