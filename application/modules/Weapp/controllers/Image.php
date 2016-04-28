@@ -16,7 +16,7 @@ class ImageController extends Yaf_Controller_Abstract{
     }
     
     public function uploadAction(){
-        $config['upload_path']      = APPLICATION_PATH .'./upload/image/';
+        $config['upload_path']      = APPLICATION_PATH .'/upload/image/';
         $config['allowed_types']    = 'bmp|jpeg|png|tmp';
         $config['max_size']     = 3072;
         $config['max_width']        = 3264;
