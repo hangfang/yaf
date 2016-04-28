@@ -55,6 +55,8 @@ class ImageController extends Yaf_Controller_Abstract{
         $response = new Yaf_Response_Http();
         $response->setHeader('Content-Type', 'application/json');
         $url = $request->getPost('url', '');
+        $url = explode('/', $url);
+        $file_path = APPLICATION_PATH .'/upload/image/'. array_pop($url);
         
         $error = get_var_from_conf('error');
         if(!isset($url{10})){
