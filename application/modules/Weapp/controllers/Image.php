@@ -82,9 +82,9 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
         
-        $rt['rtn'] = $rt['errorcode'];
-        $rt['msg'] = $rt['errormsg'];
-        unset($rt['errorcode'], $rt['errormsg']);
+        $rt['rtn'] = $rt['code'];
+        $rt['msg'] = $rt['message'];
+        unset($rt['code'], $rt['message']);
         $response->setBody(json_encode($rt));
         $response->response();
         return FALSE;
