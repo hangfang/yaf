@@ -3,17 +3,17 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 /**
  * @demo
- *   $email = new Email();
+ *       $email = new Email();
  *
- *   $email->from('your@example.com', 'Your Name');
- *   $email->to('someone@example.com');
- *   $email->cc('another@another-example.com');
- *   $email->bcc('them@their-example.com');
+ *       $email->from('admin@rbmax.com', 'WeApp管理员');
+ *       $email->to('ever10@qq.com');
+ *       $email->cc('296295780@qq.com');
+ *       $email->bcc('532581736@qq.com');
  *
- *   $email->subject('Email Test');
- *   $email->message('Testing the email class.');
+ *       $email->subject('Email Test');
+ *       $email->message('Testing the email class.');
  *
- *   $email->send();
+ *       $email->send();
  */
 class Email {
 
