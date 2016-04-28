@@ -36,8 +36,7 @@ class IndexController extends Yaf_Controller_Abstract {
         $data['title'] = '便利';
         $data['class'] = 'app';
                 
-        Yaf_Loader::import(APPLICATION_PATH.'/conf/kdniao.php');
-        $data['expressList'] = $kdniao;
+        $data['expressList'] = get_var_from_conf('kdniao');
         $this->getView()->assign('data', $data);
     }
     
