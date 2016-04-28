@@ -55,8 +55,6 @@ class ImageController extends Yaf_Controller_Abstract{
         $response = new Yaf_Response_Http();
         $response->setHeader('Content-Type', 'application/json');
         $url = $request->getPost('url', '');
-        $url = explode('/', $url);
-        $file_path = APPLICATION_PATH .'/upload/image/'. array_pop($url);
         
         $error = get_var_from_conf('error');
         if(!isset($url{10})){
@@ -69,12 +67,15 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
         
+        $url = explode('/', $url);
+        $file_path = APPLICATION_PATH .'/upload/image/'. array_pop($url);
+        
         //根据你使用的平台选择一种初始化方式
         //优图开放平台初始化
         Youtu_Conf::setAppInfo(YOUTU_APP_ID, YOUTU_SECRET_ID, YOUTU_SECRET_KEY, YOUTU_USER_ID, Youtu_Conf::API_YOUTU_END_POINT);
 
         //人脸检测接口调用
-        $rt = Youtu_Youtu::detectface($url, 0);
+        $rt = Youtu_Youtu::detectface($file_path, 1);
 
         if(!$rt){
             $data['rtn'] = $error['service_unavailable']['errcode'];
