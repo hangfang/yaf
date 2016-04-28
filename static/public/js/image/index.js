@@ -25,7 +25,7 @@ $(function(){
             var valArr = val.split('.');
             var ext = valArr.pop();
             var imgExt = 'jpeg,png,bmp';
-            if(imgExt.indexOf(ext)===-1){
+            if(imgExt.indexOf(ext.toLowerCase())===-1){
                 $('#dialog2').find('.weui_dialog_bd').html('仅支持jpeg、png、bmp格式').end().show();
                 return false;
             }
@@ -62,7 +62,7 @@ $(function(){
            dataType: 'json',
            success: function(data, textStatus, xhr){
                $('#loadingToast').hide();
-               if(data.rtn > 0){
+               if(data.rtn != 0){
                    $('#dialog2').find('.weui_dialog_bd').html(data.msg).end().show();
                    return false;
                }

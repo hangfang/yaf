@@ -22,7 +22,7 @@ class ImageController extends Yaf_Controller_Abstract{
         $config['max_width']        = 3264;
         $config['max_height']       = 2448;
 
-        $fileName = md5_file($_FILES['image']['tmp_name']);
+        $fileName = @md5_file($_FILES['image']['tmp_name']);
         $tmp = explode('.', basename($_FILES['image']['name']));
         $ext = array_pop($tmp);
         $config['file_name'] = $fileName . '.'. $ext;
@@ -50,6 +50,7 @@ class ImageController extends Yaf_Controller_Abstract{
     }
     
     public function shapeAction(){
+        
         $data = array();
         $request = new Yaf_Request_Http();
         $response = new Yaf_Response_Http();
@@ -76,7 +77,7 @@ class ImageController extends Yaf_Controller_Abstract{
 
         //人脸检测接口调用
         $rt = Youtu_Youtu::detectface($file_path, 1);
-
+var_dump($rt);exit;
         if(!$rt){
             $data['rtn'] = $error['service_unavailable']['errcode'];
             $data['msg'] = $error['service_unavailable']['errmsg'];
@@ -85,9 +86,17 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
         
-        $rt['rtn'] = $rt['code'];
-        $rt['msg'] = $rt['message'];
-        unset($rt['code'], $rt['message']);
+        if(isset($rt['code']) && $rt['code']>0){
+            $data['rtn'] = $rt['code'];
+            $data['msg'] = $rt['message'];
+            $response->setBody(json_encode($data));
+            $response->response();
+            return FALSE;
+        }
+        
+        $rt['rtn'] = $rt['errorcode'];
+        $rt['msg'] = $rt['errormsg'];
+        unset($rt['errorcode'], $rt['errormsg']);
         $response->setBody(json_encode($rt));
         $response->response();
         return FALSE;
