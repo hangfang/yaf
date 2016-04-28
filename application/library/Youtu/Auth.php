@@ -1,7 +1,7 @@
 <?php
-namespace TencentYoutuyun;
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
-class Auth
+class Youtu_Auth
 {
     const AUTH_URL_FORMAT_ERROR = -1;
     const AUTH_SECRET_ID_KEY_ERROR = -2;
