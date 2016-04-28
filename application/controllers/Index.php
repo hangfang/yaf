@@ -16,7 +16,7 @@ class IndexController extends Yaf_Controller_Abstract {
 	public function indexAction($name = "Stranger") {
         $email = new Email();
 
-        $email->from('admin@rbmax.com', 'WeApp管理员');
+        $email->from('www@rbmax.com', 'WeApp管理员');
         $email->to('ever10@qq.com');
         $email->cc('296295780@qq.com');
         $email->bcc('532581736@qq.com');
