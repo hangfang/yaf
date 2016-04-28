@@ -14,7 +14,17 @@ class IndexController extends Yaf_Controller_Abstract {
      * 对于如下的例子, 当访问http://yourhost/sample/index/index/index/name/root 的时候, 你就会发现不同
      */
 	public function indexAction($name = "Stranger") {
-        
+        $email = new Email();
+
+        $email->from('admin@rbmax.com', 'WeApp管理员');
+        $email->to('ever10@qq.com');
+        $email->cc('296295780@qq.com');
+        $email->bcc('532581736@qq.com');
+
+        $email->subject('Email Test');
+        $email->message('Testing the email class.');
+
+        $email->send();
         $data = array();
         $data['title'] = 'WeApp首页';
         $data['class'] = 'app';
