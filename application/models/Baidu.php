@@ -9,7 +9,7 @@ class BaiduModel extends BaseModel{
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['url'] = sprintf(BAIDU_MUSIC_SEARCH_API_URL);
         $data['data'] = $param;
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;
@@ -24,7 +24,7 @@ class BaiduModel extends BaseModel{
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['url'] = sprintf(BAIDU_MUSIC_PLAYINFO_API_URL);
         $data['data'] = $param;
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;
@@ -39,7 +39,7 @@ class BaiduModel extends BaseModel{
         $data['method'] = 'get';
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['url'] = sprintf(BAIDU_STOCK_API_URL, $stockid);
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;
@@ -68,7 +68,7 @@ class BaiduModel extends BaseModel{
         $data['method'] = 'get';
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['url'] = sprintf(BAIDU_WEATHER_API_URL, $cityid);
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;
@@ -100,7 +100,7 @@ class BaiduModel extends BaseModel{
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['url'] = sprintf(BAIDU_GIRLS_API_URL);
         $data['data'] = $param;
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;
@@ -140,7 +140,7 @@ class BaiduModel extends BaseModel{
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['url'] = BAIDU_NEWS_API_URL;
         $data['data'] = $param;
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;
@@ -175,7 +175,7 @@ class BaiduModel extends BaseModel{
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['url'] = BAIDU_SOCIALS_API_URL;
         $data['data'] = $param;
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;
@@ -216,7 +216,7 @@ class BaiduModel extends BaseModel{
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['data'] = $param;
         $data['url'] = BAIDU_LOTTERY_API_URL;
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;
@@ -250,7 +250,7 @@ class BaiduModel extends BaseModel{
         $data['header'] = array('apikey: '. BAIDU_API_KEY);
         $data['data'] = $param;
         $data['url'] = BAIDU_JOKE_API_URL;
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;

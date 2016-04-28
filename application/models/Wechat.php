@@ -37,7 +37,7 @@ class WechatModel extends BaseModel{
             $data = array();
             $data['method'] = 'get';
             $data['url'] = sprintf('%s/token?grant_type=client_credential&appid=%s&secret=%s', WX_CGI_ADDR, WX_APP_ID, WX_APP_SECRET);
-            $rt = $this->http($data);
+            $rt = http($data);
             
             if(isset($rt['errcode'])){
                 log_message('error', 'get access_token from wechat error, msg: '. json_encode($rt));
@@ -59,7 +59,7 @@ class WechatModel extends BaseModel{
         
         $data = array();
         $data['debug'] = WX_JSAPI_DEBUG;
-        $data['appid'] = WX_APP_ID;
+        $data['appId'] = WX_APP_ID;
         $data['timestamp'] = time();
         $data['nonceStr'] = md5($data['timestamp']);
         
@@ -99,7 +99,7 @@ class WechatModel extends BaseModel{
             $data = array();
             $data['method'] = 'get';
             $data['url'] = sprintf('%s/ticket/getticket?access_token=%s&type=jsapi', WX_CGI_ADDR, $this->access_token);
-            $rt = $this->http($data);
+            $rt = http($data);
             
             if(isset($rt['errcode']) && $rt['errcode']>0){
                 log_message('error', 'get jsapi_ticket from wechat error, msg: '. json_encode($rt));
@@ -205,7 +205,7 @@ class WechatModel extends BaseModel{
 //        $data['data'] = $msg;
 //        $data['url'] = sprintf('%s/message/custom/send?access_token=%s', WX_CGI_ADDR, $this->access_token);
 //        $data['method'] = 'post';
-//        $rt = $this->http($data);
+//        $rt = http($data);
 //
 //        if(!$rt || isset($rt['errcode'])){
 //            if($rt['errcode'] == 42001){//access_token过期

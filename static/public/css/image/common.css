@@ -21,3 +21,6 @@ body {background-color: rgb(235,235,235);}
 
 .weui_cell_ft {position: fixed; bottom: 48px; right: 5px;}
 .weui_cells_form {position: fixed; bottom: 48px; left:-999px; width: 81%; border: 1px solid rgb(197,197,197);}
+
+.image_url {padding: 0;}
+.input_image_url {height: 3.15em; border: 1px solid #04BE02;border-radius: 5px;}

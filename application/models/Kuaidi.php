@@ -20,7 +20,7 @@ class KuaidiModel extends BaseModel{
         $data['data'] = $param;
         $data['url'] = KD_NIAO_API_URL;
         
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;

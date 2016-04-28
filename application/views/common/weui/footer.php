@@ -34,7 +34,7 @@
     <div class="weui_dialog_confirm" id="dialog1" style="display:none;">
         <div class="weui_mask"></div>
         <div class="weui_dialog">
-            <div class="weui_dialog_hd"><strong class="weui_dialog_title">弹窗标题</strong></div>
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">请确认</strong></div>
             <div class="weui_dialog_bd">自定义弹窗内容，居左对齐显示，告知需要确认的信息等</div>
             <div class="weui_dialog_ft">
                 <a href="javascript:;" class="weui_btn_dialog default">取消</a>
@@ -47,7 +47,7 @@
     <div class="weui_dialog_alert" id="dialog2" style="display: none;">
         <div class="weui_mask"></div>
         <div class="weui_dialog">
-            <div class="weui_dialog_hd"><strong class="weui_dialog_title">弹窗标题</strong></div>
+            <div class="weui_dialog_hd"><strong class="weui_dialog_title">警告</strong></div>
             <div class="weui_dialog_bd">弹窗内容，告知当前页面信息等</div>
             <div class="weui_dialog_ft">
                 <a href="javascript:;" class="weui_btn_dialog primary">确定</a>

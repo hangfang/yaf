@@ -10,7 +10,7 @@ class PositionModel extends BaseModel{
         $data = array();
         $data['method'] = 'get';
         $data['url'] = sprintf(SINA_IP_LOOKUP_API_URL, $this->input->ip_address());
-        return $this->http($data);
+        return http($data);
     }
     
     /**
@@ -23,7 +23,7 @@ class PositionModel extends BaseModel{
         $data['method'] = 'get';
         $data['url'] = sprintf(TENCENT_MAP_APP_URL.'/geocoder/v1/?location=%s,%s&key=%s&get_poi=1', $lat, $lng, TENCENT_MAP_APP_KEY);
         
-        return $this->http($data);
+        return http($data);
     }
 
     public function searchAround($lastMsg, $msgXml=array()){
@@ -32,7 +32,7 @@ class PositionModel extends BaseModel{
         $data['method'] = 'get';
         $data['url'] = sprintf(TENCENT_MAP_APP_URL.'/place/v1/search?boundary=nearby(%s,%s,100000)&keyword=%s&page_size=5&page_index=1&orderby=_distance&key=%s', $lastMsg['Location_X'], $lastMsg['Location_Y'], $msgXml['Content'], TENCENT_MAP_APP_KEY);
         
-        $rt = $this->http($data);
+        $rt = http($data);
         
         if(empty($msgXml)){
             return $rt;

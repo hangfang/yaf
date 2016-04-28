@@ -30,4 +30,23 @@ $error = array(
     'email_smtp_auth_pw' => array('errcode'=>27, 'errmsg'=>'Failed to authenticate password. Error: %s'),
     'email_smtp_data_failure' => array('errcode'=>28, 'errmsg'=>'Unable to send data: %s'),
     'email_exit_status' => array('errcode'=>29, 'errmsg'=>'Exit status code: %s'),
+    'youtu_api_not_supported' => array('errcode'=>30, 'errmsg'=>'youtu api not supported'),
+    
+    'upload_userfile_not_set' => array('errcode'=>31, 'errmsg'=>'Unable to find a post variable called userfile.'),
+    'upload_file_exceeds_limit' => array('errcode'=>32, 'errmsg'=>'The uploaded file exceeds the maximum allowed size in your PHP configuration file.'),
+    'upload_file_exceeds_form_limit' => array('errcode'=>33, 'errmsg'=>'The uploaded file exceeds the maximum size allowed by the submission form.'),
+    'upload_file_partial' => array('errcode'=>34, 'errmsg'=>'The file was only partially uploaded.'),
+    'upload_no_temp_directory' => array('errcode'=>35, 'errmsg'=>'The temporary folder is missing.'),
+    'upload_unable_to_write_file' => array('errcode'=>36, 'errmsg'=>'The file could not be written to disk.'),
+    'upload_stopped_by_extension' => array('errcode'=>37, 'errmsg'=>'The file upload was stopped by extension.'),
+    'upload_no_file_selected' => array('errcode'=>38, 'errmsg'=>'You did not select a file to upload.'),
+    'upload_invalid_filetype' => array('errcode'=>39, 'errmsg'=>'The filetype you are attempting to upload is not allowed.'),
+    'upload_invalid_filesize' => array('errcode'=>40, 'errmsg'=>'The file you are attempting to upload is larger than the permitted size.'),
+    'upload_invalid_dimensions' => array('errcode'=>41, 'errmsg'=>'The image you are attempting to upload doesn\'t fit into the allowed dimensions.'),
+    'upload_destination_error' => array('errcode'=>42, 'errmsg'=>'A problem was encountered while attempting to move the uploaded file to the final destination.'),
+    'upload_no_filepath' => array('errcode'=>43, 'errmsg'=>'The upload path does not appear to be valid.'),
+    'upload_no_file_types' => array('errcode'=>44, 'errmsg'=>'You have not specified any allowed file types.'),
+    'upload_bad_filename' => array('errcode'=>45, 'errmsg'=>'The file name you submitted already exists on the server.'),
+    'upload_not_writable' => array('errcode'=>46, 'errmsg'=>'The upload destination folder does not appear to be writable.'),
+
 );
