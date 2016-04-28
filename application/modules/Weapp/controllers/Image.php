@@ -73,7 +73,6 @@ class ImageController extends Yaf_Controller_Abstract{
 
         //人脸检测接口调用
         $rt = Youtu_Youtu::detectface($url, 0);
-        var_dump($rt);exit;
 
         if(!$rt){
             $data['rtn'] = $error['service_unavailable']['errcode'];
@@ -83,8 +82,8 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
         
-        $rt['errcode'] = $rt['errorcode'];
-        $rt['errmsg'] = $rt['errormsg'];
+        $rt['rtn'] = $rt['errorcode'];
+        $rt['msg'] = $rt['errormsg'];
         unset($rt['errorcode'], $rt['errormsg']);
         $response->setBody(json_encode($data));
         $response->response();
