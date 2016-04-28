@@ -39,7 +39,7 @@ class ImageController extends Yaf_Controller_Abstract{
         $upload = new Upload($config);
         if (!$upload->do_upload('image')){
             $response->clearBody();
-            $response->setBody('<script type="text/javascript">window.parent.document.getElementById("loadingToast").style.display="none";var dialog=window.parent.document.getElementById("dialog2");var div=dialog2.getElementsByTagName("div");div[3].innerHTML="'. $upload->display_errors() .'";dialog2.style.display="";</script>');
+            $response->setBody('<script type="text/javascript">window.parent.document.getElementById("loadingToast").style.display="none";var dialog2=window.parent.document.getElementById("dialog2");var div=dialog2.getElementsByTagName("div");div[3].innerHTML="'. $upload->display_errors() .'";dialog2.style.display="";</script>');
         }else{
             $data = array('upload_data' => $upload->data());
         }
@@ -54,10 +54,10 @@ class ImageController extends Yaf_Controller_Abstract{
         $request = new Yaf_Request_Http();
         $response = new Yaf_Response_Http();
         $response->setHeader('Content-Type', 'application/json');
-        $data['url'] = $request->getPost('url', '');
+        $url = $request->getPost('url', '');
         
         $error = get_var_from_conf('error');
-        if(!isset($data['url']{10})){
+        if(!isset($url{10})){
             
             $data = array();
             $data['rtn'] = $error['image_url_empty']['errcode'];
@@ -67,11 +67,13 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
         
-        $data['app_id'] = YOUTU_APP_ID;
-        $data['mode'] = 0;
-        
-        $youtu = new Youtu();
-        $rt = $youtu->request('faceshape', $data);
+        //根据你使用的平台选择一种初始化方式
+        //优图开放平台初始化
+        Youtu_Conf::setAppInfo(YOUTU_APP_ID, YOUTU_SECRET_ID, YOUTU_SECRET_KEY, YOUTU_USER_ID, Youtu_Conf::API_YOUTU_END_POINT);
+
+        //人脸检测接口调用
+        $rt = Youtu_Youtu::detectface($url, 0);
+        var_dump($rt);exit;
 
         if(!$rt){
             $data['rtn'] = $error['service_unavailable']['errcode'];

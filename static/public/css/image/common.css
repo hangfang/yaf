@@ -13,7 +13,7 @@ body {background-color: rgb(235,235,235);}
 .list-group-item{border-color: rgb(197,197,197); padding:2px;}
 .list-group-item a {display:block; color: #000; text-decoration: none; color: #888;}
 .list-group-item:last-child a {padding: 0; font-size: 12px;}
-.img-responsive {width:403px; height:268px;}
+.img-responsive {width: 100%; height:268px;}
 .pull-right {width:43px; height:43px;}
 
 .navbar {position: fixed;top: -1px; left:0px; display: block;width: 100%; z-index:1;}

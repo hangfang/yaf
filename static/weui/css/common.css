@@ -9,7 +9,7 @@ body {
 }
 
 #container {
-	//height: 100%;
+	/*height: 100%;*/
         margin-bottom: 75px;
         overflow-x: hidden;
 	overflow-y: auto;
@@ -17,7 +17,7 @@ body {
 }
 
 .container>div {
-	//background-color: #fbf9fe
+	/*background-color: #fbf9fe*/
 }
 
 .hd {

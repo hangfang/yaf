@@ -71,3 +71,4 @@ define('BAIDU_JOKE_API_URL', 'http://apis.baidu.com/hihelpsme/chinajoke/getjokel
 define('YOUTU_APP_ID', '1006952');
 define('YOUTU_SECRET_ID', 'AKIDatt8wGamPiolphD0VdqUWupR35oEYeOk');
 define('YOUTU_SECRET_KEY', 'JKxyKHjeGVr75CHTYULPfj0d3mu36KeD');
+define('YOUTU_USER_ID', '470739703');
