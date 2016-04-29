@@ -29,9 +29,9 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
 <div class="container-fluid">
     <div class="bd">
         <ul class="list-group">
-            <li class="list-group-item">
-                <a class="bg-wrapper" href="javascript:void(0)">
-                    <img src="http://placeholdit.imgix.net/~text?txtsize=16&txt=+%E7%82%B9%E5%87%BB%E6%B7%BB%E5%8A%A0%E5%9B%BE%E7%89%87&w=403&h=268&txttrack=1" class="carousel-inner img-responsive" id="img-responsive">
+            <li class="list-group-item"  id="img-responsive-container">
+                <a class="bg-wrapper" href="javascript:void(0)"  id="img-responsive">
+                    <img src="http://placeholdit.imgix.net/~text?txtsize=16&txt=+%E7%82%B9%E5%87%BB%E6%B7%BB%E5%8A%A0%E5%9B%BE%E7%89%87&w=403&h=268&txttrack=1" class="carousel-inner img-responsive">
                 </a>
             </li>
             <li class="list-group-item">
@@ -64,6 +64,34 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
 <div id="imgDiv"></div>
 </form>
 <iframe style="display:none;" name="iframe"></iframe>
+<script type="text/html" id="img-responsive-template">
+    <div class="container-fluid">
+        <div class="bd">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a class="bg-wrapper" href="javascript:void(0)">
+                        <img src="{imgsrc}" class="carousel-inner img-responsive">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="progress_template">
+    <div class="container-fluid" id="progress">
+        <div class="bd">
+            <ul class="list-group">
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript" src="/static/public/js/upload/lib/crypto1/crypto/crypto.js"></script>
+<script type="text/javascript" src="/static/public/js/upload/lib/crypto1/hmac/hmac.js"></script>
+<script type="text/javascript" src="/static/public/js/upload/lib/crypto1/sha1/sha1.js"></script>
+<script type="text/javascript" src="/static/public/js/upload/lib/base64.js"></script>
+<script type="text/javascript" src="/static/public/js/upload/lib/plupload-2.1.2/js/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/public/js/upload/upload.js"></script>
 
 <script src="/static/weui/js/jweixin-1.1.0.js?v=2016-04-07"></script>
 <script>

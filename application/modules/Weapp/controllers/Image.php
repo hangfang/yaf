@@ -3,7 +3,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 class ImageController extends Yaf_Controller_Abstract{
     public function indexAction(){
-        
+
         $data = array();
         $data['title'] = '图像识别';
         $data['class'] = 'map';
@@ -69,15 +69,15 @@ class ImageController extends Yaf_Controller_Abstract{
         }
         
         $url = explode('/', $url);
-        $file_path = APPLICATION_PATH .'/upload/image/'. array_pop($url);
+        $filename = array_pop($url);
         
         //根据你使用的平台选择一种初始化方式
         //优图开放平台初始化
         Youtu_Conf::setAppInfo(YOUTU_APP_ID, YOUTU_SECRET_ID, YOUTU_SECRET_KEY, YOUTU_USER_ID, Youtu_Conf::API_YOUTU_END_POINT);
 
         //人脸检测接口调用
-        $rt = Youtu_Youtu::detectface($file_path, 1);
-var_dump($rt);exit;
+        $rt = Youtu_Youtu::faceshapeurl($url, 1);
+
         if(!$rt){
             $data['rtn'] = $error['service_unavailable']['errcode'];
             $data['msg'] = $error['service_unavailable']['errmsg'];
@@ -93,12 +93,63 @@ var_dump($rt);exit;
             $response->response();
             return FALSE;
         }
+ 
+        if($rt['errorcode'] > 0){
+            $rt['rtn'] = $rt['errorcode'];
+            $rt['msg'] = $rt['errormsg'];
+            unset($rt['errorcode'], $rt['errormsg']);
+            $response->setBody(json_encode($rt));
+            $response->response();
+            return FALSE;
+        }
+
+        $image = new Imagick($file_path);
+        $draw = new ImagickDraw();  
+        $pixel = new ImagickPixel( 'rgb(146,109,132)' );  
+
+        $draw->setFont(APPLICATION_PATH .'/fonts/texb.ttf');  
+        $draw->setFontSize( 10 );  
         
+        foreach($rt['face_shape'][0]['face_profile'] as $v){
+            $image->annotateImage($draw, $v['x'], $v['y'], 0, '.');
+        }
+        
+        foreach($rt['face_shape'][0]['left_eye'] as $v){
+            $image->annotateImage($draw, $v['x'], $v['y'], 0, '.');
+        }
+        
+        foreach($rt['face_shape'][0]['right_eye'] as $v){
+            $image->annotateImage($draw, $v['x'], $v['y'], 0, '.');
+        }
+        
+        foreach($rt['face_shape'][0]['left_eyebrow'] as $v){
+            $image->annotateImage($draw, $v['x'], $v['y'], 0, '.');
+        }
+        
+        foreach($rt['face_shape'][0]['right_eyebrow'] as $v){
+            $image->annotateImage($draw, $v['x'], $v['y'], 0, '.');
+        }
+        
+        foreach($rt['face_shape'][0]['mouth'] as $v){
+            $image->annotateImage($draw, $v['x'], $v['y'], 0, '.');
+        }
+        
+        foreach($rt['face_shape'][0]['nose'] as $v){
+            $image->annotateImage($draw, $v['x'], $v['y'], 0, '.');
+        }
+        
+        $image->setImageFormat('jpeg');
+
+        $image->writeimage(APPLICATION_PATH .'/upload/image/after/'. $filename);
+        
+        $rt['img'] = '/upload/image/after/'. $filename;
         $rt['rtn'] = $rt['errorcode'];
         $rt['msg'] = $rt['errormsg'];
         unset($rt['errorcode'], $rt['errormsg']);
+            
         $response->setBody(json_encode($rt));
         $response->response();
-        return FALSE;
+
+        return false;
     }
 }

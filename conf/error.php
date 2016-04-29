@@ -52,5 +52,24 @@ $error = array(
     
     
     'service_unavailable' => array('errcode'=>48, 'errmsg'=>'service is unavailable now, please try later.'),
+    
+    'imglib_source_image_required' => array('errcode'=>49, 'errmsg'=>'You must specify a source image in your preferences.'),
+    'imglib_gd_required' => array('errcode'=>50, 'errmsg'=>'The GD image library is required for this feature.'),
+    'imglib_gd_required_for_props' => array('errcode'=>51, 'errmsg'=>'Your server must support the GD image library in order to determine the image properties.'),
+    'imglib_unsupported_imagecreate' => array('errcode'=>52, 'errmsg'=>'Your server does not support the GD function required to process this type of image.'),
+    'imglib_gif_not_supported' => array('errcode'=>53, 'errmsg'=>'GIF images are often not supported due to licensing restrictions. You may have to use JPG or PNG images instead.'),
+    'imglib_jpg_not_supported' => array('errcode'=>54, 'errmsg'=>'JPG images are not supported.'),
+    'imglib_png_not_supported' => array('errcode'=>55, 'errmsg'=>'PNG images are not supported.'),
+    'imglib_jpg_or_png_required' => array('errcode'=>56, 'errmsg'=>'The image resize protocol specified in your preferences only works with JPEG or PNG image types.'),
+    'imglib_copy_error' => array('errcode'=>57, 'errmsg'=>'An error was encountered while attempting to replace the file. Please make sure your file directory is writable.'),
+    'imglib_rotate_unsupported' => array('errcode'=>58, 'errmsg'=>'Image rotation does not appear to be supported by your server.'),
+    'imglib_libpath_invalid' => array('errcode'=>59, 'errmsg'=>'The path to your image library is not correct. Please set the correct path in your image preferences.'),
+    'imglib_image_process_failed' => array('errcode'=>60, 'errmsg'=>'Image processing failed. Please verify that your server supports the chosen protocol and that the path to your image library is correct.'),
+    'imglib_rotation_angle_required' => array('errcode'=>61, 'errmsg'=>'An angle of rotation is required to rotate the image.'),
+    'imglib_invalid_path' => array('errcode'=>62, 'errmsg'=>'The path to the image is not correct.'),
+    'imglib_copy_failed' => array('errcode'=>63, 'errmsg'=>'The image copy routine failed.'),
+    'imglib_missing_font' => array('errcode'=>64, 'errmsg'=>'Unable to find a font to use.'),
+    'imglib_save_failed' => array('errcode'=>65, 'errmsg'=>'Unable to save the image. Please make sure the image and file directory are writable.'),
+
 
 );
