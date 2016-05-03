@@ -7,17 +7,17 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
     <div class="bd" style="height: 100%;">
         <div class="weui_tab">
             <div class="weui_navbar">
-                <a class="weui_navbar_item" href="/weapp/news/wxhot">
-                    微信
+                <a class="weui_navbar_item weui_bar_item_on" href="/weapp/image/index">
+                    人脸识别
                 </a>
-                <a class="weui_navbar_item" href="/weapp/news/social">
-                    社会
+                <a class="weui_navbar_item" href="/weapp/image/photo">
+                    图像识别
                 </a>
-                <a class="weui_navbar_item weui_bar_item_on" href="/weapp/news/girl">
-                    美图
+                <a class="weui_navbar_item" href="javascript:void(0)">
+                    continuing
                 </a>
-                <a class="weui_navbar_item" href="/weapp/news/hot">
-                    热搜
+                <a class="weui_navbar_item" href="javascript:void(0)">
+                    continuing
                 </a>
             </div>
             <div class="weui_tab_bd">

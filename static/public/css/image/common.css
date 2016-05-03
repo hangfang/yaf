@@ -25,3 +25,5 @@ body {background-color: rgb(235,235,235);}
 
 .image_url {padding: 0;}
 .input_image_url {height: 3.15em; border: 1px solid #04BE02;border-radius: 5px;}
+
+#progress .list-group-item a {font-size: 12px; padding: 0;}

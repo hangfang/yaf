@@ -14,28 +14,6 @@ $(function(){
             });
         });
     }else{
-//        $('#container').on('change', '#file', function(e){
-//           
-//            var val = $('#file').val();
-//            if(!val){
-//                return false;
-//            }
-//            
-//            var valArr = val.split('.');
-//            var ext = valArr.pop();
-//            var imgExt = 'jpeg,png,bmp';
-//            if(imgExt.indexOf(ext.toLowerCase())===-1){
-//                $('#dialog2').find('.weui_dialog_bd').html('仅支持jpeg、png、bmp格式').end().show();
-//                return false;
-//            }
-//            
-//            $('#loadingToast').find('.weui_toast_content').html('图片上传中').end().show();
-//            $('#upload').submit();
-//        });
-//
-//        $('#container').on('click', '#img-responsive', function(e){
-//            $('#file').click();
-//        });
     }
     
     $('#dialog2').on('click', '.weui_btn_dialog', function(e){
@@ -66,7 +44,8 @@ $(function(){
                    return false;
                }
                
-               $('#upload').before($('#img-responsive-template').html().replace('{imgsrc}', data.img));
+               $('#img-responsive img').attr('src', data.img);
+               //$('#upload').before($('#img-responsive-template').html().replace('{imgsrc}', data.img));
            }
            
         });
@@ -101,11 +80,11 @@ $(function(){
         }
     });
     
-    $('#container').on('click', '.list-group-item', function(e){
-        $('#img-responsive-container').find('img').attr('src', $(this).find('i').attr('src'));
+    $('#container').on('click', '.list-group-item .weui_btn', function(e){
+        $('#img-responsive-container').find('img').attr('src', $(this).prev('a').find('i').attr('src'));
     });
     
-    
+  
     (function(){
         var policyText = {
         "expiration": "2020-01-01T12:00:00.000Z", //设置该Policy的失效时间，超过这个失效时间之后，就没有办法通过这个policy上传文件了
@@ -153,7 +132,7 @@ $(function(){
                         FilesAdded: function(up, files) {
                             plupload.each(files, function(file) {
 
-                                var html = '<li class="list-group-item" id="'+ file.id +'"><div class="weui_progress"><div class="weui_progress_bar"><div class="weui_progress_inner_bar js_progress" style="width: 0%;"></div></div><a href="javascript:;" class="weui_progress_opr"><i class="weui_icon_waiting"></i></a></div></li>';
+                                var html = '<li class="list-group-item" id="'+ file.id +'"><div class="weui_progress"><div class="weui_progress_bar"><div class="weui_progress_inner_bar js_progress" style="width: 0%;"></div></div><a href="javascript:;" class="weui_progress_opr"><i class="weui_icon_waiting"></i></a><a href="javascript:;" class="weui_progress_opr weui_btn weui_btn_plain_default">复位</a></div></li>';
                                 $('#progress ul').append(html);
 
                             });
