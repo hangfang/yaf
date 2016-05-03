@@ -52,11 +52,32 @@ $(function(){
         
     });
     
-    $('#container').on('click', '#alasys', function(e){
+    $('#container').on('click', '#analyse', function(e){
         if($('#img-responsive img').attr('src').indexOf('rbmax')===-1){
             $('#dialog2').find('.weui_dialog_bd').html('请添加图片').end().show();
             return false;
         }
+        
+        $('#loadingToast').find('.weui_toast_content').html('处理中').end().show();
+        
+        var data = {url: $('#img-responsive img').attr('src')};
+        $.ajax({
+           url: '/weapp/image/analyse',
+           data: data,
+           type: 'post',
+           dataType: 'json',
+           success: function(data, textStatus, xhr){
+               $('#loadingToast').hide();
+               if(data.rtn != 0){
+                   $('#dialog2').find('.weui_dialog_bd').html(data.msg).end().show();
+                   return false;
+               }
+               
+               $('#img-responsive img').attr('src', data.img);
+               //$('#upload').before($('#img-responsive-template').html().replace('{imgsrc}', data.img));
+           }
+           
+        });
     });
     
     $('#container').on('click', '#compare', function(e){
@@ -139,7 +160,7 @@ $(function(){
                             uploader.start();
                         },
 
-                        UploadProgress: function(up, file) {console.log(file);
+                        UploadProgress: function(up, file) {
                                 $('#'+file.id).find('.js_progress').css('width', file.percent+'%');
                         },
 
