@@ -101,8 +101,8 @@ $(function(){
         }
     });
     
-    $('#container').on('click', '.list-group-item .weui_btn', function(e){
-        $('#img-responsive-container').find('img').attr('src', $(this).parents('.weui_progress').find('i').attr('src').replace(/\?.*/ig, '')+'?rd='+new Date().getTime());
+    $('#container').on('click', '.reset', function(e){
+        $('#img-responsive-container').find('img').attr('src', $(this).prev('a').find('i').attr('src').replace(/\?.*/ig, '')+'?rd='+new Date().getTime());
     });
     
   
@@ -153,7 +153,7 @@ $(function(){
                         FilesAdded: function(up, files) {
                             plupload.each(files, function(file) {
 
-                                var html = '<li class="list-group-item" id="'+ file.id +'"><div class="weui_progress"><div class="weui_progress_bar"><div class="weui_progress_inner_bar js_progress" style="width: 0%;"></div></div><a href="javascript:;" class="weui_progress_opr"><i class="weui_icon_waiting"></i></a><a href="javascript:;" class="weui_progress_opr weui_btn weui_btn_plain_default">复位</a></div></li>';
+                                var html = '<li class="list-group-item" id="'+ file.id +'"><div class="weui_progress"><div class="weui_progress_bar"><div class="weui_progress_inner_bar js_progress" style="width: 0%;"></div></div><a href="javascript:;" class="weui_progress_opr"><i class="weui_icon_waiting"></i></a><a href="javascript:;" class="reset weui_progress_opr weui_btn weui_btn_plain_default">复位</a></div></li>';
                                 $('#progress ul').append(html);
 
                             });
