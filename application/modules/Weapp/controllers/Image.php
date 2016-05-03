@@ -68,8 +68,9 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
         
-        $url = explode('/', $url);
-        $filename = array_pop($url);
+        $tmp = explode('/', $url);
+        $filename = array_pop($tmp);
+        unset($tmp);
         
         //根据你使用的平台选择一种初始化方式
         //优图开放平台初始化
@@ -94,7 +95,7 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
  
-        if($rt['errorcode'] > 0){
+        if($rt['errorcode'] != 0){
             $rt['rtn'] = $rt['errorcode'];
             $rt['msg'] = $rt['errormsg'];
             unset($rt['errorcode'], $rt['errormsg']);
@@ -103,7 +104,18 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
 
-        $image = new Imagick($file_path);
+        $tmp = tempnam(APPLICATION_PATH .'/upload/image/', '');
+
+        if(!copy($url, $tmp)){
+            $data = array();
+             $data['rtn'] = $error['image_get_from_oss_error']['errcode'];
+            $data['msg'] = $error['image_get_from_oss_error']['errmsg'];
+            $response->setBody(json_encode($data));
+            $response->response();
+            return FALSE;
+        }
+        
+        $image = new Imagick($tmp);
         $draw = new ImagickDraw();  
         $pixel = new ImagickPixel( 'rgb(146,109,132)' );  
 
@@ -137,12 +149,26 @@ class ImageController extends Yaf_Controller_Abstract{
         foreach($rt['face_shape'][0]['nose'] as $v){
             $image->annotateImage($draw, $v['x'], $v['y'], 0, '.');
         }
-        
+
         $image->setImageFormat('jpeg');
 
-        $image->writeimage(APPLICATION_PATH .'/upload/image/after/'. $filename);
+        unlink($tmp);
+
+        try{
+            $ossClient = new Oss_Client(ALIYUN_OSS_ACCESS_KEY_ID, ALIYUN_OSS_ACCESS_KEY_SECRET, ALIYUN_OSS_END_POINT, false);
+            $ossClient->putObject(ALIYUN_OSS_BUNCKET, 'image/'.$filename, $image->getimageblob());
+        } catch(Oss_Core_Exception $e) {
+            $data = array();
+            $data['rtn'] = $e->getCode();
+            $data['msg'] = $e->getMessage();
+
+            $response->setBody(json_encode($data));
+            $response->response();
+
+            return false;
+        }
         
-        $rt['img'] = '/upload/image/after/'. $filename;
+        $rt['img'] = 'http://oss.rbmax.com/image/'. $filename .'?rd='. microtime(true);
         $rt['rtn'] = $rt['errorcode'];
         $rt['msg'] = $rt['errormsg'];
         unset($rt['errorcode'], $rt['errormsg']);

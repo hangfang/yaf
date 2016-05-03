@@ -21,12 +21,16 @@ var uploader = new plupload.Uploader({
 	container: document.getElementById('img-responsive-container'),
 	flash_swf_url : '/static/public/js/upload/lib/plupload-2.1.2/js/Moxie.swf',
 	silverlight_xap_url : '/static/public/js/upload/lib/plupload-2.1.2/js/Moxie.xap',
-
         url : host,
+        unique_names : true,
+        multi_selection: false,
+        multiple_queues: true,
+        max_file_size: '3mb',
+        filters : [{title : "图片", extensions : "jpeg,png,bmp,jpg"}],
 
 	multipart_params: {
-            'Filename': '${filename}', 
-            'key' : '${filename}',
+            //'Filename': '${filename}', 
+            'key' : 'image/${filename}',
             'policy': policyBase64,
             'OSSAccessKeyId': accessid, 
             'success_action_status' : '200', //让服务端返回200,不然，默认会返回204
@@ -36,9 +40,6 @@ var uploader = new plupload.Uploader({
 	init: {
 		PostInit: function() {
                     $('#upload').before($('#progress_template').html());
-                    setTimeout(function(){
-                        uploader.start();
-                    }, 2000);
 		},
 
 		FilesAdded: function(up, files) {
@@ -46,8 +47,9 @@ var uploader = new plupload.Uploader({
                         
                         var html = '<li class="list-group-item" id="'+ file.id +'"><div class="weui_progress"><div class="weui_progress_bar"><div class="weui_progress_inner_bar js_progress" style="width: 0%;"></div></div><a href="javascript:;" class="weui_progress_opr"><i class="weui_icon_waiting"></i></a></div></li>';
                         $('#progress ul').append(html);
-                        return false;
+                        
                     });
+                    uploader.start();
 		},
 
 		UploadProgress: function(up, file) {console.log(file);
@@ -57,18 +59,21 @@ var uploader = new plupload.Uploader({
 		FileUploaded: function(up, file, info) {
                     if (info.status >= 200 || info.status < 200)
                     {
-                        $('#'+file.id).find('i').attr('class', 'weui_icon_success');
-                        $('#img-responsive img').attr('src', 'http://oss.rbmax.com/'+file.name);
+                        var imgSrc = 'http://oss.rbmax.com/image/'+file.name;
+                        $('#'+file.id).find('i').attr('class', 'weui_icon_success').data(imgSrc);
+                        $('#img-responsive img').attr('src', imgSrc);
                     }
                     else
                     {
                         $('#'+file.id).find('i').attr('class', 'weui_icon_warning');
                         $('#'+file.id).find('.js_progress').html(info.response);
-                    } 
+                    }
+                    //uploader.refresh();
 		},
 
 		Error: function(up, err) {
                     $('#'+file.id).find('.js_progress').html(err.response);
+                    //uploader.refresh();
 		}
 	}
 });

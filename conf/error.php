@@ -72,4 +72,5 @@ $error = array(
     'imglib_save_failed' => array('errcode'=>65, 'errmsg'=>'Unable to save the image. Please make sure the image and file directory are writable.'),
 
 
+    'image_get_from_oss_error' => array('errcode'=>66, 'errmsg'=>'Get image from oss failed.'),
 );

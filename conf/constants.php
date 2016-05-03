@@ -72,3 +72,9 @@ define('YOUTU_APP_ID', '1006952');
 define('YOUTU_SECRET_ID', 'AKIDatt8wGamPiolphD0VdqUWupR35oEYeOk');
 define('YOUTU_SECRET_KEY', 'JKxyKHjeGVr75CHTYULPfj0d3mu36KeD');
 define('YOUTU_USER_ID', '470739703');
+
+/*阿里云oss对象存储*/
+define('ALIYUN_OSS_BUNCKET', 'rbmax-upload-image');
+define('ALIYUN_OSS_ACCESS_KEY_ID', '3IYCIDFZcGbGpnUX');
+define('ALIYUN_OSS_ACCESS_KEY_SECRET', 'AjWQTwY1fq6puNswqPoB0BnXVg1TZI');
+define('ALIYUN_OSS_END_POINT', 'http://oss-cn-shenzhen.aliyuncs.com');

@@ -234,7 +234,7 @@ class Youtu_Youtu
         );
         $rsp  = Youtu_Http::send($req);
 
-         $ret  = json_decode($rsp, true);
+        $ret  = json_decode($rsp, true);
         
         if(!$ret){
             return self::getStatusText();

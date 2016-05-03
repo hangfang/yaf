@@ -91,7 +91,6 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
 <script type="text/javascript" src="/static/public/js/upload/lib/crypto1/sha1/sha1.js"></script>
 <script type="text/javascript" src="/static/public/js/upload/lib/base64.js"></script>
 <script type="text/javascript" src="/static/public/js/upload/lib/plupload-2.1.2/js/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/public/js/upload/upload.js"></script>
 
 <script src="/static/weui/js/jweixin-1.1.0.js?v=2016-04-07"></script>
 <script>
