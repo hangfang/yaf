@@ -102,7 +102,7 @@ $(function(){
     });
     
     $('#container').on('click', '.list-group-item .weui_btn', function(e){
-        $('#img-responsive-container').find('img').attr('src', $(this).prev('a').find('i').attr('src'));
+        $('#img-responsive-container').find('img').attr('src', $(this).prev('a').find('i').attr('src').replace(/\?.*/ig, '')+'?rd='+new Date().getTime());
     });
     
   
