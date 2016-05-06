@@ -768,7 +768,7 @@ input.weui_btn_plain_default {
   position: relative;
   margin-right: 9px;
   margin-bottom: 9px;
-  margin-top: -10px;
+  //margin-top: -10px;
   width: 77px;
   height: 77px;
   border: 1px solid #D9D9D9;
