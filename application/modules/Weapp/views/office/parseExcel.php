@@ -31,6 +31,7 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
         </td>
    </tr>
 </script>
+
 <script>
     var data = <?php echo json_encode($data['tbody']);?>;
     var columns = <?php $data['thead'][] = array('command'=>array('edit', 'destroy'), 'title'=>'操作', 'allowCopy'=>false);echo json_encode($data['thead']);?>;

@@ -3,16 +3,16 @@ $(function(){
         data: data,
         //batch: true,
         pageSize: 20,
-        schema: {
-            parse: function(response) {
-                $(".img-preview").imgbox({
-                    'zoomOpacity' : true,
-                    'alignment' : 'center'
-                });
-                
-                return response;
-            }
-        }
+//        schema: {
+//            parse: function(response) {
+//                $(".img-preview").imgbox({
+//                    'zoomOpacity' : true,
+//                    'alignment' : 'center'
+//                });
+//                
+//                return response;
+//            }
+//        }
     });
     
     $('#grid').kendoGrid({
