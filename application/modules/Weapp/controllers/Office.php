@@ -43,20 +43,20 @@ class OfficeController extends Yaf_Controller_Abstract{
         try{
             $PHPExcel = PHPExcel_IOFactory::load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
         }catch(Exception $e){
-//            try{
-//                $reader = PHPExcel_IOFactory::createReader('Excel5'); //设置以Excel5格式(Excel97-2003工作簿)
-//                $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
-//            }catch(Exception $e){
-//                try{
-//                    $reader = PHPExcel_IOFactory::createReader('Excel2007'); //设置以Excel5格式(Excel97-2003工作簿)
-//                    $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
-//                }catch(Exception $e){
-//                    $response = new Yaf_Response_Http();
-//                    $response->setBody($e->getMessage());
-//                    $response->response();
-//                    return false;
-//                }
-//            }
+            try{
+                $reader = PHPExcel_IOFactory::createReader('Excel5'); //设置以Excel5格式(Excel97-2003工作簿)
+                $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
+            }catch(Exception $e){
+                try{
+                    $reader = PHPExcel_IOFactory::createReader('Excel2007'); //设置以Excel5格式(Excel97-2003工作簿)
+                    $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
+                }catch(Exception $e){
+                    $response = new Yaf_Response_Http();
+                    $response->setBody($e->getMessage());
+                    $response->response();
+                    return false;
+                }
+            }
         }
         
         $sheet = $PHPExcel->getSheet(0); // 读取第一個工作表
@@ -93,6 +93,10 @@ class OfficeController extends Yaf_Controller_Abstract{
         }
 
         foreach ($sheet->getDrawingCollection() as $k => $drawing) {
+            if(!method_exists($drawing, 'getMimeType')){//导入xlsx时，$drawing是PHPExcel_Worksheet_Drawing的实例，不支持上传图片；导入xls时，$drawing是PHPExcel_Worksheet_MemoryDrawing的实例，支持上传图片
+                break;
+            }
+            
             list($column, $row) = PHPExcel_Cell::coordinateFromString($drawing->getCoordinates());
             $column = PHPExcel_Cell::columnIndexFromString($column)-1;//获取所在列号
 
