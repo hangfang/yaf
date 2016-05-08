@@ -3,7 +3,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 include APPLICATION_PATH . '/application/views/common/weui/header.php';
 ?>
 
-<link type="text/css" rel="stylesheet" href="/static/public/css/imgbox.css?v=20160505"/>
+<link type="text/css" rel="stylesheet" href="/static/public/css/lightbox.css?v=20160505"/>
 <link type="text/css" rel="stylesheet" href="/static/kendo/css/kendo.common.min.css?v=20160505"/>
 <link type="text/css" rel="stylesheet" href="/static/kendo/css/kendo.default.min.css?v=20160505"/>
 
@@ -38,6 +38,6 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
 </script>
 <script type="text/javascript" src="/static/kendo/js/kendo.all.min.js"></script>
 
-<script src="/static/public/js/jquery.imgbox.pack.js?d=20160110"></script>
+<script src="/static/public/js/lightbox.js?d=20160110"></script>
 <script src="/static/public/js/office/parseExcel.js?d=20160110"></script>
 <?php include APPLICATION_PATH . '/application/views/common/weui/footer.php'; ?>

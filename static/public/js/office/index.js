@@ -13,8 +13,4 @@ $(function(){
         form.submit();
     });
     
-    $("#img-preview").imgbox({
-                    'zoomOpacity' : true,
-                    'alignment' : 'center'
-                });
 });

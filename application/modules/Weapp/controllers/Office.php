@@ -40,21 +40,23 @@ class OfficeController extends Yaf_Controller_Abstract{
             return false;
         }
         
-        try{ 
-            $reader = PHPExcel_IOFactory::createReader('Excel5'); //设置以Excel5格式(Excel97-2003工作簿)
-            $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
-            
+        try{
+            $PHPExcel = PHPExcel_IOFactory::load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
         }catch(Exception $e){
-            try{
-                $reader = PHPExcel_IOFactory::createReader('Excel2007'); //设置以Excel5格式(Excel97-2003工作簿)
-                $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
-
-            }catch(Exception $e){
-                $response = new Yaf_Response_Http();
-                $response->setBody($e->getMessage());
-                $response->response();
-                return false;
-            }
+//            try{
+//                $reader = PHPExcel_IOFactory::createReader('Excel5'); //设置以Excel5格式(Excel97-2003工作簿)
+//                $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
+//            }catch(Exception $e){
+//                try{
+//                    $reader = PHPExcel_IOFactory::createReader('Excel2007'); //设置以Excel5格式(Excel97-2003工作簿)
+//                    $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
+//                }catch(Exception $e){
+//                    $response = new Yaf_Response_Http();
+//                    $response->setBody($e->getMessage());
+//                    $response->response();
+//                    return false;
+//                }
+//            }
         }
         
         $sheet = $PHPExcel->getSheet(0); // 读取第一個工作表
@@ -93,15 +95,15 @@ class OfficeController extends Yaf_Controller_Abstract{
         foreach ($sheet->getDrawingCollection() as $k => $drawing) {
             list($column, $row) = PHPExcel_Cell::coordinateFromString($drawing->getCoordinates());
             $column = PHPExcel_Cell::columnIndexFromString($column)-1;//获取所在列号
-            
-            $data['thead'][$column] = array_merge($data['thead'][$column], array('template'=>'<a #if(data.pic){# href="#: data.pic #" #}else{# href="http://placeholdit.imgix.net/~text?txtsize=14&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=17&h=17&txttrack=0" #}# class="img-preview"><img #if(data.pic){# src="#: data.pic #" #}else{# src="http://placeholdit.imgix.net/~text?txtsize=14&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=17&h=17&txttrack=0" #}# width="17" height="17" onerror="http://placeholdit.imgix.net/~text?txtsize=14&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=17&h=17&txttrack=0"/></a>'));
+
+            $data['thead'][$column] = array_merge($data['thead'][$column], array('template'=>'<a #if(data.'.$data['thead'][$column]['title'].'){# href="#: data.'.$data['thead'][$column]['title'].' #" data-lightbox="img" data-title="图片预览" #}# ><img #if(data.'.$data['thead'][$column]['title'].'){# src="#: data.'.$data['thead'][$column]['title'].' #" #}else{# src="http://placeholdit.imgix.net/~text?txtsize=14&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=17&h=17&txttrack=0" #}# width="17" height="17" onerror="http://placeholdit.imgix.net/~text?txtsize=14&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=17&h=17&txttrack=0"/></a>'));
             
             $headerCell = $sheet->getCellByColumnAndRow($column, 1);
             
             $fieldName = $headerCell->getValue();
             $filename = $drawing->getIndexedFilename(); //文件名
             $imageFilePath = APPLICATION_PATH .'/upload/image/'.$row .'_'. $column .'_'. $filename;
-            
+
             switch ($drawing->getMimeType()){//处理图片格式
                 case 'image/jpp':
                 case 'image/jpeg':
@@ -115,7 +117,7 @@ class OfficeController extends Yaf_Controller_Abstract{
                     break;
             }
             
-            $tbody[$row][$fieldName] = '/upload/image/'.$row .'_'. $column .'_'.$filename;
+            $tbody[$row-2][$fieldName] = '/upload/image/'.$row .'_'. $column .'_'.$filename;
         }
 
         $data ['tbody'] = $tbody;
