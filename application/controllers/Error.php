@@ -24,7 +24,7 @@ class ErrorController extends Yaf_Controller_Abstract {
                 header( "location: /index/missing" );
                 return false;
             case YAF_ERR_NOTFOUND_VIEW:
-                log_message('error', 'YAF_ERR_NOTFOUND_VIEW: controller='. $request->getControllerName() .' actoin='. $request->getActionName());
+                log_message('error', 'YAF_ERR_NOTFOUND_VIEW: controller='. $request->getControllerName() .' action='. $request->getActionName());
                 header( "location: /index/missing" );
                 return false;
         }
