@@ -28,7 +28,8 @@ class ErrorController extends Yaf_Controller_Abstract {
                 header( "location: /index/missing" );
                 return false;
         }
-
+        
+        log_message('error', 'SERVER_INTERNAL_ERROR: '. $exception->getMessage());
         header( "location: /index/broken" );
         return false;
     }
