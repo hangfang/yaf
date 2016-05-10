@@ -18,15 +18,14 @@ class NewsController extends Yaf_Controller_Abstract{
         $baiduModel = new BaiduModel();
         $rt = $baiduModel->getGirls($data);
 
-        
         $data = array();
         $data['rtn'] = 0;
         $data['msg'] = $msg_news_list = $msg_news_banner = '';
         
         $msgformat = get_var_from_conf('msgformat');
-        if($rt['code']!==200){
-            $msg_news_banner = sprintf($_msg_news_banner, 'javascript:void(0)', '/static/public/images/app/1.jpg', '新闻飞走了');
-            $data['msg'] = sprintf($_msg_news_web, $msg_news_banner, '');
+        if(!isset($rt['code']) || $rt['code']!==200){
+            $msg_news_banner = sprintf($msgformat['msg_news_banner'], 'javascript:void(0)', '/static/public/images/app/1.jpg', '美女表示不约');
+            $data['msg'] = sprintf($msgformat['msg_news_web'], $msg_news_banner, '');
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
@@ -70,7 +69,7 @@ class NewsController extends Yaf_Controller_Abstract{
         $data['msg'] = $msg_news_list = $msg_news_banner = '';
         
         $msgformat = get_var_from_conf('msgformat');
-        if($rt['code']!==200){
+        if(!isset($rt['code']) || $rt['code']!==200){
             $msg_news_banner = sprintf($msgformat['msg_news_banner'], 'javascript:void(0)', '/static/public/images/app/1.jpg', '老夫夜关天象，今日并无大事发生');
             $data['msg'] = sprintf($msgformat['msg_news_web'], $msg_news_banner, '');
         }else{
@@ -115,8 +114,8 @@ class NewsController extends Yaf_Controller_Abstract{
         $data['msg'] = $msg_news_list = $msg_news_banner = '';
         
         $msgformat = get_var_from_conf('msgformat');
-        if($rt['code']!==200){
-            $msg_news_banner = sprintf($msgformat['msg_news_banner'], 'javascript:void(0)', '/static/public/images/app/1.jpg', '新闻飞走了');
+        if(!isset($rt['code']) || $rt['code']!==200){
+            $msg_news_banner = sprintf($msgformat['msg_news_banner'], 'javascript:void(0)', '/static/public/images/app/1.jpg', '资讯正在赶来的路上');
             $data['msg'] = sprintf($msgformat['msg_news_web'], $msg_news_banner, '');
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
@@ -161,7 +160,7 @@ class NewsController extends Yaf_Controller_Abstract{
         $data['msg'] = $msg_news_list = $msg_news_banner = '';
         
         $msgformat = get_var_from_conf('msgformat');
-        if($rt['code']!==200){
+        if(!isset($rt['code']) || $rt['code']!==200){
             $msg_news_banner = sprintf($msgformat['msg_news_banner'], 'javascript:void(0)', '/static/public/images/app/1.jpg', '新闻飞走了');
             $data['msg'] = sprintf($msgformat['msg_news_web'], $msg_news_banner, '');
         }else{

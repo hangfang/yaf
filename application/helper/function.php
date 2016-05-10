@@ -651,47 +651,114 @@ if(!function_exists('get_var_from_conf')){
 if(!function_exists('http')){
     function http($args = array()){
         $ch = curl_init();
+        $config = Yaf_Registry::get('config');
+        $cookiePrefix = $config['application']['cookie_prefix'];
+        $preparedCookie = array('client'=>'wechat');
 
         $args = array_merge(array(
-            'header'=> array(),
             'data' => array(),
             'method' => 'get',
+            'cookie' => $preparedCookie,
+            'header' => array(),
         ) ,$args);
-        if(strtolower($args['method']) === 'post'){
+        if(strtolower($args['method']) == 'post'){
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch ,CURLOPT_POSTFIELDS, is_array($args['data']) ? http_build_query($args['data']) : $args['data']);
         }else{
-            if(is_array($args['data'])){
-                 $data = array();
-                 foreach ($args['data'] as $key => $value) {
-                     $data[] = urlencode($key).'='.urlencode($value);
-                 }
-                 $data = implode('&', $data);
-            }else{
-                $data = $args['data'];
+            $data = array();
+            foreach ($args['data'] as $key => $value) {
+                $data[] = urlencode($key).'='.urlencode($value);
             }
-            $args['url'] .=(strpos($args['url'] ,'?')==false?'?':'&').$data;
-            $args['url'] = trim($args['url'], '&');
+            $data = implode('&', $data);
+            $args['url'].=(strpos($args['url'] ,'?')==false?'?':'&').$data;
         }
-
+        curl_setopt($ch, CURLOPT_URL, $args['url']);
+        //跟踪301
+        curl_setopt($ch ,CURLOPT_FOLLOWLOCATION ,1);
+        //设置 referer
+        if(isset($_SERVER['HTTP_REFERER'])){
+            curl_setopt($ch, CURLOPT_REFERER, $_SERVER['HTTP_REFERER']);
+        }
+        // 头部信息
+        curl_setopt($ch ,CURLOPT_HEADER, true);
+        // 返回字符串，而非直接输出
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // 30秒超时
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        // cookie
+        if($args['cookie']){
+            $cookie = array();
+            $request = new Yaf_Request_Http();
+            foreach ($request->getCookie() as $key => $value) {
+                if($cookiePrefix !== '' && strpos($key, $cookiePrefix)===0){
+                    $key = str_replace($cookiePrefix, '', $key);
+                }
+                $cookie[] = urlencode($key) . '=' .urlencode($value);
+            }
+            $cookie = implode(';', $cookie);
+            curl_setopt($ch ,CURLOPT_COOKIE, $cookie);
+        }
+        // http头
+        curl_setopt($ch ,CURLOPT_HTTPHEADER, $args['header']);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查 
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 从证书中检查SSL加密算法是否存在 
-        curl_setopt($ch, CURLOPT_URL, $args['url']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        !empty($args['header']) && curl_setopt($ch ,CURLOPT_HTTPHEADER, $args['header']);
         $result = curl_exec($ch);
 
         if($result === false){
-            return array(
-                'rtn' => 1,
-                'errmsg' => 'request interface fatal'
-            );
+            $return = array();
+            $return['rtn'] = 1;
+            $return['errmsg'] = 'requrest remote server failed';
+            return $return;
         }
 
         curl_close($ch);
 
-        $return = json_decode($result ,true);
+        $header_body = preg_split("#\r\n\r\n#" ,$result ,2);//$header_body[0]是返回头的字符串形式，$header_body[1]是返回数据的字符串形式
+        $headers = preg_split("#\r\n#", $header_body[0] ,2);//$headers是返回头的数组
+        $status = preg_split("# #" ,$headers[0] ,3);//返回头第一行，用空格分隔，形成数组：协议、状态码、状态码对应的英文字符
+        $code = $status[1];//状态码，如200、302、404
+        $text = $status[2];
+        $data = $header_body[1];//返回数据
+        
+        if('302' === $code){
+            $return = array();
+            $return['rtn'] = $code;
+            $return['errmsg'] = $status;
+            return $return;
+        }
+        
+        $_is_image = false;
+        // 头部写入
+        $headers = preg_split("#\r\n#", $headers[1]);
+        foreach ($headers as $_header) {
+            if(preg_match("#^HTTP/1.1: 302 Found#", $_header)===1){
+                continue;
+            }
+            
+            if(preg_match("#^Set-Cookie:#", $_header)===1){
+                preg_match("#Set-Cookie:\s([^=]+)=([^;]+);#", $_header, $matches);
+
+                cookie($matches[1], $matches[2], 60*60*24*30*1000);
+                continue;
+            }
+
+            if(preg_match("#^Content-Type:\s*image.*#", $_header)===1){
+                $_is_image = true;
+                header($_header ,false);
+                continue;
+            }
+
+            if(preg_match("#^(Content-Length|Content-Type|Transfer-Encoding|Date|Server):#", $_header)===0) {
+                header($_header ,false);
+            }
+        }
+
+        if($_is_image){
+            header('Content-Length:'. strlen($data) ,false);
+            return $data;
+        }
+
+        $return = json_decode($data ,true);
 
         if(!$return){
             $return = array();
