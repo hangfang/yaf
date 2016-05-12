@@ -36,7 +36,26 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
     var data = <?php echo json_encode($data['tbody']);?>;
     var columns = <?php $data['thead'][] = array('command'=>array('edit', 'destroy'), 'title'=>'操作', 'allowCopy'=>false);echo json_encode($data['thead']);?>;
 </script>
-<script type="text/javascript" src="/static/kendo/js/kendo.all.min.js"></script>
+<script src="/static/kendo/js/kendo.core.min.js"></script>
+<script src="/static/kendo/js/kendo.data.min.js"></script>
+<script src="/static/kendo/js/kendo.popup.min.js"></script>
+<script src="/static/kendo/js/kendo.dom.min.js"></script>
+<script src="/static/kendo/js/kendo.columnsorter.min.js"></script>
+<script src="/static/kendo/js/kendo.editable.min.js"></script>
+<script src="/static/kendo/js/kendo.numerictextbox.min.js"></script>
+<script src="/static/kendo/js/kendo.list.min.js"></script>
+<script src="/static/kendo/js/kendo.dropdownlist.min.js"></script>
+<script src="/static/kendo/js/kendo.binder.min.js"></script>
+<script src="/static/kendo/js/kendo.filtermenu.min.js"></script>
+<script src="/static/kendo/js/kendo.menu.min.js"></script>
+<script src="/static/kendo/js/kendo.columnmenu.min.js"></script>
+<script src="/static/kendo/js/kendo.selectable.min.js"></script>
+<script src="/static/kendo/js/kendo.resizable.min.js"></script>
+<script src="/static/kendo/js/kendo.draganddrop.min.js"></script>
+<script src="/static/kendo/js/kendo.pager.min.js"></script>
+<script src="/static/kendo/js/kendo.grid.min.js"></script>
+<script src="/static/kendo/js/kendo.userevents.min.js"></script>
+
 
 <script src="/static/public/js/lightbox.js?d=20160110"></script>
 <script src="/static/public/js/office/parseExcel.js?d=20160110"></script>
