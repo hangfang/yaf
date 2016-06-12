@@ -273,6 +273,22 @@ EOF;
             
         }
         
+        if(ENCPRYPT_TYPE === 'aes'){
+            
+            $request = new Yaf_Request_Http();
+
+            $timestamp  = $request->getQuery('timestamp', '');
+            $nonce = $request->getQuery('nonce', '');
+            $wxBizMsgCrypt = new Wechat_WXBizMsgCrypt(WX_TOKEN, WX_ENCODING_AES_KEY, WX_APP_ID);
+            $bak4log = $msg;
+            $res = $wxBizMsgCrypt->encryptMsg($msg, $timestamp, $nonce, $msg);
+            
+            if($res !==0 ){
+                log_message('error', 'encrypt msg error, error code: '. $res ."\r\n msg content: ". $bak4log);
+                echo '';
+                exit;
+            }
+        }
         
         header('Content-Type: text/xml');
         echo $msg;

@@ -38,6 +38,7 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
 </script>
 <script src="/static/kendo/js/kendo.core.min.js"></script>
 <script src="/static/kendo/js/kendo.data.min.js"></script>
+<script src="/static/kendo/js/kendo.userevents.min.js"></script>
 <script src="/static/kendo/js/kendo.popup.min.js"></script>
 <script src="/static/kendo/js/kendo.dom.min.js"></script>
 <script src="/static/kendo/js/kendo.columnsorter.min.js"></script>
@@ -54,7 +55,6 @@ include APPLICATION_PATH . '/application/views/common/weui/header.php';
 <script src="/static/kendo/js/kendo.draganddrop.min.js"></script>
 <script src="/static/kendo/js/kendo.pager.min.js"></script>
 <script src="/static/kendo/js/kendo.grid.min.js"></script>
-<script src="/static/kendo/js/kendo.userevents.min.js"></script>
 
 
 <script src="/static/public/js/lightbox.js?d=20160110"></script>

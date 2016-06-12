@@ -35,7 +35,25 @@ class WechatController extends Yaf_Controller_Abstract {
     
     public function messageAction(){
         //$this->valid();exit;//验证微信token
-        $data = file_get_contents('php://input');
+        $request = new Yaf_Request_Http();
+        
+        $timestamp  = $request->getQuery('timestamp', '');
+        $nonce = $request->getQuery('nonce', '');
+        $msgSignature  = $request->getQuery('msg_signature', '');
+        $encryptType = $request->getQuery('encrypt_type','');
+        
+        $bak4log = $data = file_get_contents('php://input');
+        
+        if(ENCPRYPT_TYPE === 'aes'){
+            $wxBizMsgCrypt = new Wechat_WXBizMsgCrypt(WX_TOKEN, WX_ENCODING_AES_KEY, WX_APP_ID);
+            $res = $wxBizMsgCrypt->decryptMsg($msgSignature, $timestamp, $nonce, $data, $data);
+            if($res !== 0){
+                log_message('error', 'decrypt msg error, error code: '. $res ."\r\n msg content: ". $bak4log);
+                echo '';
+                exit;
+            }
+        }
+        
         /**
          * 微信消息结构
          * <xml>
