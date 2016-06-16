@@ -29,7 +29,7 @@ class NewsController extends Yaf_Controller_Abstract{
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
-                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], $_v['title']);
+                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], 'http://placeholdit.imgix.net/~text?txtsize=18&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=403&h=268&txttrack=0', $_v['title']);
                 }else{
                     $msg_news_list .= sprintf($msgformat['msg_news_list'], $_v['url'], $_v['title'], $_v['picUrl'], 'http://placeholdit.imgix.net/~text?txtsize=6&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=43&h=43&txttrack=0');
                 }
@@ -75,7 +75,7 @@ class NewsController extends Yaf_Controller_Abstract{
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
-                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], $_v['title']);
+                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], 'http://placeholdit.imgix.net/~text?txtsize=18&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=403&h=268&txttrack=0', $_v['title']);
                 }else{
                     $msg_news_list .= sprintf($msgformat['msg_news_list'], $_v['url'], $_v['title'], $_v['picUrl'], 'http://placeholdit.imgix.net/~text?txtsize=6&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=43&h=43&txttrack=0');
                 }
@@ -120,7 +120,7 @@ class NewsController extends Yaf_Controller_Abstract{
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
-                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], $_v['title']);
+                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], 'http://placeholdit.imgix.net/~text?txtsize=18&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=403&h=268&txttrack=0', $_v['title']);
                 }else{
                     $msg_news_list .= sprintf($msgformat['msg_news_list'], $_v['url'], $_v['title'], $_v['picUrl'], 'http://placeholdit.imgix.net/~text?txtsize=6&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=43&h=43&txttrack=0');
                 }
@@ -166,7 +166,7 @@ class NewsController extends Yaf_Controller_Abstract{
         }else{
             foreach($rt['newslist'] as $_k=>$_v){
                 if($_k%5 === 0){
-                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], $_v['title']);
+                    $msg_news_banner = sprintf($msgformat['msg_news_banner'], $_v['url'], $_v['picUrl'], 'http://placeholdit.imgix.net/~text?txtsize=18&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=403&h=268&txttrack=0', $_v['title']);
                 }else{
                     $msg_news_list .= sprintf($msgformat['msg_news_list'], $_v['url'], $_v['title'], $_v['picUrl'], 'http://placeholdit.imgix.net/~text?txtsize=6&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=43&h=43&txttrack=0');
                 }
