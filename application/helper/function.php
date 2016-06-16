@@ -770,3 +770,82 @@ if(!function_exists('http')){
         return $return;
    }
 }
+
+if(!function_exists('cookie')){
+    /**
+     * Set cookie
+     *
+     * Accepts an arbitrary number of parameters (up to 7) or an associative
+     * array in the first parameter containing all the values.
+     *
+     * @param	string|mixed[]	$name		Cookie name or an array containing parameters
+     * @param	string		$value		Cookie value
+     * @param	int		$expire		Cookie expiration time in seconds
+     * @param	string		$domain		Cookie domain (e.g.: '.yourdomain.com')
+     * @param	string		$path		Cookie path (default: '/')
+     * @param	string		$prefix		Cookie name prefix
+     * @param	bool		$secure		Whether to only transfer cookies via SSL
+     * @param	bool		$httponly	Whether to only makes the cookie accessible via HTTP (no javascript)
+     * @return	void
+     */
+    function cookie($name, $value = '', $expire = '', $domain = '', $path = '/', $prefix = '', $secure = FALSE, $httponly = FALSE)
+    {
+        $config = Yaf_Registry::get('config');
+        
+        if ($prefix === '' && $config['cookie_prefix'] !== '')
+        {
+            $prefix = $config['cookie_prefix'];
+        }
+        
+        if(is_string($name) && func_num_args()===1){
+            return cookie($prefix.$name);
+        }
+        
+        if (is_array($name))
+        {
+            // always leave 'name' in last place, as the loop will break otherwise, due to $$item
+            foreach (array('value', 'expire', 'domain', 'path', 'prefix', 'secure', 'httponly', 'name') as $item)
+            {
+                if (isset($name[$item]))
+                {
+                    $$item = $name[$item];
+                }
+            }
+        }
+        
+        if ($expire === '' && $config['cookie_expire'] != '')
+        {
+            $expire = time() + $config['cookie_expire'];
+        }elseif(! is_numeric($expire)){
+            $expire = time() - 86500;
+        }else{
+            $expire = ($expire > 0) ? time() + $expire : 0;
+        }
+        
+        if($value === null){
+            $expire = time() - 86500;
+        }
+        
+        if ($domain === '' && $config['cookie_domain'] != '')
+        {
+            $domain = $config['cookie_domain'];
+        }
+
+        if ($path === '/' && $config['cookie_path'] !== '/')
+        {
+            $path = $config['cookie_path'];
+        }
+
+        if ($secure === FALSE && $config['cookie_secure'] === TRUE)
+        {
+            $secure = $config['cookie_secure'];
+        }
+
+        if ($httponly === FALSE && $config['cookie_httponly'] !== FALSE)
+        {
+            $httponly = $config['cookie_httponly'];
+        }
+
+        setcookie($prefix.$name, $value, $expire, $path, $domain, $secure, $httponly);
+     }
+ }
