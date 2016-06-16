@@ -377,7 +377,7 @@ EOF;
 $msgformat['msg_news_banner'] = <<<EOF
 <li class="list-group-item">
 <a class="bg-wrapper" href="%s">
-<img src="%s" class="carousel-inner img-responsive" />
+<img src="%s" class="carousel-inner img-responsive" onerror="this.src='http://placeholdit.imgix.net/~text?txtsize=18&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=403&h=268&txttrack=0'"/>
 <div class="banner">
 <h5 class="font16">%s</h5>
 </div>
@@ -391,7 +391,7 @@ $msgformat['msg_news_list'] = <<<EOF
 <div class="col-xs-9 no-new-line">
 <div class="txt"><span>%s</span></div>
 </div>
-<div class="col-xs-3"><img src="%s" class="pull-right img"/></div>
+<div class="col-xs-3"><img src="%s" class="pull-right img" onerror="this.src='http://placeholdit.imgix.net/~text?txtsize=6&txt=%E5%9B%BE%E8%A3%82%E4%BA%86&w=43&h=43&txttrack=0'"/></div>
 </a>
 </li>    
 EOF;
