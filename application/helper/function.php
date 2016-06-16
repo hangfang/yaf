@@ -521,7 +521,8 @@ if ( ! function_exists('html_escape'))
 			return $var;
 		}
 
-		return htmlspecialchars($var, ENT_QUOTES, config_item('charset'), $double_encode);
+        $config = Yaf_Registry::get('config');
+		return htmlspecialchars($var, ENT_QUOTES, $config['charset'], $double_encode);
 	}
 }
 
