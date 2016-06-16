@@ -522,7 +522,7 @@ if ( ! function_exists('html_escape'))
 		}
 
         $config = Yaf_Registry::get('config');
-		return htmlspecialchars($var, ENT_QUOTES, $config['charset'], $double_encode);
+		return htmlspecialchars($var, ENT_QUOTES, $config['application']['charset'], $double_encode);
 	}
 }
 
@@ -652,7 +652,7 @@ if(!function_exists('get_var_from_conf')){
 if(!function_exists('http')){
     function http($args = array()){
         $ch = curl_init();
-        $config = Yaf_Registry::get('config');
+        $config['application'] = Yaf_Registry::get('config');
         $cookiePrefix = $config['application']['cookie_prefix'];
         $preparedCookie = array('client'=>'wechat');
 
@@ -793,13 +793,13 @@ if(!function_exists('cookie')){
     {
         $config = Yaf_Registry::get('config');
         
-        if ($prefix === '' && $config['cookie_prefix'] !== '')
+        if ($prefix === '' && $config['application']['cookie_prefix'] !== '')
         {
-            $prefix = $config['cookie_prefix'];
+            $prefix = $config['application']['cookie_prefix'];
         }
         
         if(is_string($name) && func_num_args()===1){
-            return cookie($prefix.$name);
+            return isset($_COOKIE[$prefix.$name]) ? $_COOKIE[$prefix.$name] : null;
         }
         
         if (is_array($name))
@@ -814,9 +814,9 @@ if(!function_exists('cookie')){
             }
         }
         
-        if ($expire === '' && $config['cookie_expire'] != '')
+        if ($expire === '' && $config['application']['cookie_expire'] != '')
         {
-            $expire = time() + $config['cookie_expire'];
+            $expire = time() + $config['application']['cookie_expire'];
         }elseif(! is_numeric($expire)){
             $expire = time() - 86500;
         }else{
@@ -827,24 +827,24 @@ if(!function_exists('cookie')){
             $expire = time() - 86500;
         }
         
-        if ($domain === '' && $config['cookie_domain'] != '')
+        if ($domain === '' && $config['application']['cookie_domain'] != '')
         {
-            $domain = $config['cookie_domain'];
+            $domain = $config['application']['cookie_domain'];
         }
 
-        if ($path === '/' && $config['cookie_path'] !== '/')
+        if ($path === '/' && $config['application']['cookie_path'] !== '/')
         {
-            $path = $config['cookie_path'];
+            $path = $config['application']['cookie_path'];
         }
 
-        if ($secure === FALSE && $config['cookie_secure'] === TRUE)
+        if ($secure === FALSE && $config['application']['cookie_secure'] === TRUE)
         {
-            $secure = $config['cookie_secure'];
+            $secure = $config['application']['cookie_secure'];
         }
 
-        if ($httponly === FALSE && $config['cookie_httponly'] !== FALSE)
+        if ($httponly === FALSE && $config['application']['cookie_httponly'] !== FALSE)
         {
-            $httponly = $config['cookie_httponly'];
+            $httponly = $config['application']['cookie_httponly'];
         }
 
         setcookie($prefix.$name, $value, $expire, $path, $domain, $secure, $httponly);
