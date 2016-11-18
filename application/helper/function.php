@@ -651,20 +651,25 @@ if(!function_exists('get_var_from_conf')){
 
 if(!function_exists('http')){
     function http($args = array()){
+        $request = new Yaf_Request_Http();
         $ch = curl_init();
-        $config['application'] = Yaf_Registry::get('config');
+        $config = Yaf_Registry::get('config');
         $cookiePrefix = $config['application']['cookie_prefix'];
-        $preparedCookie = array('client'=>'wechat');
+        $preparedCookie = array($cookiePrefix.'client'=>'web');
 
         $args = array_merge(array(
             'data' => array(),
             'method' => 'get',
+            'type' => 'json',
             'cookie' => $preparedCookie,
-            'header' => array(),
+            'header' => array('clientaddr: '.ip_address(), 'Connection: keep-alive', 'Expect: ')
         ) ,$args);
-        if(strtolower($args['method']) == 'post'){
+        if(strtolower($args['method']) === 'post'){
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch ,CURLOPT_POSTFIELDS, is_array($args['data']) ? http_build_query($args['data']) : $args['data']);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $args['type']==='json' && is_array($args['data']) ? json_encode($args['data']) : $args['data']);
+        }else if(strtolower($args['method']) === 'input'){
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($args['data']) ? json_encode($args['data']) : $args['data']);
         }else{
             $data = array();
             foreach ($args['data'] as $key => $value) {
@@ -687,10 +692,10 @@ if(!function_exists('http')){
         // 30秒超时
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         // cookie
+        $args['cookie'] = array_merge($request->getCookie(), $args['cookie']);
         if($args['cookie']){
             $cookie = array();
-            $request = new Yaf_Request_Http();
-            foreach ($request->getCookie() as $key => $value) {
+            foreach ($args['cookie'] as $key => $value) {
                 if($cookiePrefix !== '' && strpos($key, $cookiePrefix)===0){
                     $key = str_replace($cookiePrefix, '', $key);
                 }
@@ -701,6 +706,7 @@ if(!function_exists('http')){
         }
         // http头
         curl_setopt($ch ,CURLOPT_HTTPHEADER, $args['header']);
+        curl_setopt($ch ,CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查 
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 从证书中检查SSL加密算法是否存在 
         $result = curl_exec($ch);
@@ -708,7 +714,7 @@ if(!function_exists('http')){
         if($result === false){
             $return = array();
             $return['rtn'] = 1;
-            $return['errmsg'] = 'requrest remote server failed';
+            $return['error_msg'] = 'requrest remote server failed';
             return $return;
         }
 
@@ -737,9 +743,11 @@ if(!function_exists('http')){
             }
             
             if(preg_match("#^Set-Cookie:#", $_header)===1){
-                preg_match("#Set-Cookie:\s([^=]+)=([^;]+);#", $_header, $matches);
-
-                cookie($matches[1], $matches[2], 60*60*24*30*1000);
+                if(preg_match("#expires=([^;]+);#", $_header, $expires)===1){
+                    isset($matches[1]) && isset($matches[2]) && cookie($matches[1], $matches[2], strtotime($expires[1])-time());
+                }else{
+                    isset($matches[1]) && isset($matches[2]) && cookie($matches[1], $matches[2]);
+                }
                 continue;
             }
 
@@ -791,6 +799,10 @@ if(!function_exists('cookie')){
      */
     function cookie($name, $value = '', $expire = '', $domain = '', $path = '/', $prefix = '', $secure = FALSE, $httponly = FALSE)
     {
+    	if($name === null){//清除cookie
+            unset($_COOKIE);
+            return true;
+        }
         $config = Yaf_Registry::get('config');
         
         if ($prefix === '' && $config['application']['cookie_prefix'] !== '')
