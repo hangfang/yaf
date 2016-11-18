@@ -799,10 +799,6 @@ if(!function_exists('cookie')){
      */
     function cookie($name, $value = '', $expire = '', $domain = '', $path = '/', $prefix = '', $secure = FALSE, $httponly = FALSE)
     {
-    	if($name === null){//清除cookie
-            unset($_COOKIE);
-            return true;
-        }
         $config = Yaf_Registry::get('config');
         
         if ($prefix === '' && $config['application']['cookie_prefix'] !== '')
@@ -810,6 +806,16 @@ if(!function_exists('cookie')){
             $prefix = $config['application']['cookie_prefix'];
         }
         
+    	if($name === null){
+            foreach($_COOKIE as $k=>$v){
+                if($prefix !== '' && strpos($k, $prefix)===0){
+                    $k = str_replace($prefix, '', $k);
+                }
+                cookie($k, null);
+            }
+            return true;
+        }
+	    
         if(is_string($name) && func_num_args()===1){
             return isset($_COOKIE[$prefix.$name]) ? $_COOKIE[$prefix.$name] : null;
         }
