@@ -4,7 +4,8 @@
  * @link https://github.com/jwagner/smartcrop.js/
  * @example 
  * $imageCrop = new ImageCrop('C:/Users/Administrator/Desktop/56331faad49c5.jpg', array('width'=>100, 'height'=>100));
- * $imageCrop->analyse();
+ * $res = $imageCrop->analyse();
+ * $imageCrop->crop($res['topCrop']['x'], $res['topCrop']['y'], $res['topCrop']['width'], $res['topCrop']['height']);
  * $imageCrop->output();
  */
 class ImageCrop {
@@ -448,7 +449,7 @@ class ImageCrop {
      * @param integer $height
      * @return \xymak\image\smartcrop
      */
-    private function crop($x, $y, $width, $height) {
+    public function crop($x, $y, $width, $height) {
         $oCanvas = imagecreatetruecolor ( $width, $height );
         imagecopyresampled ( $oCanvas, $this->oImg, 0, 0, $x, $y, $width, $height, $width, $height );
         $this->oImg = $oCanvas;
