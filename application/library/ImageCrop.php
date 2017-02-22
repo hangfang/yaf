@@ -50,12 +50,18 @@ class ImageCrop {
     private $scale;
     private $prescale;
     private $oImg;
+    private $oImgMine;
     private $od = [ ];
     private $aSample = [ ];
     private $height = 0;
     private $width = 0;
     
     public function __construct($inputImage, $options) {
+        if(!file_exists($inputImage)){
+            header ( "Content-Type: text/html" );
+            exit('error: file '. $inputImage .' not exist...');
+        }
+        
         $this->options = array_merge ( $this->defaultOptions, $options );
         $this->inputImage = $inputImage;
 
@@ -67,7 +73,10 @@ class ImageCrop {
         $this->scale = 1;
         $this->prescale = 1;
 
-        $this->oImg = imagecreatefromstring ( file_get_contents ( $inputImage ) );
+        $imageContent = file_get_contents ( $inputImage );
+        $this->oImg = imagecreatefromstring ( $imageContent );
+        $tmp = getimagesizefromstring( $imageContent );
+        $this->oImgMine = $tmp['mime'];
         $this->canvasImageScale ();
 
         return $this;
@@ -449,7 +458,30 @@ class ImageCrop {
      * Output a image
      */
     public function output() {
-        header ( "Content-Type: image/jpeg" );
-        imagejpeg ( $this->oImg );
+        $type = explode('/', $this->oImgMine);
+        switch($type[1]){
+            case 'png':
+                $funcName = 'imagepng';
+                break;
+            case 'jpeg':
+                $funcName = 'imagejpeg';
+                break;
+            case 'gif':
+                $funcName = 'imagegif';
+                break;
+            case 'bmp':
+                $funcName = 'imagebmp';
+                break;
+            default:
+                header ( "Content-Type: text/html" );
+                exit('error: image type should be in png、jpeg、gif、bmp');
+        }
+        
+        if(!function_exists($funcName)){
+            header ( "Content-Type: text/html" );
+            exit('error: function '. $funcName .' not exist...');
+        }
+        header ( "Content-Type: ".$this->oImgMine );
+        $funcName ( $this->oImg );
     }
 }
