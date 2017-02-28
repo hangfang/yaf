@@ -138,8 +138,14 @@ class Log {
 			return FALSE;
 		}
 
-		$filepath = $this->_log_path.'log-'.date('Y-m-d').'.'.$this->_file_ext;
+		$filepath = $this->_log_path.$level;
 		$message = '';
+        
+		if ( ! file_exists($this->_log_path.$level.'/')){
+		    mkdir ($filepath, 0777, true);
+		}
+        
+		$filepath .= '/log-'. date('Y-m-d') .'.'.$this->_file_ext;
 
 		if ( ! file_exists($filepath))
 		{
