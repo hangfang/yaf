@@ -9,37 +9,43 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * 调用的次序, 和申明的次序相同
  */
 class Bootstrap extends Yaf_Bootstrap_Abstract{
-    public function _initErrorAndExceptionHandler(){
-        
+    public function _initHelpers(){
         Yaf_Loader::import( APPLICATION_PATH .'/application/helper/function.php' );
         Yaf_Loader::import( APPLICATION_PATH .'/application/helper/file.php' );
+    }
+    
+    public function _initErrorAndExceptionHandler(){
         set_error_handler('_error_handler');
         set_exception_handler('_exception_handler');
     }
 
     public function _initConfig() {
-		//把配置保存起来
-		$arrConfig = Yaf_Application::app()->getConfig();
-		Yaf_Registry::set('config', $arrConfig);
+        //把配置保存起来
+        $arrConfig = Yaf_Application::app()->getConfig();
+        Yaf_Registry::set('config', $arrConfig);
         Yaf_Loader::import( APPLICATION_PATH .'/conf/constants.php' );
-	}
-
-	public function _initPlugin(Yaf_Dispatcher $dispatcher) {
-		//注册一个插件
-//		$smarty = new Smarty_Adapter(null, Yaf_Registry::get('config')->get('smarty'));  
-//        Yaf_Dispatcher::getInstance()->setView($smarty)->disableView();//disableView作用是禁用yaf本身的模板引擎，否则会在smarty渲染完后，yaf在自动渲染一次，导致页面有重复
-//        $smarty->assign('environ', ini_get('yaf.environ'));
-	}
-
-	public function _initRoute(Yaf_Dispatcher $dispatcher) {
-		//在这里注册自己的路由协议,默认使用简单路由
-	}
-	
-	public function _initView(Yaf_Dispatcher $dispatcher){
-		//在这里注册自己的view控制器，例如smarty,firekylin
-	}
+    }
     
+    public function _initCache(){
+        new Cache();
+    }
+
+    public function _initPlugin(Yaf_Dispatcher $dispatcher) {
+        //注册一个插件
+        NEED_SIGN && $dispatcher->registerPlugin(new SignPlugin());
+    }
+
+    public function _initRoute(Yaf_Dispatcher $dispatcher) {
+        //在这里注册自己的路由协议,默认使用简单路由
+//        $route = new UserPlugin();
+//        $dispatcher->registerPlugin($route);
+    }
+	
     public function _initName(Yaf_Dispatcher $dispatcher){
         $dispatcher->setDefaultModule("Index")->setDefaultController("Index")->setDefaultAction("index");
+    }
+
+    public function _initView(Yaf_Dispatcher $dispatcher){
+            //在这里注册自己的view控制器，例如smarty,firekylin
     }
 }
