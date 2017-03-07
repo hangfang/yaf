@@ -6,9 +6,18 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @date 2016-04-27
  */
 class Cache {
-    public function __construct(){
-        $cache = Yaf_Registry::get('cache');
-        $adapter = isset($cache['adapter']) ? $cache['adapter'] : 'redis';
+    private static $_instance = null;
+    private function __construct(){}
+    private function __clone(){}
+    
+    public static function getInstance(){
+        if(self::$_instance && self::$_instance->ping()){
+            return self::$_instance;
+        }
+        
+        $config = new Yaf_Config_Ini(APPLICATION_PATH . '/conf/cache.ini', ini_get('yaf.environ'));
+        $config = $config->toArray();
+        $adapter = isset($config['adapter']) ? $config['adapter'] : 'redis';
 
         if ( ! extension_loaded($adapter)){
             log_message('error', 'Cache adapter "'. $adapter .'" not supported.');
@@ -21,6 +30,7 @@ class Cache {
             return false;
         }
         
-        Yaf_Registry::set('cache', new $class);
+        self::$_instance = new $class;
+        return self::$_instance;
     }
 }
