@@ -9,11 +9,11 @@ class Cache_Drivers_Redis extends Redis{
      * @var	array
      */
     private $_config = array(
-            'socket_type' => 'tcp',
-            'host' => '127.0.0.1',
-            'password' => NULL,
-            'port' => 6379,
-            'timeout' => 0
+        'socket_type' => 'tcp',
+        'host' => '127.0.0.1',
+        'password' => NULL,
+        'port' => 6379,
+        'timeout' => 0
     );
 
     public function __construct(){
@@ -34,9 +34,10 @@ class Cache_Drivers_Redis extends Redis{
             return false;
         }
         if(isset($this->_config['password']) && $this->_config['password']){
-            $auth = $this->auth($this->_config['password']);
-            log_message('error', 'redis auth failed: '. print_r($this->_config, true));
-            return false;
+            if($this->auth($this->_config['password'])){
+                log_message('error', 'redis auth failed: '. print_r($this->_config, true));
+                return false;
+            }
         }
         
         $this->setOption(Redis::OPT_PREFIX, $this->_config['prefix']);
