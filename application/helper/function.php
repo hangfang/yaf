@@ -666,7 +666,7 @@ if(!function_exists('http')){
         ) ,$args);
         if(strtolower($args['method']) === 'post'){
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $args['data']);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($args['data']) ? json_encode($args['data']) : $args['data']);
         }else if(strtolower($args['method']) === 'input'){
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($args['data']) ? json_encode($args['data']) : $args['data']);
@@ -712,6 +712,8 @@ if(!function_exists('http')){
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 从证书中检查SSL加密算法是否存在 
         $result = curl_exec($ch);
 
+        log_message('debug', 'request remote server, url: ['. $args['url'] .'], param: ['. json_encode($args['data']) .'], result: ['. $result .']');
+        
         if($result === false){
             log_message('error', "requrest remote server failed, args: ". print_r($args, true) ."\ninfo: ". print_r(curl_getinfo($ch), true));
             $return = array();
@@ -737,7 +739,7 @@ if(!function_exists('http')){
             return $return;
         }
 
-        $return = json_decode($data ,true);
+        $return = json_decode($data);
 
         if(!$return){
             log_message('error', "remote server returns a not json formated data, args: ". print_r($args, true) ."\nresult: ". print_r($result, true));
