@@ -213,6 +213,15 @@ class Log {
 	 */
 	protected function _format_line($level, $date, $message)
 	{
-		return $level.' - '.$date.' --> '.$message."\n";
+		$return = $level.' - '.$date.' --> '.$message."\n";
+		if($level === 'ERROR'){
+		    $debug_stack = debug_backtrace();
+		    foreach($debug_stack as $v){
+			$return .= $v['file'].' @ line '. $v['line'] ."\n";
+			$return .= $v['function']. ' args: '. print_r($v['args'], true) ."\n";
+		    }
+		}
+
+		return $return;
 	}
 }
