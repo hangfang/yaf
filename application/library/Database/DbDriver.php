@@ -1679,12 +1679,13 @@ abstract class Database_DbDriver {
 	 */
 	public function display_error($error = '')
 	{
-		$message = is_array($error) ? $error : (array) $error;
+		$error = is_array($error) ? $error : (array) $error;
 
 		// Find the most likely culprit of the error by going through
 		// the backtrace until the source file is no longer in the
 		// database folder.
 		$trace = debug_backtrace();
+        	$message = '';
 		foreach ($trace as $call)
 		{
 			if (isset($call['file'], $call['class'], $call['line']))
@@ -1698,15 +1699,14 @@ abstract class Database_DbDriver {
 				if (strpos($call['file'], APPLICATION_PATH.'/library/Database') === FALSE && strpos($call['class'], 'Loader') === FALSE)
 				{
 					// Found it - use a relative path for safety
-					$message[] = 'Filename: '.str_replace(APPLICATION_PATH, '', $call['file']);
-					$message[] = 'Line Number: '.$call['line'];
+					$message .= 'Filename: '.str_replace(APPLICATION_PATH, '', $call['file']) ."\n";
+					$message .= 'Line Number: '.$call['line'] ."\n";
 					break;
 				}
 			}
 		}
 
-		$error = new Exceptions();
-		echo $error->show_error('A Database Error Occurred', $message, 'error_db');
+		log_message('error', 'A Database Error Occurred, msg: '. $message);
 		exit(8); // EXIT_DATABASE
 	}
 
