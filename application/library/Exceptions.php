@@ -90,8 +90,10 @@ class Exceptions {
 			log_message('error', $heading.': '.$page);
 		}
 
-		echo $this->show_error($heading, $message, 'error_404', 404);
-		exit(4); // EXIT_UNKNOWN_FILE
+		log_message('error', $heading.': '.$page);
+		//echo $this->show_error($heading, $message, 'error_404', 404);
+        $error = get_var_from_conf('error');
+		exit(json_encode($error[501])); // EXIT_UNKNOWN_FILE
 	}
 
 	// --------------------------------------------------------------------
@@ -111,79 +113,18 @@ class Exceptions {
 	 */
 	public function show_error($heading, $message, $template = 'error_general', $status_code = 500)
 	{
-		$templates_path = APPLICATION_PATH.'/application/views/error/'.DIRECTORY_SEPARATOR;
-        $request = new Yaf_Request_Http();
-		if ($request->isCli())
-		{
-			$message = "\t".(is_array($message) ? implode("\n\t", $message) : $message);
-			$template = 'cli'.DIRECTORY_SEPARATOR.$template;
-		}
-		else
-		{
-			set_status_header($status_code);
-			$message = '<p>'.(is_array($message) ? implode('</p><p>', $message) : $message).'</p>';
-			$template = 'html'.DIRECTORY_SEPARATOR.$template;
-		}
-        
-        $config = Yaf_Registry::get('config');
-        $ext = trim($config['application']['errorFileExtension'], '.');
-        if(empty($ext)){
-            $ext = 'php';
-        }
-        
-		if (ob_get_level() > $this->ob_level + 1)
-		{
-			ob_end_flush();
-		}
-		ob_start();
-		include($templates_path.$template.'.'.$ext);
-		$buffer = ob_get_contents();
-		ob_end_clean();
-		return $buffer;
+		log_message('error', $heading.': '.(is_array($message) ? implode("\n\t", $message) : $message));
+		$error = get_var_from_conf('error');
+		exit(json_encode($error[501]));
 	}
 
 	// --------------------------------------------------------------------
 
 	public function show_exception($exception)
-	{
-		$config = Yaf_Registry::get('config');
-		$templates_path = $config['application']['errorViewsPath'];
-		if (empty($templates_path))
-		{
-			$templates_path = APPLICATION_PATH.'/application/views/error'.DIRECTORY_SEPARATOR;
-		}
-        
-        $ext = $config['application']['errorFileExtension'];
-        if(empty($ext)){
-            $ext = 'php';
-        }
-        
-		$message = $exception->getMessage();
-		if (empty($message))
-		{
-			$message = '(null)';
-		}
-
-		if (is_cli())
-		{
-			$templates_path .= 'cli'.DIRECTORY_SEPARATOR;
-		}
-		else
-		{
-			set_status_header(500);
-			$templates_path .= 'html'.DIRECTORY_SEPARATOR;
-		}
-
-		if (ob_get_level() > $this->ob_level + 1)
-		{
-			ob_end_flush();
-		}
-
-		ob_start();
-		include($templates_path.'error_exception.'.$ext);
-		$buffer = ob_get_contents();
-		ob_end_clean();
-		echo $buffer;
+	{		
+		log_message('error', $exception->getCode().': '.$exception->getMessage());
+		$error = get_var_from_conf('error');
+		exit(json_encode($error[501]));
 	}
 
 	// --------------------------------------------------------------------
@@ -199,46 +140,9 @@ class Exceptions {
 	 */
 	public function show_php_error($severity, $message, $filepath, $line)
 	{
-        $config = Yaf_Registry::get('config');
-		$templates_path = $config['application']['errorViewsPath'];
-		if (empty($templates_path))
-		{
-			$templates_path = APPLICATION_PATH.'/application/views/error'.DIRECTORY_SEPARATOR;
-		}
-        
-        $ext = $config['application']['errorFileExtension'];
-        if(empty($ext)){
-            $ext = 'php';
-        }
-
-		$severity = isset($this->levels[$severity]) ? $this->levels[$severity] : $severity;
-
-		// For safety reasons we don't show the full file path in non-CLI requests
-		if ( ! is_cli())
-		{
-			$filepath = str_replace('\\', '/', $filepath);
-			if (FALSE !== strpos($filepath, '/'))
-			{
-				$x = explode('/', $filepath);
-				$filepath = $x[count($x)-2].'/'.end($x);
-			}
-
-			$template = 'html'.DIRECTORY_SEPARATOR.'error_php';
-		}
-		else
-		{
-			$template = 'cli'.DIRECTORY_SEPARATOR.'error_php';
-		}
-
-		if (ob_get_level() > $this->ob_level + 1)
-		{
-			ob_end_flush();
-		}
-		ob_start();
-		include($templates_path.$template.'.'.$ext);
-		$buffer = ob_get_contents();
-		ob_end_clean();
-		echo $buffer;
+		log_message('error', $severity.': '.$message.': '.$filepath.': '.$line);
+		$error = get_var_from_conf('error');
+		exit(json_encode($error[501]));
 	}
 
 }
