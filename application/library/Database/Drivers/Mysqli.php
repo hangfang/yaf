@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @todo 模拟CI数据库类的Mysqli封装
+ * @author fanghang@fujiacaifu.com
+ */
 class Database_Drivers_Mysqli{
     
     private $_conn=null;
@@ -111,8 +114,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件分组开始:AND (
-     * @return 当前类实例
+     * SQL语句条件分组开始:AND (
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function groupStart(){
         $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND', 'op'=>'');
@@ -120,8 +123,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件分组开始:OR (
-     * @return 当前类实例
+     * SQL语句条件分组开始:OR (
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orGroupStart(){
         $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR', 'op'=>'');
@@ -129,8 +132,8 @@ class Database_Drivers_Mysqli{
     }
         
     /**
-     * @todo SQL语句条件分组结束:)
-     * @return 当前类实例
+     * SQL语句条件分组结束:)
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function groupEnd(){
         $this->_condition[] = array('key'=>')', 'value'=>'', 'connect'=>'', 'op'=>'');
@@ -138,10 +141,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:AND column_name = 'xx'
+     * SQL语句条件:AND column_name = 'xx'
      * @param mixed $where  查询条件键值对:array('id'=>1, 'name'=>'tom')
      * @param mixed $value  条件字段对应的值，$value不是null时，$where为字段名
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function where($where, $value=null){
         if(is_null($value)){
@@ -172,10 +175,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:OR column_name = 'xx'
+     * SQL语句条件:OR column_name = 'xx'
      * @param mixed $where  查询条件键值对:array('id'=>1, 'name'=>'tom')
      * @param mixed $value  条件字段对应的值，$value不是null时，$where为字段名
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orWhere($where, $value=null){
         if(is_null($value)){
@@ -225,10 +228,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:AND column_name IN ()
+     * SQL语句条件:AND column_name IN ()
      * @param string $field  表字段名
      * @param mixed $list  查询字段的值，数组或单个值
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function whereIn($field, $list){
         $list = is_array($list) ? implode(',', $list) : $list;
@@ -237,10 +240,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:OR column_name IN ()
+     * SQL语句条件:OR column_name IN ()
      * @param string $field  表字段名
      * @param mixed $list  查询字段的值，数组或单个值
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orWhereIn($field, $list){
         $list = is_array($list) ? implode(',', $list) : $list;
@@ -249,10 +252,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:AND column_name NOT IN ()
+     * SQL语句条件:AND column_name NOT IN ()
      * @param string $field  表字段名
      * @param mixed $list  查询字段的值，数组或单个值
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function whereNotIn($field, $list){
         $list = is_array($list) ? implode(',', $list) : $list;
@@ -261,10 +264,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:OR column_name NOT IN ()
+     * SQL语句条件:OR column_name NOT IN ()
      * @param string $field  表字段名
      * @param mixed $list  查询字段的值，数组或单个值
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orWhereNotIn($field, $list){
         $list = is_array($list) ? implode(',', $list) : $list;
@@ -273,10 +276,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:AND column_name LIKE '%xx%'
+     * SQL语句条件:AND column_name LIKE '%xx%'
      * @param string $field  表字段名
      * @param mixed $like  搜索值
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function like($field, $like, $side='both'){
         $this->_condition[] = array('key'=>$field, 'value'=>$like, 'connect'=>'AND', 'op'=>'like', 'side'=>$side);
@@ -284,10 +287,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:OR column_name LIKE '%xx%'
+     * SQL语句条件:OR column_name LIKE '%xx%'
      * @param string $field  表字段名
      * @param mixed $like  搜索值
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orLike($field, $like, $side='both'){
         $this->_condition[] = array('key'=>$field, 'value'=>$like, 'connect'=>'OR', 'op'=>'like', 'side'=>$side);
@@ -295,10 +298,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:AND column_name NOT LIKE '%xx%'
+     * SQL语句条件:AND column_name NOT LIKE '%xx%'
      * @param string $field  表字段名
      * @param mixed $like  搜索值
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function notLike($field, $like, $side='both'){
         $this->_condition[] = array('key'=>$field, 'value'=>$like, 'connect'=>'AND', 'op'=>'not like', 'side'=>$side);
@@ -306,10 +309,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句条件:OR column_name NOT LIKE '%xx%'
+     * SQL语句条件:OR column_name NOT LIKE '%xx%'
      * @param string $field  表字段名
      * @param mixed $like  搜索值
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orNotLike($field, $like, $side='both'){
         $this->_condition[] = array('key'=>$field, 'value'=>$like, 'connect'=>'OR', 'op'=>'not like', 'side'=>$side);
@@ -317,9 +320,9 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句:HAVING COUNT(column_name) >0
+     * SQL语句:HAVING COUNT(column_name) >0
      * @param string $having  having 字句
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function having($having){
         $this->_having[] = $having;
@@ -327,10 +330,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句:LIMIT $offset, $limit
+     * SQL语句:LIMIT $offset, $limit
      * @param int $limit  查询记录数
      * @param int $offset  查询偏移量
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function limit($limit=null, $offset=null){
         if(is_null($limit)){
@@ -347,9 +350,9 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句:GROUP BY column_name
+     * SQL语句:GROUP BY column_name
      * @param mixed $field  分组字段，支持:array('id', 'name')、'id,name'
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function groupBy($field){
         if(is_array($field)){
@@ -362,9 +365,9 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句:ORDER BY column_name desc
+     * SQL语句:ORDER BY column_name desc
      * @param mixed $order  排序字段，支持:array('id desc', 'name asc')、'id asc'
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orderBy($order){
         if(empty($order)){
@@ -384,9 +387,9 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句:select column_name_a,column_name_b
+     * SQL语句:select column_name_a,column_name_b
      * @param mixed $field  排序字段，支持:array('id', 'name')、'id,name'
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function select($field){
         if(is_array($field)){
@@ -399,9 +402,9 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo SQL语句:select column_name_a,column_name_b from table
+     * SQL语句:select column_name_a,column_name_b from table
      * @param mixed $table  查询表名
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function from($table){
         $this->_table = $table;
@@ -410,10 +413,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 设置更新字段
+     * 设置更新字段
      * @param mixed $data  需要更新的键值对
      * @param mixed $value  当$value不为null时，$data是待更新的字段名
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function set($data, $value=null){
         if(is_null($value)){
@@ -442,11 +445,11 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 查询数据N条数据
+     * 查询数据N条数据
      * @param string $table  查询表名
      * @param int $limit  查询记录数
      * @param int $offset  查询偏移量
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function get($table='', $limit=null, $offset=null){
         $this->freeResult();
@@ -499,8 +502,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 从结果集拿出一行数据
-     * @return array
+     * 从结果集拿出一行数据
+     * @return mixed array or boolean
      */
     public function rowArray(){
         if(!$this->_result){
@@ -511,8 +514,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 从结果集拿出所有数据
-     * @return array
+     * 从结果集拿出所有数据
+     * @return mixed array or boolean
      */
     public function resultArray(){
         if(!$this->_result){
@@ -523,8 +526,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 从结果集拿出一行数据
-     * @return object
+     * 从结果集拿出一行数据
+     * @return mixed object or boolean
      */
     public function rowObject(){
         if(!$this->_result){
@@ -535,8 +538,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 从结果集拿出所有数据
-     * @return object
+     * 从结果集拿出所有数据
+     * @return mixed object or boolean
      */
     public function resultObject(){
         if(!$this->_result){
@@ -552,12 +555,12 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 带条件查询数据N条数据
+     * 带条件查询数据N条数据
      * @param string $table  查询表名
      * @param array $where  查询条件
      * @param int $limit  查询记录数
      * @param int $offset  查询偏移量
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function getWhere($table='', $where=array(), $limit=null, $offset=null){
         if(!empty($where)){
@@ -580,11 +583,11 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 更新数据
+     * 更新数据
      * @param string $table  查询表名
      * @param mixed $update  需要更新的键值对
      * @param mixed $where  更新时的条件
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function update($table, $update=array(), $where=array()){
         $this->freeResult();
@@ -628,10 +631,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 插入数据
+     * 插入数据
      * @param string $table  查询表名
      * @param mixed $data  需要插入的键值对
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function insert($table, $data){
         $this->freeResult();
@@ -676,11 +679,11 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 删除数据
+     * 删除数据
      * @param string $table  查询表名
      * @param mixed $where  删除条件
      * @param int $limit  删除记录数
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function delete($table='', $where=array(), $limit=0){
         $this->freeResult();
@@ -714,10 +717,10 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 替换已有的数据
+     * 替换已有的数据
      * @param string $table  查询表名
      * @param mixed $data  需要插入的键值对
-     * @return 当前类实例
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function replace($table, $data){
         $this->freeResult();
@@ -761,8 +764,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 组装查询条件
-     * @return 当前类实例
+     * 组装查询条件
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __buildWhere(){
         
@@ -808,8 +811,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 组装having子句
-     * @return 当前类实例
+     * 组装having子句
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __buildHaving(){
         if(!empty($this->_having)){
@@ -821,8 +824,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 组装group by子句
-     * @return 当前类实例
+     * 组装group by子句
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __buildGroup(){
         
@@ -835,8 +838,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 组装order by子句
-     * @return 当前类实例
+     * 组装order by子句
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __buildOrder(){
         
@@ -850,8 +853,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 组装limit子句
-     * @return 当前类实例
+     * 组装limit子句
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __buildLimit(){
         if(isset($this->_limit['limit'])){
@@ -868,8 +871,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 组装set子句
-     * @return 当前类实例
+     * 组装set子句
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __buildSet(){
         
@@ -890,8 +893,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 字段绑定值
-     * @return 当前类实例
+     * 字段绑定值
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __bindValue(){
         if(!empty($this->_value)){
@@ -935,8 +938,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 开启事务
-     * @return 当前类实例
+     * 开启事务
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function startTransaction(){
         $rt = $this->_conn->autocommit(false);
@@ -956,16 +959,16 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 是否再事务中
-     * @return 当前类实例
+     * 是否再事务中
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function inTransaction(){
         return $this->_conn->_inTransaction;
     }
     
     /**
-     * @todo 回滚数据
-     * @return 当前类实例
+     * 回滚数据
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function rollBack(){
         $this->_conn->_inTransaction = false;
@@ -979,8 +982,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 提交事务
-     * @return 当前类实例
+     * 提交事务
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function commit(){
         $this->_conn->_inTransaction = false;
@@ -1000,7 +1003,7 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 执行一条sql，返回结果因SQL而异:select返回结果集、insert/replace返回插入的id、delete和其他返回受影响行数
+     * 执行一条sql，返回结果因SQL而异:select返回结果集、insert/replace返回插入的id、delete和其他返回受影响行数
      * @param string $sql 需要执行sql语句
      * @return boolean or int or array
      */
@@ -1025,8 +1028,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 释放查询的结果集
-     * @return 当前类实例
+     * 释放查询的结果集
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function freeResult(){
         $this->_stmt && $this->_stmt->free_result();
@@ -1036,8 +1039,8 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * @todo 获取查询记录数
-     * @return int
+     * 获取查询记录数
+     * @return mix int or boolean
      */
     public function numRows(){
         if($this->_stmt){
