@@ -185,71 +185,6 @@ if ( ! function_exists('is_cli'))
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists('show_error'))
-{
-	/**
-	 * Error Handler
-	 *
-	 * This function lets us invoke the exception class and
-	 * display errors using the standard error template located
-	 * in application/views/errors/error_general.php
-	 * This function will send the error page directly to the
-	 * browser and exit.
-	 *
-	 * @param	string
-	 * @param	int
-	 * @param	string
-	 * @return	void
-	 */
-	function show_error($message, $status_code = 500, $heading = 'An Error Was Encountered')
-	{
-		$status_code = abs($status_code);
-		if ($status_code < 100)
-		{
-			$exit_status = $status_code + 9; // 9 is EXIT__AUTO_MIN
-			if ($exit_status > 125) // 125 is EXIT__AUTO_MAX
-			{
-				$exit_status = 1; // EXIT_ERROR
-			}
-
-			$status_code = 500;
-		}
-		else
-		{
-			$exit_status = 1; // EXIT_ERROR
-		}
-
-		log_message('error', $heading.' : '.$message.' : '.$status_code);
-		$error = get_var_from_conf('error');
-		exit(json_decode($error[501]));
-	}
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists('show_404'))
-{
-	/**
-	 * 404 Page Handler
-	 *
-	 * This function is similar to the show_error() function above
-	 * However, instead of the standard error template it displays
-	 * 404 errors.
-	 *
-	 * @param	string
-	 * @param	bool
-	 * @return	void
-	 */
-	function show_404($page = '', $log_error = TRUE)
-	{
-		$_error = new Exceptions();
-		$_error->show_404($page, $log_error);
-		exit(4); // EXIT_UNKNOWN_FILE
-	}
-}
-
-// ------------------------------------------------------------------------
-
 if ( ! function_exists('set_status_header'))
 {
 	/**
@@ -261,18 +196,18 @@ if ( ! function_exists('set_status_header'))
 	 */
 	function set_status_header($code = 200, $text = '')
 	{
-		if (is_cli())
-		{
+		if (is_cli()){
 			return;
 		}
 
-		if (empty($code) OR ! is_numeric($code))
-		{
-			show_error('Status codes must be numeric', 500);
+        $server_protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
+		if (empty($code) OR ! is_numeric($code)){
+			log_message('error', 'Status codes must be numeric');
+            header($server_protocol.' 404 not found', TRUE, 404);
+            exit;
 		}
 
-		if (empty($text))
-		{
+		if (empty($text)){
 			is_int($code) OR $code = (int) $code;
 			$stati = array(
 				100	=> 'Continue',
@@ -322,134 +257,17 @@ if ( ! function_exists('set_status_header'))
 				505	=> 'HTTP Version Not Supported'
 			);
 
-			if (isset($stati[$code]))
-			{
+			if (isset($stati[$code])){
 				$text = $stati[$code];
-			}
-			else
-			{
-				show_error('No status text available. Please check your status code number or supply your own message text.', 500);
+			}else{
+				log_message('error', 'No status text available. Please check your status code number or supply your own message text.');
 			}
 		}
 
-		if (strpos(PHP_SAPI, 'cgi') === 0)
-		{
+		if (strpos(PHP_SAPI, 'cgi') === 0){
 			header('Status: '.$code.' '.$text, TRUE);
-		}
-		else
-		{
-			$server_protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
+		}else{
 			header($server_protocol.' '.$code.' '.$text, TRUE, $code);
-		}
-	}
-}
-
-// --------------------------------------------------------------------
-
-if ( ! function_exists('_error_handler'))
-{
-	/**
-	 * Error Handler
-	 *
-	 * This is the custom error handler that is declared at the (relative)
-	 * top of CodeIgniter.php. The main reason we use this is to permit
-	 * PHP errors to be logged in our own log files since the user may
-	 * not have access to server logs. Since this function effectively
-	 * intercepts PHP errors, however, we also need to display errors
-	 * based on the current error_reporting level.
-	 * We do that with the use of a PHP error template.
-	 *
-	 * @param	int	$severity
-	 * @param	string	$message
-	 * @param	string	$filepath
-	 * @param	int	$line
-	 * @return	void
-	 */
-	function _error_handler($severity, $message, $filepath, $line)
-	{
-		$is_error = (((E_ERROR | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) & $severity) === $severity);
-
-		// When an error occurred, set the status header to '500 Internal Server Error'
-		// to indicate to the client something went wrong.
-		// This can't be done within the $_error->show_php_error method because
-		// it is only called when the display_errors flag is set (which isn't usually
-		// the case in a production environment) or when errors are ignored because
-		// they are above the error_reporting threshold.
-		if ($is_error)
-		{
-			set_status_header(500);
-		}
-
-		// Should we ignore the error? We'll get the current error_reporting
-		// level and add its bits with the severity bits to find out.
-		if (($severity & error_reporting()) !== $severity)
-		{
-			return;
-		}
-
-		$_error = new Exceptions();
-		$_error->log_exception($severity, $message, $filepath, $line);
-
-		if ($is_error)
-		{
-			exit(1); // EXIT_ERROR
-		}
-	}
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists('_exception_handler'))
-{
-	/**
-	 * Exception Handler
-	 *
-	 * Sends uncaught exceptions to the logger and displays them
-	 * only if display_errors is On so that they don't show up in
-	 * production environments.
-	 *
-	 * @param	Exception	$exception
-	 * @return	void
-	 */
-	function _exception_handler($exception)
-	{
-		$_error = new Exceptions();
-		$_error->log_exception('error', 'Exception: '.$exception->getMessage(), $exception->getFile(), $exception->getLine());
-
-		// Should we display the error?
-		if (str_ireplace(array('off', 'none', 'no', 'false', 'null'), '', ini_get('display_errors')))
-		{
-			$_error->show_exception($exception);
-		}
-
-		exit(1); // EXIT_ERROR
-	}
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists('_shutdown_handler'))
-{
-	/**
-	 * Shutdown Handler
-	 *
-	 * This is the shutdown handler that is declared at the top
-	 * of CodeIgniter.php. The main reason we use this is to simulate
-	 * a complete custom exception handler.
-	 *
-	 * E_STRICT is purposively neglected because such events may have
-	 * been caught. Duplication or none? None is preferred for now.
-	 *
-	 * @link	http://insomanic.me.uk/post/229851073/php-trick-catching-fatal-errors-e-error-with-a
-	 * @return	void
-	 */
-	function _shutdown_handler()
-	{
-		$last_error = error_get_last();
-		if (isset($last_error) &&
-			($last_error['type'] & (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING)))
-		{
-			_error_handler($last_error['type'], $last_error['message'], $last_error['file'], $last_error['line']);
 		}
 	}
 }
@@ -525,92 +343,6 @@ if ( ! function_exists('html_escape'))
 	}
 }
 
-// ------------------------------------------------------------------------
-
-if ( ! function_exists('_stringify_attributes'))
-{
-	/**
-	 * Stringify attributes for use in HTML tags.
-	 *
-	 * Helper function used to convert a string, array, or object
-	 * of attributes to a string.
-	 *
-	 * @param	mixed	string, array, object
-	 * @param	bool
-	 * @return	string
-	 */
-	function _stringify_attributes($attributes, $js = FALSE)
-	{
-		$atts = NULL;
-
-		if (empty($attributes))
-		{
-			return $atts;
-		}
-
-		if (is_string($attributes))
-		{
-			return ' '.$attributes;
-		}
-
-		$attributes = (array) $attributes;
-
-		foreach ($attributes as $key => $val)
-		{
-			$atts .= ($js) ? $key.'='.$val.',' : ' '.$key.'="'.$val.'"';
-		}
-
-		return rtrim($atts, ',');
-	}
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists('function_usable'))
-{
-	/**
-	 * Function usable
-	 *
-	 * Executes a function_exists() check, and if the Suhosin PHP
-	 * extension is loaded - checks whether the function that is
-	 * checked might be disabled in there as well.
-	 *
-	 * This is useful as function_exists() will return FALSE for
-	 * functions disabled via the *disable_functions* php.ini
-	 * setting, but not for *suhosin.executor.func.blacklist* and
-	 * *suhosin.executor.disable_eval*. These settings will just
-	 * terminate script execution if a disabled function is executed.
-	 *
-	 * The above described behavior turned out to be a bug in Suhosin,
-	 * but even though a fix was commited for 0.9.34 on 2012-02-12,
-	 * that version is yet to be released. This function will therefore
-	 * be just temporary, but would probably be kept for a few years.
-	 *
-	 * @link	http://www.hardened-php.net/suhosin/
-	 * @param	string	$function_name	Function to check for
-	 * @return	bool	TRUE if the function exists and is safe to call,
-	 *			FALSE otherwise.
-	 */
-	function function_usable($function_name)
-	{
-		static $_suhosin_func_blacklist;
-
-		if (function_exists($function_name))
-		{
-			if ( ! isset($_suhosin_func_blacklist))
-			{
-				$_suhosin_func_blacklist = extension_loaded('suhosin')
-					? explode(',', trim(ini_get('suhosin.executor.func.blacklist')))
-					: array();
-			}
-
-			return ! in_array($function_name, $_suhosin_func_blacklist, TRUE);
-		}
-
-		return FALSE;
-	}
-}
-
 if(!function_exists('ip_address')){
     function ip_address(){
         $unknown = 'unknown';  
@@ -666,7 +398,7 @@ if(!function_exists('http')){
         ) ,$args);
         if(strtolower($args['method']) === 'post'){
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($args['data']) ? json_encode($args['data']) : $args['data']);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $args['data']);
         }else if(strtolower($args['method']) === 'input'){
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($args['data']) ? json_encode($args['data']) : $args['data']);
@@ -712,8 +444,6 @@ if(!function_exists('http')){
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 从证书中检查SSL加密算法是否存在 
         $result = curl_exec($ch);
 
-        log_message('debug', 'request remote server, url: ['. $args['url'] .'], param: ['. json_encode($args['data']) .'], result: ['. $result .']');
-        
         if($result === false){
             log_message('error', "requrest remote server failed, args: ". print_r($args, true) ."\ninfo: ". print_r(curl_getinfo($ch), true));
             $return = array();
@@ -1204,13 +934,13 @@ if(!function_exists('cookie')){
 	}
 }
 
-if ( ! function_exists('isIdCard')){
+if ( ! function_exists('is_id_card')){
 	/**
 	 * @todo 检查身份证号是否有效
 	 * @param String $number
 	 * @return boolean
 	 */
-	function isIdCard($number) {
+	function is_id_card($number) {
 		if(!preg_match('/^\d{17}(\d|x)$/i',$number)){
 			return false;
 		}
@@ -1235,13 +965,13 @@ if ( ! function_exists('isIdCard')){
 	}
 }
 
-if ( ! function_exists('getSexByIdCard')){
+if ( ! function_exists('get_sex_by_id_card')){
 	/**
 	 * @todo 根据身份证提取性别
 	 * @param int $cid
 	 * @return string
 	 */
-	function getSexByIdCard($cid) {
+	function get_sex_by_id_card($cid) {
 		if (!isIdCard($cid)){
 			return 'unknown';
 		}
@@ -1251,13 +981,13 @@ if ( ! function_exists('getSexByIdCard')){
 	}
 }
 
-if ( ! function_exists('getBirthdayByIdCard')){
+if ( ! function_exists('get_birthday_by_id_card')){
     /**
      * @todo 根据身份证获取生日
      * @param $cid
      * @return string
      */
-    function getBirthdayByIdCard($cid){
+    function get_birthday_by_id_card($cid){
         if (!isIdCard($cid)){
 			return 'unknown';
 		}
@@ -1277,25 +1007,25 @@ if ( ! function_exists('isEmail')){
     }
 }
 
-if ( ! function_exists('isInteger')){
+if ( ! function_exists('is_integer')){
 	/**
 	 * @todo 是否是数字
 	 * @param string $number
 	 * @return bool
 	 */
-	function isInteger($number){
+	function is_integer($number){
 		$exp = '/^[0-9]*$/';
 		return preg_match($exp,$number);
 	}
 }
 
-if ( ! function_exists('isPhone')){
+if ( ! function_exists('is_phone')){
     /**
      * @todo 是否是手机
      * @param string $phone 手机号码
      * @return bool
      */
-    function isPhone($phone){
+    function is_phone($phone){
         $exp = '/^1[3|4|5|6|7|8|9][0-9]{9}$/';
         return preg_match($exp,$phone);
     }

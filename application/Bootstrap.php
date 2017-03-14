@@ -13,11 +13,6 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
         Yaf_Loader::import( APPLICATION_PATH .'/application/helper/function.php' );
         Yaf_Loader::import( APPLICATION_PATH .'/application/helper/file.php' );
     }
-    
-    public function _initErrorAndExceptionHandler(){
-        set_error_handler('_error_handler');
-        set_exception_handler('_exception_handler');
-    }
 
     public function _initConfig() {
         //把配置保存起来
