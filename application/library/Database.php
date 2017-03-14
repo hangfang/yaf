@@ -2,6 +2,10 @@
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 class Database{
+    /**
+     * @var Database_Drivers_Pdo_Mysql 
+     */
+    public static $_instance;
     private function __constrct(){}
     private function __clone(){}
     
@@ -12,10 +16,8 @@ class Database{
      */
     public static function getInstance($default_group='db'){
         
-        $instance = NULL;
-        
-        if($instance = Yaf_Registry::get($default_group)){
-            return $instance;
+        if(self::$_instance = Yaf_Registry::get($default_group)){
+            return self::$_instance;
         }
 
         if(! $config = Yaf_Registry::get('db_config')){
@@ -29,9 +31,9 @@ class Database{
         if($dbdriver==='mysqli'){
             $driverName = ucfirst($config['dbdriver']);
             $driver = 'Database_Drivers_'.$driverName;
-            $instance = new $driver($config);
+            self::$_instance = new $driver($config);
 
-            if(!$instance){
+            if(!self::$_instance){
                 return false;
             }
         }else if($dbdriver==='pdo'){
@@ -39,7 +41,7 @@ class Database{
             $driver = 'Database_Drivers_Pdo_'. ucfirst($subdriver);
             // Check for a subdriver
             if (class_exists($driver) ){
-                $instance = new $driver($config);
+                self::$_instance = new $driver($config);
             }else{
                 log_message('error', 'database subdriver was not surported, need mysql');
                 return false;
@@ -50,7 +52,7 @@ class Database{
         }
         
 
-        Yaf_Registry::set($default_group, $instance);
-        return $instance;
+        Yaf_Registry::set($default_group, self::$_instance);
+        return self::$_instance;
     }
 }
