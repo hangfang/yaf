@@ -4,16 +4,15 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 class Cache_Drivers_Redis extends Redis{
     /**
      * Default config
-     *
-     * @static
+     * @access private
      * @var	array
      */
     private $_config = array(
-        'socket_type' => 'tcp',
-        'host' => '127.0.0.1',
-        'password' => NULL,
-        'port' => 6379,
-        'timeout' => 0
+            'socket_type' => 'tcp',
+            'host' => '127.0.0.1',
+            'password' => NULL,
+            'port' => 6379,
+            'timeout' => 0
     );
 
     public function __construct(){
@@ -34,15 +33,20 @@ class Cache_Drivers_Redis extends Redis{
             return false;
         }
         if(isset($this->_config['password']) && $this->_config['password']){
-            if($this->auth($this->_config['password'])){
-                log_message('error', 'redis auth failed: '. print_r($this->_config, true));
-                return false;
-            }
+            $auth = $this->auth($this->_config['password']);
+            log_message('error', 'redis auth failed: '. print_r($this->_config, true));
+            return false;
         }
         
         $this->setOption(Redis::OPT_PREFIX, $this->_config['prefix']);
     }
     
+    /**
+     * 设置key的生存时间
+     * @param string $key 键名
+     * @param int $expire 可选.生存时间，默认取配置文件的ttl字段值
+     * @return boolean
+     */
     public function setTimeout($key, $expire=null){
         if(is_null($expire)){
             $expire = $this->_config['ttl'];
@@ -50,6 +54,12 @@ class Cache_Drivers_Redis extends Redis{
         return parent::setTimeout($key, $expire);
     }
     
+    /**
+     * 设置key的生存时间
+     * @param string $key 键名
+     * @param int $expire 可选.生存时间，默认取配置文件的ttl字段值
+     * @return boolean
+     */
     public function expire($key, $expire=null){
         if(is_null($expire)){
             $expire = $this->_config['ttl'];
@@ -57,6 +67,12 @@ class Cache_Drivers_Redis extends Redis{
         return parent::expire($key, $expire);
     }
     
+    /**
+     * 设置key的到期时间
+     * @param string $key 键名
+     * @param int $expire 可选.到期时间，默认取配置文件的ttl字段值
+     * @return boolean
+     */
     public function expireAt($key, $expire=null){
         if(is_null($expire)){
             $expire = $this->_config['ttl'] + time();
@@ -64,6 +80,13 @@ class Cache_Drivers_Redis extends Redis{
         return parent::expireAt($key, $expire);
     }
     
+    /**
+     * 设置key的值和生存时间
+     * @param string $key 键名
+     * @param string $value 值
+     * @param int $expire 可选.生存时间，默认取配置文件的ttl字段值
+     * @return boolean
+     */
     public function setex($key, $value, $expire=null){
         if(is_null($expire)){
             $expire = $this->_config['ttl'];
