@@ -1034,4 +1034,16 @@ class Database_Drivers_Mysqli{
         $this->_result = null;
         return $this;
     }
+    
+    /**
+     * @todo 获取查询记录数
+     * @return int
+     */
+    public function numRows(){
+        if($this->_stmt){
+            return $this->_stmt->affected_rows;
+        }
+        
+        return false;
+    }
 }
