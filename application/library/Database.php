@@ -6,7 +6,7 @@ class Database{
      * @var Database_Drivers_Pdo_Mysql 
      */
     public static $_instance;
-    private function __constrct(){}
+    private function __construct(){}
     private function __clone(){}
     
     /**
