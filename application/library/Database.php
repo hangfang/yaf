@@ -21,18 +21,31 @@ class Database{
             Yaf_Registry::set('db_config', $config);
         }
         
-        $driverName = ucfirst($config['dbdriver']);
-        $driver = 'Database_Drivers_'.$driverName.'_'.$driverName.'Driver';
-        $db = new $driver($config);
-
-        // Check for a subdriver
-        if ( ! empty($db->subdriver))
-        {
-            $driver = 'Database_Drivers_Pdo_Subdrivers_'.ucfirst($db->dbdriver).''.ucfirst($db->subdriver).'Driver';
+        $dbdriver = strtolower($config['dbdriver']);
+        if($dbdriver==='mysqli'){
+            $driverName = ucfirst($config['dbdriver']);
+            $driver = 'Database_Drivers_'.$driverName;
             $db = new $driver($config);
-        }
 
-        $db->initialize();
+            if(!$db){
+                return false;
+            }
+        }else if($dbdriver==='pdo'){
+            $subdriver = empty($config['subdriver']) ? 'mysql' : strtolower($config['subdriver']);
+            $driver = 'Database_Drivers_Pdo_'. ucfirst($subdriver);
+            // Check for a subdriver
+            if (class_exists($driver) ){
+                $db = new $driver($config);
+            }else{
+                log_message('error', 'database subdriver was not surported, need mysql');
+                return false;
+            }
+        }else{
+            log_message('error', 'database driver was not surported, need mysqli or pdo');
+            return false;
+        }
+        
+
         Yaf_Registry::set('db', $db);
         return $db;
     }
