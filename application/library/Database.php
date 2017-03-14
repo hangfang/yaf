@@ -5,6 +5,11 @@ class Database{
     private function __constrct(){}
     private function __clone(){}
     
+    /**
+     * @todo 获取Mysql驱动类的实例
+     * @param string $default_group 数据库组名
+     * @return Mysql驱动类的实例
+     */
     public static function getInstance($default_group='db'){
         
         $instance = NULL;
