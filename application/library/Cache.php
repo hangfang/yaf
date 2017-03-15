@@ -1,11 +1,15 @@
 <?php
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
- * @demo $cache = new Cache('redis');
- * @author hangfang
+ * @demo $cache = Cache::getInstance();
+ * @author fangh@me.com
  * @date 2016-04-27
  */
 class Cache {
+    /**
+     * 缓存对象实例
+     * @var Cache_Drivers_Redis
+     */
     private static $_instance = null;
     private function __construct(){}
     private function __clone(){}

@@ -15,6 +15,10 @@ class Cache_Drivers_Redis extends Redis{
             'timeout' => 0
     );
 
+    /**
+     * 初始化Redis实例：连接服务器，如有必要则进行授权
+     * @return boolean
+     */
     public function __construct(){
         $config = new Yaf_Config_Ini(APPLICATION_PATH . '/conf/cache.ini', ini_get('yaf.environ'));
         $config = $config->toArray();
