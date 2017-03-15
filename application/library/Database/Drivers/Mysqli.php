@@ -20,6 +20,7 @@ class Database_Drivers_Mysqli{
     private $_sql = '';
     private $_value = array();
     private $_inTransaction = false;
+    private $_prefix = '';
     
     public function __construct($config){
         // Do we have a socket path?
@@ -101,11 +102,11 @@ class Database_Drivers_Mysqli{
 				&& empty($this->_conn->query("SHOW STATUS LIKE 'ssl_cipher'")->fetch_object()->Value)
 			){
 				$this->_conn->close();
-				$message = 'MySQLi was configured for an SSL connection, but got an unencrypted connection instead!';
-				log_message('error', $message);
+				log_message('error', 'MySQLi was configured for an SSL connection, but got an unencrypted connection instead!');
 				return FALSE;
 			}
-
+            
+            $this->_prefix = empty($config['prefix']) ? '' : $config['prefix'];
 			return $this->_conn;
 		}
         
@@ -407,7 +408,7 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function from($table){
-        $this->_table = $table;
+        $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         
         return $this;
     }
@@ -453,7 +454,7 @@ class Database_Drivers_Mysqli{
      */
     public function get($table='', $limit=null, $offset=null){
         $this->freeResult();
-        !empty($table) && $this->_table = $table;
+        !empty($table) && $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         if(!is_null($offset)){
             $this->_limit['offset'] = $offset;
         }
@@ -591,7 +592,7 @@ class Database_Drivers_Mysqli{
      */
     public function update($table, $update=array(), $where=array()){
         $this->freeResult();
-        !empty($table) && $this->_table = $table;
+        !empty($table) && $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         
         if(empty($this->_table)){
             log_message('error', 'sql error, UPDATE: need table name');
@@ -648,7 +649,7 @@ class Database_Drivers_Mysqli{
             log_message('error', 'sql error, INSERT: need data');
             return false;
         }
-        $this->_table = $table;
+        $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         $this->_sql = 'INSERT INTO '. $this->_table .' (';
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
@@ -687,7 +688,7 @@ class Database_Drivers_Mysqli{
      */
     public function delete($table='', $where=array(), $limit=0){
         $this->freeResult();
-        !empty($table) && $this->_table = $table;
+        !empty($table) && $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         
         if(empty($this->_table)){
             log_message('error', 'sql error, UPDATE: need table name');
@@ -733,7 +734,7 @@ class Database_Drivers_Mysqli{
             log_message('error', 'sql error, REPLACE: need data');
             return false;
         }
-        $this->_table = $table;
+        $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         $this->_sql = 'REPLACE INTO '. $this->_table .' (';
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';

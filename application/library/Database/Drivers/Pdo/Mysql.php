@@ -19,6 +19,7 @@ class Database_Drivers_Pdo_Mysql{
     private $_query = null;
     private $_sql = '';
     private $_value = array();
+    private $_prefix = '';
     
     public function __construct($config){
 		if (empty($config['dsn'])){
@@ -91,10 +92,7 @@ class Database_Drivers_Pdo_Mysql{
 		try{
 			$this->_conn = new PDO($config['dsn'], $config['username'], $config['password'], $this->_options);
 		}catch (PDOException $e){
-			if ($config['db_debug'] && empty($config['failover'])){
-				log_message('error', $e->getMessage());
-			}
-
+			log_message('error', $e->getMessage());
 			return FALSE;
 		}
         
@@ -106,6 +104,8 @@ class Database_Drivers_Pdo_Mysql{
 			log_message('error', $message);
 			return false;
 		}
+        
+        $this->_prefix = empty($config['prefix']) ? '' : $config['prefix'];
     }
     
     /**
@@ -402,7 +402,7 @@ class Database_Drivers_Pdo_Mysql{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function from($table){
-        $this->_table = $table;
+        $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         
         return $this;
     }
@@ -448,11 +448,11 @@ class Database_Drivers_Pdo_Mysql{
      */
     public function get($table='', $limit=null, $offset=null){
         $this->freeResult();
-        !empty($table) && $this->_table = $table;
+        !empty($table) && $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         if(!is_null($offset)){
             $this->_limit['offset'] = $offset;
         }
-        
+
         if(!is_null($limit)){
             $this->_limit['limit'] = $limit;
         }
@@ -476,7 +476,7 @@ class Database_Drivers_Pdo_Mysql{
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn));
+            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         
@@ -583,7 +583,7 @@ class Database_Drivers_Pdo_Mysql{
      */
     public function update($table, $update=array(), $where=array()){
         $this->freeResult();
-        !empty($table) && $this->_table = $table;
+        !empty($table) && $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         
         if(empty($this->_table)){
             log_message('error', 'sql error, UPDATE: need table name');
@@ -640,7 +640,7 @@ class Database_Drivers_Pdo_Mysql{
             log_message('error', 'sql error, INSERT: need data');
             return false;
         }
-        $this->_table = $table;
+        $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         $this->_sql = 'INSERT INTO '. $this->_table .' (';
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
@@ -680,7 +680,7 @@ class Database_Drivers_Pdo_Mysql{
      */
     public function delete($table='', $where=array(), $limit=0){
         $this->freeResult();
-        !empty($table) && $this->_table = $table;
+        !empty($table) && $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         
         if(empty($this->_table)){
             log_message('error', 'sql error, UPDATE: need table name');
@@ -726,7 +726,7 @@ class Database_Drivers_Pdo_Mysql{
             log_message('error', 'sql error, REPLACE: need data');
             return false;
         }
-        $this->_table = $table;
+        $this->_table = strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         $this->_sql = 'REPLACE INTO '. $this->_table .' (';
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
