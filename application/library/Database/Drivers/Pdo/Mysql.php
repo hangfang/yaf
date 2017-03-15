@@ -42,7 +42,7 @@ class Database_Drivers_Pdo_Mysql{
 		}
         
 		if (empty($config['dsn'])){
-			$config['dsn'] = 'mysql:host='.(empty($config['hostname']) ? '127.0.0.1' : $config['hostname']);
+			$config['dsn'] = $config['subdriver'].':host='.(empty($config['hostname']) ? '127.0.0.1' : $config['hostname']);
 
 			empty($config['port']) OR $config['dsn'] .= ';port='.$config['port'];
 			empty($config['database']) OR $config['dsn'] .= ';dbname='.$config['database'];

@@ -20,14 +20,9 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
         Yaf_Registry::set('config', $arrConfig);
         Yaf_Loader::import( APPLICATION_PATH .'/conf/constants.php' );
     }
-    
-    public function _initCache(){
-        new Cache();
-    }
 
     public function _initPlugin(Yaf_Dispatcher $dispatcher) {
         //注册一个插件
-        NEED_SIGN && $dispatcher->registerPlugin(new SignPlugin());
     }
 
     public function _initRoute(Yaf_Dispatcher $dispatcher) {
