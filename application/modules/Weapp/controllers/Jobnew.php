@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 
 class JobnewController extends Yaf_Controller_Abstract {
     public function dltAction(){
@@ -79,7 +79,7 @@ class JobnewController extends Yaf_Controller_Abstract {
     public function ssqAction(){
         $url = 'http://www.zhcw.com/ssq/kjgg/';
         
-        include APPLICATION_PATH .'/application/library/SimpleHtmlDomNode.php';
+        include BASE_PATH .'/application/library/SimpleHtmlDomNode.php';
         $html = file_get_html($url);
         $nlink = $html->find('.Nlink', 0)->find('a', 0);
         $uri = $nlink->attr['href'];

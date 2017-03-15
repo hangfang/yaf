@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 
 class ImageController extends Yaf_Controller_Abstract{
     public function indexAction(){
@@ -16,7 +16,7 @@ class ImageController extends Yaf_Controller_Abstract{
     }
     
     public function uploadAction(){
-        $config['upload_path']      = APPLICATION_PATH .'/upload/image/';
+        $config['upload_path']      = BASE_PATH .'/upload/image/';
         $config['allowed_types']    = 'bmp|jpeg|png|tmp';
         $config['max_size']     = 3072;
         $config['max_width']        = 3264;
@@ -104,7 +104,7 @@ class ImageController extends Yaf_Controller_Abstract{
             return FALSE;
         }
 
-        $tmp = tempnam(APPLICATION_PATH .'/upload/image/', '');
+        $tmp = tempnam(BASE_PATH .'/upload/image/', '');
 
         if(!copy($url, $tmp)){
             $data = array();
@@ -238,7 +238,7 @@ class ImageController extends Yaf_Controller_Abstract{
         
         $face = $rt['face'][0];
         
-        $tmp = tempnam(APPLICATION_PATH .'/upload/image/', '');
+        $tmp = tempnam(BASE_PATH .'/upload/image/', '');
 
         if(!copy($url, $tmp)){
             $data = array();
@@ -255,7 +255,7 @@ class ImageController extends Yaf_Controller_Abstract{
         $draw->setFillColor('#D82CA7');
 
         $draw->setStrokeWidth(1);
-        //$draw->setFont(APPLICATION_PATH .'/fonts/texb.ttf');
+        //$draw->setFont(BASE_PATH .'/fonts/texb.ttf');
         $draw->setFontSize(18);
 
         $xStart = $face['x'];

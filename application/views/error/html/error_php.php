@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 ?>
 
 <div style="border:1px solid #990000;padding-left:20px;margin:0 0 10px 0;">
@@ -14,7 +14,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 <p>Backtrace:</p>
 <?php foreach (debug_backtrace() as $error): ?>
 
-    <?php if (isset($error['file']) && strpos($error['file'], realpath(APPLICATION_PATH)) !== 0): ?>
+    <?php if (isset($error['file']) && strpos($error['file'], realpath(BASE_PATH)) !== 0): ?>
 
         <p style="margin-left:10px">
         File: <?php echo $error['file'] ?><br />

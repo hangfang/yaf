@@ -1,6 +1,6 @@
 <?php
 
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 
 /**
  * Logging Class
@@ -80,7 +80,7 @@ class Log {
 	{
 		$config = Yaf_Registry::get('config');
 
-		$this->_log_path = $config['application']['logPath'] ? $config['application']['logPath'] : APPLICATION_PATH.'/logs/';
+		$this->_log_path = $config['application']['logPath'] ? $config['application']['logPath'] : BASE_PATH.'/logs/';
 		$this->_file_ext = (isset($config['application']['logFileExtension']) && $config['application']['logFileExtension'])
 			? ltrim($config['application']['logFileExtension'], '.') : 'log';
 
@@ -153,7 +153,7 @@ class Log {
 			// Only add protection to php files
 			if ($this->_file_ext === 'php')
 			{
-				$message .= "<?php defined('APPLICATION_PATH') OR exit('No direct script access allowed'); ?>\n\n";
+				$message .= "<?php defined('BASE_PATH') OR exit('No direct script access allowed'); ?>\n\n";
 			}
 		}
 

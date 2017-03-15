@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 
 define('BASE_URL', 'http://new.gxq168.net');//当前系统地址
 define('NEED_SIGN', true);//是否需要验签

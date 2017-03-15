@@ -17,14 +17,14 @@ function yaf_auto_load($classname) {
 	}
 	if ($namespace == 'Yaf' || stripos($namespace, $yafNamespace . $namespaceSeparator) === 0)
 	{
-		include_once(APPLICATION_PATH . '/framework/Yaf_Namespace/G.php');
+		include_once(BASE_PATH . '/framework/Yaf_Namespace/G.php');
 		\Yaf\G::iniSet('yaf.use_namespace', true);
 		$fileName = str_replace('Yaf' . DIRECTORY_SEPARATOR, 'Yaf_Namespace' . DIRECTORY_SEPARATOR, $fileName);
 	}
 	$path = $fileName . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';
-	if (file_exists(APPLICATION_PATH . '/framework/' . $path))
+	if (file_exists(BASE_PATH . '/framework/' . $path))
 	{
-		require_once(APPLICATION_PATH . '/framework/' . $path);
+		require_once(BASE_PATH . '/framework/' . $path);
 	}
 }
 

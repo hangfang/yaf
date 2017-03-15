@@ -1,145 +1,50 @@
 <?php
 /**
- * 模拟CI数据库类的Mysqli封装
+ * 模拟CI数据库类的Pdo封装
  * @author fangh@me.com
  */
-class Database_Drivers_Mysqli{
+class Database_Drivers_Pdo{
     
-    private $_conn=null;
-    private $_stmt=null;
-    private $_result=null;
-    private $_condition = array();
-    private $_having = '';
-    private $_set = array();
-    private $_limit = array();
-    private $_group = '';
-    private $_order = '';
-    private $_table = '';
-    private $_select = '';
-    private $_query = null;
-    private $_sql = '';
-    private $_value = array();
-    private $_inTransaction = false;
-    private $_prefix = '';
-    
-    public final function __construct($config){
-        // Do we have a socket path?
-		if ($config['hostname'][0] === '/'){
-			$hostname = NULL;
-			$port = NULL;
-			$socket = $config['hostname'];
-		}else{
-			// Persistent connection support was added in PHP 5.3.0
-			$hostname = ($config['pconnect'] === TRUE && is_php('5.3')) ? 'p:'.$config['hostname'] : $config['hostname'];
-			$port = empty($config['port']) ? NULL : $config['port'];
-			$socket = NULL;
-		}
-
-		$client_flags = ($config['compress'] == TRUE) ? MYSQLI_CLIENT_COMPRESS : 0;
-		$this->_conn = mysqli_init();
-
-		$this->_conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
-		$this->_conn->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE);
-
-		if (isset($config['stricton'])){
-			if ($config['stricton']){
-				$this->_conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode = CONCAT(@@sql_mode, ",", "STRICT_ALL_TABLES")');
-			}else{
-				$this->_conn->options(MYSQLI_INIT_COMMAND,
-					'SET SESSION sql_mode =
-					REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
-					@@sql_mode,
-					"STRICT_ALL_TABLES,", ""),
-					",STRICT_ALL_TABLES", ""),
-					"STRICT_ALL_TABLES", ""),
-					"STRICT_TRANS_TABLES,", ""),
-					",STRICT_TRANS_TABLES", ""),
-					"STRICT_TRANS_TABLES", "")'
-				);
-			}
-		}
-
-		if (is_array($config['encrypt'])){
-			$ssl = array();
-			empty($config['encrypt']['ssl_key'])    OR $ssl['key']    = $config['encrypt']['ssl_key'];
-			empty($config['encrypt']['ssl_cert'])   OR $ssl['cert']   = $config['encrypt']['ssl_cert'];
-			empty($config['encrypt']['ssl_ca'])     OR $ssl['ca']     = $config['encrypt']['ssl_ca'];
-			empty($config['encrypt']['ssl_capath']) OR $ssl['capath'] = $config['encrypt']['ssl_capath'];
-			empty($config['encrypt']['ssl_cipher']) OR $ssl['cipher'] = $config['encrypt']['ssl_cipher'];
-
-			if ( ! empty($ssl)){
-				if (isset($config['encrypt']['ssl_verify'])){
-					if ($config['encrypt']['ssl_verify']){
-						defined('MYSQLI_OPT_SSL_VERIFY_SERVER_CERT') && $this->_conn->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, TRUE);
-					}
-					// Apparently (when it exists), setting MYSQLI_OPT_SSL_VERIFY_SERVER_CERT
-					// to FALSE didn't do anything, so PHP 5.6.16 introduced yet another
-					// constant ...
-					//
-					// https://secure.php.net/ChangeLog-5.php#5.6.16
-					// https://bugs.php.net/bug.php?id=68344
-					elseif (defined('MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT')){
-						$this->_conn->options(MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT, TRUE);
-					}
-				}
-
-				$client_flags |= MYSQLI_CLIENT_SSL;
-				$this->_conn->ssl_set(
-					isset($ssl['key'])    ? $ssl['key']    : NULL,
-					isset($ssl['cert'])   ? $ssl['cert']   : NULL,
-					isset($ssl['ca'])     ? $ssl['ca']     : NULL,
-					isset($ssl['capath']) ? $ssl['capath'] : NULL,
-					isset($ssl['cipher']) ? $ssl['cipher'] : NULL
-				);
-			}
-		}
-
-		if ($this->_conn->real_connect($hostname, $config['username'], $config['password'], $config['database'], $port, $socket, $client_flags)){
-			// Prior to version 5.7.3, MySQL silently downgrades to an unencrypted connection if SSL setup fails
-			if (
-				($client_flags & MYSQLI_CLIENT_SSL)
-				&& version_compare($this->_conn->client_info, '5.7.3', '<=')
-				&& empty($this->_conn->query("SHOW STATUS LIKE 'ssl_cipher'")->fetch_object()->Value)
-			){
-				$this->_conn->close();
-				log_message('error', $message = 'MySQLi was configured for an SSL connection, but got an unencrypted connection instead!');
-                throw new Exception('error', $message, '-1');
-				return FALSE;
-			}
-            
-            $this->_prefix = empty($config['prefix']) ? '' : $config['prefix'];
-			return $this->_conn;
-		}
-        
-        log_message('error', $message = 'mysqli connect failed, msg: '.$this->_conn->error() .'('. $this->_conn->errno() .')');
-        throw new Exception('error', $message, '-1');
-		return FALSE;
-    }
+    protected $_conn=null;
+    protected $_stmt=null;
+    protected $_options = array();
+    protected $_condition = array();
+    protected $_having = '';
+    protected $_set = array();
+    protected $_limit = array();
+    protected $_group = '';
+    protected $_order = '';
+    protected $_table = '';
+    protected $_select = '';
+    protected $_query = null;
+    protected $_sql = '';
+    protected $_value = array();
+    protected $_prefix = '';
     
     /**
      * SQL语句条件分组开始:AND (
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function groupStart(){
-        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND', 'op'=>'');
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND');
         return $this;
     }
     
     /**
      * SQL语句条件分组开始:OR (
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orGroupStart(){
-        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR', 'op'=>'');
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
         return $this;
     }
         
     /**
      * SQL语句条件分组结束:)
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function groupEnd(){
-        $this->_condition[] = array('key'=>')', 'value'=>'', 'connect'=>'', 'op'=>'');
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -147,7 +52,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:AND column_name = 'xx'
      * @param mixed $where  查询条件键值对:array('id'=>1, 'name'=>'tom')
      * @param mixed $value  条件字段对应的值，$value不是null时，$where为字段名
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function where($where, $value=null){
         if(is_null($value)){
@@ -181,7 +86,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:OR column_name = 'xx'
      * @param mixed $where  查询条件键值对:array('id'=>1, 'name'=>'tom')
      * @param mixed $value  条件字段对应的值，$value不是null时，$where为字段名
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orWhere($where, $value=null){
         if(is_null($value)){
@@ -234,7 +139,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:AND column_name IN ()
      * @param string $field  表字段名
      * @param mixed $list  查询字段的值，数组或单个值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function whereIn($field, $list){
         $list = is_array($list) ? implode(',', $list) : $list;
@@ -246,7 +151,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:OR column_name IN ()
      * @param string $field  表字段名
      * @param mixed $list  查询字段的值，数组或单个值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orWhereIn($field, $list){
         $list = is_array($list) ? implode(',', $list) : $list;
@@ -258,7 +163,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:AND column_name NOT IN ()
      * @param string $field  表字段名
      * @param mixed $list  查询字段的值，数组或单个值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function whereNotIn($field, $list){
         $list = is_array($list) ? implode(',', $list) : $list;
@@ -270,7 +175,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:OR column_name NOT IN ()
      * @param string $field  表字段名
      * @param mixed $list  查询字段的值，数组或单个值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orWhereNotIn($field, $list){
         $list = is_array($list) ? implode(',', $list) : $list;
@@ -282,7 +187,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:AND column_name LIKE '%xx%'
      * @param string $field  表字段名
      * @param mixed $like  搜索值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function like($field, $like, $side='both'){
         $this->_condition[] = array('key'=>$field, 'value'=>$like, 'connect'=>'AND', 'op'=>'like', 'side'=>$side);
@@ -293,7 +198,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:OR column_name LIKE '%xx%'
      * @param string $field  表字段名
      * @param mixed $like  搜索值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orLike($field, $like, $side='both'){
         $this->_condition[] = array('key'=>$field, 'value'=>$like, 'connect'=>'OR', 'op'=>'like', 'side'=>$side);
@@ -304,7 +209,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:AND column_name NOT LIKE '%xx%'
      * @param string $field  表字段名
      * @param mixed $like  搜索值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function notLike($field, $like, $side='both'){
         $this->_condition[] = array('key'=>$field, 'value'=>$like, 'connect'=>'AND', 'op'=>'not like', 'side'=>$side);
@@ -315,7 +220,7 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:OR column_name NOT LIKE '%xx%'
      * @param string $field  表字段名
      * @param mixed $like  搜索值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orNotLike($field, $like, $side='both'){
         $this->_condition[] = array('key'=>$field, 'value'=>$like, 'connect'=>'OR', 'op'=>'not like', 'side'=>$side);
@@ -325,7 +230,7 @@ class Database_Drivers_Mysqli{
     /**
      * SQL语句:HAVING COUNT(column_name) >0
      * @param string $having  having 字句
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function having($having){
         $this->_having[] = $having;
@@ -336,7 +241,7 @@ class Database_Drivers_Mysqli{
      * SQL语句:LIMIT $offset, $limit
      * @param int $limit  查询记录数
      * @param int $offset  查询偏移量
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function limit($limit=null, $offset=null){
         if(is_null($limit)){
@@ -355,7 +260,7 @@ class Database_Drivers_Mysqli{
     /**
      * SQL语句:GROUP BY column_name
      * @param mixed $field  分组字段，支持:array('id', 'name')、'id,name'
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function groupBy($field){
         if(is_array($field)){
@@ -370,7 +275,7 @@ class Database_Drivers_Mysqli{
     /**
      * SQL语句:ORDER BY column_name desc
      * @param mixed $order  排序字段，支持:array('id desc', 'name asc')、'id asc'
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orderBy($order){
         if(empty($order)){
@@ -392,7 +297,7 @@ class Database_Drivers_Mysqli{
     /**
      * SQL语句:select column_name_a,column_name_b
      * @param mixed $field  排序字段，支持:array('id', 'name')、'id,name'
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function select($field){
         if(is_array($field)){
@@ -407,7 +312,7 @@ class Database_Drivers_Mysqli{
     /**
      * SQL语句:select column_name_a,column_name_b from table
      * @param mixed $table  查询表名
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function from($table){
         $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
@@ -419,7 +324,7 @@ class Database_Drivers_Mysqli{
      * 设置更新字段
      * @param mixed $data  需要更新的键值对
      * @param mixed $value  当$value不为null时，$data是待更新的字段名
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function set($data, $value=null){
         if(is_null($value)){
@@ -443,7 +348,7 @@ class Database_Drivers_Mysqli{
                 $this->_set[] = array('key'=>$data, 'value'=>$value);
             }
         }
-
+        
         return $this;
     }
     
@@ -452,15 +357,15 @@ class Database_Drivers_Mysqli{
      * @param string $table  查询表名
      * @param int $limit  查询记录数
      * @param int $offset  查询偏移量
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function get($table='', $limit=null, $offset=null){
         $this->freeResult();
-        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        !empty($table) && !empty($this->_prefix) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
         if(!is_null($offset)){
             $this->_limit['offset'] = $offset;
         }
-        
+
         if(!is_null($limit)){
             $this->_limit['limit'] = $limit;
         }
@@ -484,20 +389,14 @@ class Database_Drivers_Mysqli{
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
-            return false;
-        }
-        
-        $this->_result = $this->_stmt->get_result();
-        if(!$this->_result){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
@@ -506,54 +405,57 @@ class Database_Drivers_Mysqli{
     
     /**
      * 从结果集拿出一行数据
-     * @return mixed array or boolean
+     * @return mixed boolean || array
      */
     public function rowArray(){
-        if(!$this->_result){
-            log_message('error', 'row array error, msg: got no _result');
+        $rt = $this->_stmt->fetch(PDO::FETCH_ASSOC);
+        if(!$rt){
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
-        return $this->_result->fetch_assoc();
+                
+        return $rt;
     }
     
     /**
      * 从结果集拿出所有数据
-     * @return mixed array or boolean
+     * @return mixed boolean || array
      */
     public function resultArray(){
-        if(!$this->_result){
-            log_message('error', 'row array error, msg: got no _result');
+        $rt = $this->_stmt->fetchAll(PDO::FETCH_ASSOC);
+        if(!$rt){
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
-        return $this->_result->fetch_all(MYSQLI_ASSOC);
+                
+        return $rt;
     }
     
     /**
      * 从结果集拿出一行数据
-     * @return mixed object or boolean
+     * @return mixed boolean ||　object
      */
     public function rowObject(){
-        if(!$this->_result){
-            log_message('error', 'row array error, msg: got no _result');
+        $rt = $this->_stmt->fetch(PDO::FETCH_OBJ);
+        if(!$rt){
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
-        return $this->_result->fetch_object();
+                
+        return $rt;
     }
     
     /**
      * 从结果集拿出所有数据
-     * @return mixed object or boolean
+     * @return mixed boolean ||　object
      */
     public function resultObject(){
-        if(!$this->_result){
-            log_message('error', 'row array error, msg: got no _result');
+        $rt = $this->_stmt->fetchAll(PDO::FETCH_OBJ);
+        if(!$rt){
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
-        
-        $rt = array();
-        while($tmp=$this->_result->fetch_object()){
-            $rt[] = $tmp;
-        }
+                
         return $rt;
     }
     
@@ -563,7 +465,7 @@ class Database_Drivers_Mysqli{
      * @param array $where  查询条件
      * @param int $limit  查询记录数
      * @param int $offset  查询偏移量
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function getWhere($table='', $where=array(), $limit=null, $offset=null){
         if(!empty($where)){
@@ -581,7 +483,7 @@ class Database_Drivers_Mysqli{
                 }
             }
         }
-
+        
         return $this->get($table, $limit, $offset);
     }
     
@@ -590,7 +492,7 @@ class Database_Drivers_Mysqli{
      * @param string $table  查询表名
      * @param mixed $update  需要更新的键值对
      * @param mixed $where  更新时的条件
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function update($table, $update=array(), $where=array()){
         $this->freeResult();
@@ -607,7 +509,6 @@ class Database_Drivers_Mysqli{
             return false;
         }
         
-        
         $this->where($where);
         if(empty($this->_condition)){
             log_message('error', 'sql error, UPDATE: need condition');
@@ -615,29 +516,30 @@ class Database_Drivers_Mysqli{
         }
         
         $this->_sql = 'UPDATE '. $this->_table .' ';
+        
         $this->__buildSet();
         $this->__buildWhere();
-
+        
         $this->_stmt = $this->_conn->prepare($this->_sql);
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
-        return $this->_stmt->affected_rows;
+        return $this->_stmt->rowCount();
     }
     
     /**
      * 插入数据
      * @param string $table  查询表名
      * @param mixed $data  需要插入的键值对
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function insert($table, $data){
         $this->freeResult();
@@ -660,25 +562,26 @@ class Database_Drivers_Mysqli{
         
         $this->_sql .= ') VALUES (';
         foreach($data as $k=>$v){
-            $this->_sql .= '?,';
-            $this->_value[] = $v;
+            $key = $k.count($this->_value);
+            $this->_sql .= ':'. $key .',';
+            $this->_value[] = array($key=>$v);
         }
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
-        return $this->_stmt->insert_id;
+        return $this->_conn->lastInsertId();
     }
     
     /**
@@ -686,7 +589,7 @@ class Database_Drivers_Mysqli{
      * @param string $table  查询表名
      * @param mixed $where  删除条件
      * @param int $limit  删除记录数
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function delete($table='', $where=array(), $limit=0){
         $this->freeResult();
@@ -706,24 +609,24 @@ class Database_Drivers_Mysqli{
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
-        return $this->_stmt->affected_rows;
+        return $this->_stmt->rowCount();
     }
     
     /**
      * 替换已有的数据
      * @param string $table  查询表名
      * @param mixed $data  需要插入的键值对
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function replace($table, $data){
         $this->freeResult();
@@ -745,32 +648,33 @@ class Database_Drivers_Mysqli{
         
         $this->_sql .= ') VALUES (';
         foreach($data as $k=>$v){
-            $this->_sql .= '?,';
-            $this->_value[] = $v;
+            $key = $k.count($this->_value);
+            $this->_sql .= ':'. $key .',';
+            $this->_value[] = array($key=>$v);
         }
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
-        echo $this->_sql;
+        
         $this->_stmt = $this->_conn->prepare($this->_sql);
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
-        return $this->_stmt->affected_rows;
+        return $this->_conn->lastInsertId();
     }
     
     /**
      * 组装查询条件
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
-    private function __buildWhere(){
+    protected function __buildWhere(){
         
         if(!empty($this->_condition)){
             $this->_sql .= ' where ';
@@ -782,9 +686,10 @@ class Database_Drivers_Mysqli{
                 if($k > 0 && !in_array($preKey, array('(', ''))){
                     $this->_sql .= $v['connect'] .' ';
                 }
-
+                
+                $key = ':'. $v['key'].count($this->_value);
                 if($v['op']==='like' || $v['op']==='not like'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' '. $key .' ';
                     $tmp = $v['value'];
                     if($v['side']==='both'){
                         $tmp = '%'.$v['value'].'%';
@@ -793,15 +698,15 @@ class Database_Drivers_Mysqli{
                     }else{
                         $tmp = $v['value'].'%';
                     }
-                    $this->_value[] = $tmp;
+                    $this->_value[] = array($key=>$tmp);
                 }elseif($v['op']==='in' || $v['op']==='not in'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' (?) ';
-                    $this->_value[] = $v['value'];
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $key .') ';
+                    $this->_value[] = array($key=>$v['value']);
                 }else if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else{
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
-                    $this->_value[] = $v['value'];
+                    $this->_sql .= $v['key'] .' = '. $key .' ';
+                    $this->_value[] = array($key=>$v['value']);
                 }
                 
                 
@@ -815,9 +720,9 @@ class Database_Drivers_Mysqli{
     
     /**
      * 组装having子句
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
-    private function __buildHaving(){
+    protected function __buildHaving(){
         if(!empty($this->_having)){
             $this->_sql .= ' '. $this->_having .' ';
         }
@@ -828,9 +733,9 @@ class Database_Drivers_Mysqli{
     
     /**
      * 组装group by子句
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
-    private function __buildGroup(){
+    protected function __buildGroup(){
         
         if(!empty($this->_group)){
             $this->_sql .= ' group by '. $this->_group .' ';
@@ -842,9 +747,9 @@ class Database_Drivers_Mysqli{
     
     /**
      * 组装order by子句
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
-    private function __buildOrder(){
+    protected function __buildOrder(){
         
         if(!empty($this->_order)){
             $this->_sql .= ' order by ';
@@ -857,9 +762,9 @@ class Database_Drivers_Mysqli{
     
     /**
      * 组装limit子句
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
-    private function __buildLimit(){
+    protected function __buildLimit(){
         if(isset($this->_limit['limit'])){
             $this->_sql .= ' limit ';
             if(!isset($this->_limit['offset'])){
@@ -875,19 +780,21 @@ class Database_Drivers_Mysqli{
     
     /**
      * 组装set子句
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
-    private function __buildSet(){
+    protected function __buildSet(){
         
         if(!empty($this->_set)){
             $this->_sql .= ' set ';
+            $preKey = '';
             foreach($this->_set as $k=>$v){
                 if($k > 0){
                     $this->_sql .= ', ';
                 }
                 
-                $this->_sql .= $v['key'] .' = ? ';
-                $this->_value[] = $v['value'];
+                $key = ':'.$v['key'].count($this->_value);
+                $this->_sql .= $v['key'] .' = '. $key .' ';
+                $this->_value[] = array($key=>$v['value']);
             }
         }
         $this->_set = array();
@@ -897,42 +804,23 @@ class Database_Drivers_Mysqli{
     
     /**
      * 字段绑定值
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
-    private function __bindValue(){
+    protected function __bindValue(){
+        
         if(!empty($this->_value)){
-            $param = array('');
-            
-            $tmp = array();
             foreach($this->_value as $v){
-                if(is_array($v)){
-                    if(is_int($v[0])){
-                        $param[0] .= 'i';
-                    }else if(is_double($v[0])){
-                        $param[0] .= 'd';
+                foreach($v as $key=>$value){
+                    if(is_array($value)){
+                        $rt = $this->_stmt->bindValue($key, implode(',', $value), PDO::PARAM_STR);
                     }else{
-                        $param[0] .= 's';
+                        $rt = $this->_stmt->bindValue($key, $value);
                     }
-
-                    $param[] = &implode(',', $v);
-                }else{
-                    if(is_int($v)){
-                        $param[0] .= 'i';
-                    }else if(is_double($v)){
-                        $param[0] .= 'd';
-                    }else{
-                        $param[0] .= 's';
+                    if(!$rt){
+                        log_message('error', 'bind value error, msg: '. json_encode($this->_stmt->errorInfo()));
+                        return false;
                     }
-
-                    $param[] = &$v;
                 }
-                unset($v);
-            }
-            
-            $rt = call_user_func_array(array($this->_stmt, 'bind_param'), $param);  
-            if(!$rt){
-                log_message('error', 'bind value error, msg: '. $this->_stmt->error);
-                return false;
             }
         }
         $this->_value = array();
@@ -942,42 +830,37 @@ class Database_Drivers_Mysqli{
     
     /**
      * 开启事务
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function startTransaction(){
-        $rt = $this->_conn->autocommit(false);
+        if($this->_conn->inTransaction()){
+            return $this;
+        }
+        $rt = $this->_conn->beginTransaction();
         if(!$rt){
-            log_message('error', 'set auto commit error, msg: '. $this->_conn->error);
+            log_message('error', 'start transaction error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         
-        $rt = $this->_conn->begin_transaction();
-        if(!$rt){
-            log_message('error', 'start transaction error, msg: '. $this->_conn->error);
-            return false;
-        }
-        
-        $this->_conn->_inTransaction = true;
         return $this;
     }
     
     /**
      * 是否再事务中
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function inTransaction(){
-        return $this->_conn->_inTransaction;
+        return $this->_conn->inTransaction();
     }
     
     /**
      * 回滚数据
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function rollBack(){
-        $this->_conn->_inTransaction = false;
-        $rt = $this->_conn->rollback();
+        $rt = $this->_conn->rollBack();
         if(!$rt){
-            log_message('error', 'rollback error, msg: '. $this->_conn->error);
+            log_message('error', 'rollback error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         
@@ -986,19 +869,18 @@ class Database_Drivers_Mysqli{
     
     /**
      * 提交事务
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function commit(){
-        $this->_conn->_inTransaction = false;
         $rt = $this->_conn->commit();
         if(!$rt){
-            $rt = $this->_conn->rollback();
+            $rt = $this->_conn->rollBack();
             if(!$rt){
-                log_message('error', 'rollback error, msg: '. $this->_conn->error);
+                log_message('error', 'rollback error, msg: '. json_encode($this->_conn->errorInfo()));
                 return false;
             }
             
-            log_message('error', 'commit error, msg: '. $this->_conn->error);
+            log_message('error', 'commit error, msg: '. json_encode($this->_conn->errorInfo()));
             return false;
         }
         
@@ -1008,46 +890,50 @@ class Database_Drivers_Mysqli{
     /**
      * 执行一条sql，返回结果因SQL而异:select返回结果集、insert/replace返回插入的id、delete和其他返回受影响行数
      * @param string $sql 需要执行sql语句
-     * @return boolean or int or array
+     * @return mixed boolean or int or array
      */
     public function query($sql){
         $this->freeResult();
         $this->_stmt = $this->_conn->query($sql);
         if(!$this->_stmt){
-            log_message('error', 'sql query error, msg: '. $this->_stmt->error);
+            log_message('error', 'sql query error, msg: '. json_encode($this->_conn->errorInfo()));
+            return false;
+        }
+
+        $rt = $this->_stmt->execute();
+        if(!$rt){
+            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
         
         $sql = strtolower($sql);
         if(strpos($sql, 'select')===0){
-            return $this->_stmt->fetch_array(MYSQLI_ASSOC);
+            return $this->_stmt->fetchAll();
         }else if(strpos($sql, 'insert')===0){
-            return $this->_stmt->insert_id;
+            return $this->_conn->lastInsertId();
         }else if(strpos($sql, 'replace')===0){
-            return $this->_stmt->insert_id;
+            return $this->_conn->lastInsertId();
         }else{
-            return $this->_stmt->affected_rows;
+            return $this->_stmt->rowCount();
         }
     }
     
     /**
      * 释放查询的结果集
-     * @return mixed boolean || Database_Drivers_Mysqli
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function freeResult(){
-        $this->_stmt && $this->_stmt->free_result();
         $this->_stmt = null;
-        $this->_result = null;
         return $this;
     }
     
     /**
      * 获取查询记录数
-     * @return mix int or boolean
+     * @return mixed int || boolean
      */
     public function numRows(){
         if($this->_stmt){
-            return $this->_stmt->affected_rows;
+            return $this->_stmt->rowCount();
         }
         
         return false;

@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 /**
  * QQ自动登录
  * @desc $qq = new Login(15000103);$login = $qq->login();//15000103是广点通的appid
@@ -29,10 +29,10 @@ class Login{
      */
     public function __construct($appId){
 
-        $this->cookiejar = APPLICATION_PATH .'/cookie/qq.cookie';
+        $this->cookiejar = BASE_PATH .'/cookie/qq.cookie';
         
-        if(!file_exists(APPLICATION_PATH .'/cookie/')){
-            mkdir(APPLICATION_PATH .'/cookie/', 666);
+        if(!file_exists(BASE_PATH .'/cookie/')){
+            mkdir(BASE_PATH .'/cookie/', 666);
         }
         
         if(!file_exists($this->cookiejar)){
@@ -117,7 +117,7 @@ class Login{
      * @return boolean 成功 or 失败
      */
     public function doLogin(){
-        $loginJs = APPLICATION_PATH.DIRECTORY_SEPARATOR.'static/login.js';
+        $loginJs = BASE_PATH.DIRECTORY_SEPARATOR.'static/login.js';
 //echo 'node '. $loginJs.' '. $this->salt .' '.$this->login_sig.' '.$this->ptvfsession .' '. $this->verifycode.' '. $this->password .' '. $this->uin."\n\n";
 
         $loginUrl = exec('node '. $loginJs .' '. $this->salt .' '. $this->login_sig .' '.$this->ptvfsession .' '. $this->verifycode.' '. $this->password .' '. $this->uin);

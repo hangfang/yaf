@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 
 if ( ! function_exists('dump'))
 {
@@ -372,7 +372,7 @@ if(!function_exists('get_var_from_conf')){
         $filename = basename($filename, '.php');
         $var = Yaf_Registry::get($filename);
 		if(!$var){
-            Yaf_Loader::import(APPLICATION_PATH .'/conf/'.$filename.'.php');
+            Yaf_Loader::import(BASE_PATH .'/conf/'.$filename.'.php');
             Yaf_Registry::set($filename, $$filename);
             return $$filename;
         }else{
@@ -927,8 +927,8 @@ if(!function_exists('cookie')){
 		//$img = '<img '.($img_id === '' ? '' : 'id="'.$img_id.'"').' src="'.$img_url.$img_filename.'" style="width: '.$img_width.'; height: '.$img_height .'; border: 0;" alt=" " />';
 		ImageDestroy($im);
         
-        $img = 'data:image/jpg;base64,'.base64_encode(file_get_contents(APPLICATION_PATH.'/captcha/'.$img_filename));
-        @unlink(APPLICATION_PATH.'/captcha/'.$img_filename);
+        $img = 'data:image/jpg;base64,'.base64_encode(file_get_contents(BASE_PATH.'/captcha/'.$img_filename));
+        @unlink(BASE_PATH.'/captcha/'.$img_filename);
 		return array('word' => $word, 'time' => $now, 'image' => $img, 'filename' => $img_filename);
 		//return array('word' => $word, 'time' => $now, 'image' => $img_url.$img_filename, 'filename' => $img_filename);
 	}

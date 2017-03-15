@@ -1,6 +1,6 @@
 <?php 
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
-include APPLICATION_PATH.'/application/views/common/weui/header.php';
+defined('BASE_PATH') OR exit('No direct script access allowed');
+include BASE_PATH.'/application/views/common/weui/header.php';
 ?>
 <link rel="stylesheet" href="/static/public/css/news/common.css?v=20160426"/>
 <div class="navbar">
@@ -41,4 +41,4 @@ include APPLICATION_PATH.'/application/views/common/weui/header.php';
     </div>
 </div>
 <script src="/static/public/js/news/news.js?d=20160110"></script>
-<?php include APPLICATION_PATH.'/application/views/common/weui/footer.php';?>
+<?php include BASE_PATH.'/application/views/common/weui/footer.php';?>

@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 
 class Cache_Drivers_Redis extends Redis{
     /**
@@ -20,7 +20,7 @@ class Cache_Drivers_Redis extends Redis{
      * @return boolean
      */
     public function __construct(){
-        $config = new Yaf_Config_Ini(APPLICATION_PATH . '/conf/cache.ini', ini_get('yaf.environ'));
+        $config = new Yaf_Config_Ini(BASE_PATH . '/conf/cache.ini', ini_get('yaf.environ'));
         $config = $config->toArray();
         if ($config){
             $this->_config = array_merge($this->_config, $config);

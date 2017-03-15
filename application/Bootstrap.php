@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 /**
  * @name Bootstrap
  * @author root
@@ -10,15 +10,15 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  */
 class Bootstrap extends Yaf_Bootstrap_Abstract{
     public function _initHelpers(){
-        Yaf_Loader::import( APPLICATION_PATH .'/application/helper/function.php' );
-        Yaf_Loader::import( APPLICATION_PATH .'/application/helper/file.php' );
+        Yaf_Loader::import( BASE_PATH .'/application/helper/function.php' );
+        Yaf_Loader::import( BASE_PATH .'/application/helper/file.php' );
     }
 
     public function _initConfig() {
         //把配置保存起来
         $arrConfig = Yaf_Application::app()->getConfig();
         Yaf_Registry::set('config', $arrConfig);
-        Yaf_Loader::import( APPLICATION_PATH .'/conf/constants.php' );
+        Yaf_Loader::import( BASE_PATH .'/conf/constants.php' );
     }
 
     public function _initPlugin(Yaf_Dispatcher $dispatcher) {

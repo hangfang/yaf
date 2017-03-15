@@ -1,6 +1,6 @@
 <?php 
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
-include APPLICATION_PATH.'/application/views/common/weui/header.php';
+defined('BASE_PATH') OR exit('No direct script access allowed');
+include BASE_PATH.'/application/views/common/weui/header.php';
 ?>
 <div class="panel">
     <div class="hd">
@@ -74,4 +74,4 @@ EOF;
 </div>
 
 <script src="/static/public/js/lottery/lottery.js?d=20160110"></script>
-<?php include APPLICATION_PATH.'/application/views/common/weui/footer.php';?>
+<?php include BASE_PATH.'/application/views/common/weui/footer.php';?>

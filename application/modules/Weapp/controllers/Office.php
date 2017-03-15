@@ -1,5 +1,5 @@
 <?php
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 
 class OfficeController extends Yaf_Controller_Abstract{
     public function indexAction(){
@@ -17,7 +17,7 @@ class OfficeController extends Yaf_Controller_Abstract{
             return false;
         }
         
-        $config['upload_path']      = APPLICATION_PATH .'/upload/excel/';
+        $config['upload_path']      = BASE_PATH .'/upload/excel/';
         $config['allowed_types']    = 'xls|xlsx';
         $config['max_size']     = 3072;
 
@@ -41,15 +41,15 @@ class OfficeController extends Yaf_Controller_Abstract{
         }
         
         try{
-            $PHPExcel = PHPExcel_IOFactory::load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
+            $PHPExcel = PHPExcel_IOFactory::load(BASE_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
         }catch(Exception $e){
             try{
                 $reader = PHPExcel_IOFactory::createReader('Excel5'); //设置以Excel5格式(Excel97-2003工作簿)
-                $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
+                $PHPExcel = $reader->load(BASE_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
             }catch(Exception $e){
                 try{
                     $reader = PHPExcel_IOFactory::createReader('Excel2007'); //设置以Excel5格式(Excel97-2003工作簿)
-                    $PHPExcel = $reader->load(APPLICATION_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
+                    $PHPExcel = $reader->load(BASE_PATH .'/upload/excel/'. $config['file_name']); // 载入excel文件
                 }catch(Exception $e){
                     $response = new Yaf_Response_Http();
                     $response->setBody($e->getMessage());
@@ -106,7 +106,7 @@ class OfficeController extends Yaf_Controller_Abstract{
             
             $fieldName = $headerCell->getValue();
             $filename = $drawing->getIndexedFilename(); //文件名
-            $imageFilePath = APPLICATION_PATH .'/upload/image/'.$row .'_'. $column .'_'. $filename;
+            $imageFilePath = BASE_PATH .'/upload/image/'.$row .'_'. $column .'_'. $filename;
 
             switch ($drawing->getMimeType()){//处理图片格式
                 case 'image/jpp':

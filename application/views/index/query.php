@@ -1,5 +1,5 @@
 <?php 
-defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+defined('BASE_PATH') OR exit('No direct script access allowed');
 include dirname(dirname(__FILE__)).'/common/weui/header.php';
 ?>
 <div class="query">

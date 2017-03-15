@@ -1,11 +1,11 @@
 <?php
 
-define('APPLICATION_PATH', dirname(__FILE__));
+define('BASE_PATH', dirname(__FILE__));
 if (!extension_loaded("yaf"))
 {
-	include(APPLICATION_PATH . '/framework/loader.php');
+	include(BASE_PATH . '/framework/loader.php');
 }
 
-$application = new Yaf_Application( APPLICATION_PATH . "/conf/application.ini");
+$application = new Yaf_Application( BASE_PATH . "/conf/application.ini");
 Yaf_Registry::set('app', $application);
 $application->bootstrap()->run();
