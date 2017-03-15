@@ -21,28 +21,8 @@ class Database_Drivers_Pdo_Mysql{
     private $_value = array();
     
     public function __construct($config){
-        if (preg_match('/([^:]+):/', $config['dsn'], $match) && count($match) === 2){
-			// If there is a minimum valid dsn string pattern found, we're done
-			// This is for general PDO users, who tend to have a full DSN string.
-			$config['subdriver'] = $match[1];
-		}
-		// Legacy support for DSN specified in the hostname field
-		elseif (preg_match('/([^:]+):/', $config['hostname'], $match) && count($match) === 2){
-			$config['dsn'] = $config['hostname'];
-			$config['hostname'] = NULL;
-			$config['subdriver'] = $match[1];
-		}elseif (in_array($config['subdriver'], array('mssql', 'sybase'), TRUE)){
-			$config['subdriver'] = 'dblib';
-		}
-		elseif ($config['subdriver'] === '4D'){
-			$config['subdriver'] = '4d';
-		}elseif ( ! in_array($config['subdriver'], array('4d', 'cubrid', 'dblib', 'firebird', 'ibm', 'informix', 'mysql', 'oci', 'odbc', 'pgsql', 'sqlite', 'sqlsrv'), TRUE)){
-			log_message('error', 'PDO: Invalid or non-existent subdriver');
-            return;
-		}
-        
 		if (empty($config['dsn'])){
-			$config['dsn'] = $config['subdriver'].':host='.(empty($config['hostname']) ? '127.0.0.1' : $config['hostname']);
+			$config['dsn'] = 'mysql:host='.(empty($config['hostname']) ? '127.0.0.1' : $config['hostname']);
 
 			empty($config['port']) OR $config['dsn'] .= ';port='.$config['port'];
 			empty($config['database']) OR $config['dsn'] .= ';dbname='.$config['database'];
