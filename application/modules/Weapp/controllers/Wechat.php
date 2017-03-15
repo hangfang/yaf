@@ -235,7 +235,7 @@ class WechatController extends Yaf_Controller_Abstract {
     }
 
     /**
-    * @todo 订阅的事件推送
+    * 订阅的事件推送
     */
     private function eventSubscribe($msgXml){
         $wechatModel = new WechatModel();
@@ -253,7 +253,7 @@ class WechatController extends Yaf_Controller_Abstract {
     }
 
     /**
-    * @todo 取消订阅的事件推送
+    * 取消订阅的事件推送
     */
     private function eventUnsubscribe($msgXml){
         $wechatModel = new WechatModel();
@@ -261,7 +261,7 @@ class WechatController extends Yaf_Controller_Abstract {
     }
 
     /**
-    * @todo 扫描二维码的事件推送
+    * 扫描二维码的事件推送
     */
     private function eventScan($msgXml){
         $msgformat = get_var_from_conf('msgformat');
@@ -275,7 +275,7 @@ class WechatController extends Yaf_Controller_Abstract {
     }
 
     /**
-    * @todo 地理位置上报的事件推送（订阅号不支持）
+    * 地理位置上报的事件推送（订阅号不支持）
     */
     private function eventLocation($msgXml){
         //$rt = $this->WechatModel->location($msgXml);
@@ -291,7 +291,7 @@ class WechatController extends Yaf_Controller_Abstract {
     }
 
     /**
-    * @todo 点击菜单拉取消息的事件推送
+    * 点击菜单拉取消息的事件推送
     */
     private function eventClick($msgXml){
         $msgformat = get_var_from_conf('msgformat');
@@ -305,7 +305,7 @@ class WechatController extends Yaf_Controller_Abstract {
     }
 
     /**
-    * @todo 点击菜单跳转链接时的事件推送
+    * 点击菜单跳转链接时的事件推送
     */
     private function eventView($msgXml){
         $msgformat = get_var_from_conf('msgformat');

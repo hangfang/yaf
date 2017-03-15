@@ -936,7 +936,7 @@ if(!function_exists('cookie')){
 
 if ( ! function_exists('is_id_card')){
 	/**
-	 * @todo 检查身份证号是否有效
+	 * 检查身份证号是否有效
 	 * @param String $number
 	 * @return boolean
 	 */
@@ -967,7 +967,7 @@ if ( ! function_exists('is_id_card')){
 
 if ( ! function_exists('get_sex_by_id_card')){
 	/**
-	 * @todo 根据身份证提取性别
+	 * 根据身份证提取性别
 	 * @param int $cid
 	 * @return string
 	 */
@@ -983,7 +983,7 @@ if ( ! function_exists('get_sex_by_id_card')){
 
 if ( ! function_exists('get_birthday_by_id_card')){
     /**
-     * @todo 根据身份证获取生日
+     * 根据身份证获取生日
      * @param $cid
      * @return string
      */
@@ -997,7 +997,7 @@ if ( ! function_exists('get_birthday_by_id_card')){
 
 if ( ! function_exists('isEmail')){
     /**
-     * @todo 是否是邮箱
+     * 是否是邮箱
      * @param string $email
      * @return bool
      */
@@ -1009,7 +1009,7 @@ if ( ! function_exists('isEmail')){
 
 if ( ! function_exists('is_integer')){
 	/**
-	 * @todo 是否是数字
+	 * 是否是数字
 	 * @param string $number
 	 * @return bool
 	 */
@@ -1021,7 +1021,7 @@ if ( ! function_exists('is_integer')){
 
 if ( ! function_exists('is_phone')){
     /**
-     * @todo 是否是手机
+     * 是否是手机
      * @param string $phone 手机号码
      * @return bool
      */

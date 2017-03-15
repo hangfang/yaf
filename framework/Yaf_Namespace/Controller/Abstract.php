@@ -104,7 +104,7 @@ abstract class Controller_Abstract {
 	 * If either the controller or module are unnecessary for forwarding,
 	 * simply pass null values for them before specifying the parameters.
 	 *
-	 * @todo this should be checked again within a test
+	 * this should be checked again within a test
 	 *
 	 * @param string $action
 	 * @param string $controller
@@ -227,7 +227,7 @@ abstract class Controller_Abstract {
 	/**
 	 * Initialize View object
 	 *
-	 * @todo this does nothing for now
+	 * this does nothing for now
 	 *
 	 * @return Yaf_View_Interface
 	 */

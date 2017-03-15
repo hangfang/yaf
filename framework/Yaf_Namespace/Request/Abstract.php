@@ -118,7 +118,7 @@ abstract class Request_Abstract {
 	/**
 	 * Retrieve the exception
 	 *
-	 * @todo check if this is OK
+	 * check if this is OK
 	 * @return string
 	 */
 	public function getException() {

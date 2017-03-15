@@ -736,7 +736,7 @@ try{
 
         //裁切
         clip: function(sx, sy, w, h){
-            // @todo 多图层挂接支持
+            // 多图层挂接支持
             
             //将图像信息放置于临时canvas上
             this.ctxContext.putImageData(this.imgData, 0, 0);

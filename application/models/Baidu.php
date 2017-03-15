@@ -205,7 +205,7 @@ class BaiduModel extends BaseModel{
     }
     
     /**
-     * @todo 查询彩票开奖信息
+     * 查询彩票开奖信息
      * @param array $data
      * @param array $msgXml
      * @return string

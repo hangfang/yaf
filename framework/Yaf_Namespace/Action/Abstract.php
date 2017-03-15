@@ -1,6 +1,6 @@
 <?php
 /**
- * @todo check an example to see how does it work
+ * check an example to see how does it work
  * Yaf Action Abstract
  */
 

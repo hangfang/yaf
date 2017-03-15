@@ -1,7 +1,7 @@
 <?php
 /**
- * @todo 模拟CI数据库类的Mysqli封装
- * @author fanghang@fujiacaifu.com
+ * 模拟CI数据库类的Mysqli封装
+ * @author fangh@me.com
  */
 class Database_Drivers_Mysqli{
     

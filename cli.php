@@ -1,6 +1,6 @@
 <?php
 /**
- * @todo 命令行请求入口
+ * 命令行请求入口
  * @demo : /usr/local/php7/bin/php cli.php request_uri="/weapp/jobnew/dlt/eventname/16047"
  * @Created by NetBeans.
  * @author: HangFang

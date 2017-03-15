@@ -1,6 +1,6 @@
 <?php
 /**
- * @todo 智能识别截图
+ * 智能识别截图
  * @link https://github.com/jwagner/smartcrop.js/
  * @example 
  * $imageCrop = new ImageCrop('C:/Users/Administrator/Desktop/56331faad49c5.jpg', array('width'=>100, 'height'=>100));

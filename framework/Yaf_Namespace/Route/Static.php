@@ -18,7 +18,7 @@ class Route_Static implements Route_Interface {
 	}
 
 	/**
-	 * @todo this method is not used anywhere
+	 * this method is not used anywhere
 	 *
 	 * @param string $uri
 	 *

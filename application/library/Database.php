@@ -1,6 +1,9 @@
 <?php
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
-
+/**
+ * 数据库单例，用来实例化指定的Mysql驱动
+ * @author fangh@me.com
+ */
 class Database{
     /**
      * @var Database_Drivers_Pdo_Mysql 
@@ -10,7 +13,7 @@ class Database{
     private function __clone(){}
     
     /**
-     * @todo 获取Mysql驱动类的实例
+     * 获取Mysql驱动类的实例
      * @param string $default_group 数据库组名
      * @return Mysql驱动类的实例
      */

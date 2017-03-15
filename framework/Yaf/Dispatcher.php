@@ -171,7 +171,7 @@ class Yaf_Dispatcher {
 			}
 			try
 			{
-				//@todo here seems there is 2 type of routes
+				//here seems there is 2 type of routes
 				$router->route($request);
 			} catch (Exception $e)
 			{

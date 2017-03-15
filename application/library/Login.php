@@ -1,6 +1,10 @@
 <?php
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
-
+/**
+ * QQ自动登录
+ * @desc $qq = new Login(15000103);$login = $qq->login();//15000103是广点通的appid
+ * @author fangh@me.com
+ */
 class Login{
 
 #登录相关---start
@@ -20,7 +24,8 @@ class Login{
 #登录相关---end	
 
     /**
-     * @todo 初始化参数
+     * 初始化参数
+     * @param string $appId 应用的appid
      */
     public function __construct($appId){
 
@@ -53,7 +58,7 @@ class Login{
     }
 
     /**
-     * @todo 访问http://xui.ptlogin2.qq.com/cgi-bin/xlogin，获取登录所需的cookie
+     * 访问http://xui.ptlogin2.qq.com/cgi-bin/xlogin，获取登录所需的cookie
      * @return boolean 成功 or 失败
      */
     public function login(){
@@ -67,7 +72,7 @@ class Login{
     }
 
     /**
-     * @todo 获取验证码，加密密码所需的salt和ptvfsession
+     * 获取验证码，加密密码所需的salt和ptvfsession
      * @return boolean 成功 or 失败
      */
     public function checkLogin(){
@@ -108,7 +113,8 @@ class Login{
     }
 
     /**
-     * @todo 提交登陆
+     * 提交登陆
+     * @return boolean 成功 or 失败
      */
     public function doLogin(){
         $loginJs = APPLICATION_PATH.DIRECTORY_SEPARATOR.'static/login.js';
@@ -133,7 +139,7 @@ class Login{
     }
 
     /**
-     * @todo 从cookiejar文件所设置的cookie，存入$this->cookie，待需要时调用
+     * 从cookiejar文件所设置的cookie，存入$this->cookie，待需要时调用
      * @param string $cname cookie名
      * @return string cookie值
      */
@@ -163,7 +169,7 @@ class Login{
     }
 
     /**
-     * @todo 发送http请求
+     * 发送http请求
      * @param string $url 请求url
      * @param string $data 请求的参数
      * @param string $method 请求方式
@@ -228,7 +234,7 @@ class Login{
     }
 
     /**
-     * @todo 返回错误信息
+     * 返回错误信息
      * @return string
      */
     public function errorInfo(){
@@ -236,7 +242,7 @@ class Login{
     }
     
     /**
-     * @todo 返回qq登录账号
+     * 返回qq登录账号
      * @return string
      */
     public function getUin(){
@@ -244,7 +250,7 @@ class Login{
     }
 
     /**
-     * @todo 计算广点通防csrf的token
+     * 计算广点通防csrf的token
      * @return boolean
      */
     public function csrfToken(){
@@ -264,7 +270,7 @@ class Login{
     }
 
     /**
-     * @todo 字符转为unicode编码值
+     * 字符转为unicode编码值
      * @param string $str 需要计算的字符
      * @param string $from_encoding 输入字符的编码
      * @return int

@@ -18,7 +18,7 @@ class WechatModel extends BaseModel{
     }
     
     /**
-     * @todo 从微信获取access_token，并存储于数据库
+     * 从微信获取access_token，并存储于数据库
      * @return string
      */
     public function getAccessToken(){
@@ -121,7 +121,7 @@ class WechatModel extends BaseModel{
     }
     
     /**
-     * @todo 查询上一条接收记录(5分钟之内)
+     * 查询上一条接收记录(5分钟之内)
      * @param array $msgXml
      * @param array $where
      * @param array $like
@@ -150,7 +150,7 @@ class WechatModel extends BaseModel{
     }
     
        /**
-     * @todo 查询上一条回复记录
+     * 查询上一条回复记录
      * @param array $msgXml
      * @param array $where
      * @param array $like
@@ -179,7 +179,7 @@ class WechatModel extends BaseModel{
     }
     
     /**
-     * @todo 存储用户发过来的微信消息
+     * 存储用户发过来的微信消息
      * @param array $msg
      * @return boolean
      */
@@ -196,7 +196,7 @@ class WechatModel extends BaseModel{
     }
     
     /**
-     * @todo 回复用户信息
+     * 回复用户信息
      * @param array $msg
      * @return boolean
      */

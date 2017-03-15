@@ -97,7 +97,7 @@ class Rewrite implements \Yaf\Route_Interface {
 	}
 
 	/**
-	 * @todo this method can be write differently with (P< style match
+	 * this method can be write differently with (P< style match
 	 * Matches a user submitted path with parts defined by a map. Assigns and
 	 * returns an array of variables on a successful match.
 	 *

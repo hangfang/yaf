@@ -2,7 +2,7 @@
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * @name IndexController
- * @author root
+ * @author fanghang@me.com
  * @desc 默认控制器
  * @see http://www.php.net/manual/en/class.yaf-controller-abstract.php
  */

@@ -13,7 +13,7 @@ class Yaf_Route_Static implements Yaf_Route_Interface {
 	}
 
 	/**
-	 * @todo this method is not used anywhere
+	 * this method is not used anywhere
 	 *
 	 * @param string $uri
 	 *

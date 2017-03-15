@@ -4,7 +4,7 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 class PositionModel extends BaseModel{
 
     /**
-     * @todo ip查询城市
+     * ip查询城市
      */
     public function getPosition(){
         $data = array();
@@ -14,7 +14,7 @@ class PositionModel extends BaseModel{
     }
     
     /**
-     * @todo 经纬度查询位置
+     * 经纬度查询位置
      * @param float $lat 纬度
      * @param float $lng 经度
      */
