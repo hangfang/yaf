@@ -1,6 +1,9 @@
 <?php
 defined('BASE_PATH') OR exit('No direct script access allowed');
-
+/**
+ * 对Redis的封装，添加默认时间支持
+ * @author fangh@me.com
+ */
 class Cache_Drivers_Redis extends Redis{
     /**
      * Default config

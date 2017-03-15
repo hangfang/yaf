@@ -1,26 +1,90 @@
 <?php
+defined('BASE_PATH') OR exit('No direct script access allowed');
 /**
  * 模拟CI数据库类的Mysqli封装
  * @author fangh@me.com
  */
 class Database_Drivers_Mysqli{
-    
-    private $_conn=null;
-    private $_stmt=null;
+    /**
+     * 数据库连接句柄
+     * @var object
+     */
+    protected $_conn=null;
+    /**
+     * 预编译对象
+     * @var object
+     */
+    protected $_stmt=null;
+    /**
+     * 查询的结果集
+     * @var result set
+     */
     private $_result=null;
-    private $_condition = array();
-    private $_having = '';
-    private $_set = array();
-    private $_limit = array();
-    private $_group = '';
-    private $_order = '';
-    private $_table = '';
-    private $_select = '';
-    private $_query = null;
-    private $_sql = '';
-    private $_value = array();
+    /**
+     * 数据库连接属性
+     * @var array
+     */
+    protected $_options = array();
+    /**
+     * 查询条件 
+     * @var array
+     */
+    protected $_condition = array();
+    /**
+     * SQL语句having子句
+     * @var string
+     */
+    protected $_having = '';
+    /**
+     * UPDATE语句的待更新数据
+     * @var array
+     */
+    protected $_set = array();
+    /**
+     * 分页查询
+     * @var array
+     */
+    protected $_limit = array();
+    /**
+     * SQL语句分组
+     * @var array or string
+     */
+    protected $_group = '';
+    /**
+     * 排序字段
+     * @var array or string
+     */
+    protected $_order = '';
+    /**
+     * SQL语句的表名
+     * @var string
+     */
+    protected $_table = '';
+    /**
+     * SELECT的返回列名
+     * @var string
+     */
+    protected $_select = '';
+    /**
+     * 拼接的SQL语句
+     * @var string
+     */
+    protected $_sql = '';
+    /**
+     * 等待绑定的值
+     * @var array
+     */
+    protected $_value = array();
+    /**
+     * 表名的前缀
+     * @var string
+     */
+    protected $_prefix = '';
+    /**
+     * 是否在事务中
+     * @var boolean
+     */
     private $_inTransaction = false;
-    private $_prefix = '';
     
     public final function __construct($config){
         // Do we have a socket path?
