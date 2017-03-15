@@ -416,7 +416,7 @@ class Database_Drivers_Pdo{
      */
     public function get($table='', $limit=null, $offset=null){
         $this->freeResult();
-        !empty($table) && !empty($this->_prefix) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
+        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         if(!is_null($offset)){
             $this->_limit['offset'] = $offset;
         }
