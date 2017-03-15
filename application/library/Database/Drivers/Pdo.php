@@ -1,4 +1,5 @@
 <?php
+defined('BASE_PATH') OR exit('No direct script access allowed');
 /**
  * 模拟CI数据库类的Pdo封装
  * @author fangh@me.com
@@ -6,12 +7,12 @@
 class Database_Drivers_Pdo{
     /**
      * 数据库连接句柄
-     * @var object
+     * @var PDO
      */
     protected $_conn=null;
     /**
      * 预编译对象
-     * @var object
+     * @var PDOStatement
      */
     protected $_stmt=null;
     /**
@@ -369,7 +370,7 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function from($table){
-        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         
         return $this;
     }
@@ -415,7 +416,7 @@ class Database_Drivers_Pdo{
      */
     public function get($table='', $limit=null, $offset=null){
         $this->freeResult();
-        !empty($table) && !empty($this->_prefix) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        !empty($table) && !empty($this->_prefix) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         if(!is_null($offset)){
             $this->_limit['offset'] = $offset;
         }
@@ -449,7 +450,7 @@ class Database_Drivers_Pdo{
         
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
-        if(!$rt){
+        if($rt===false){
             log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
@@ -463,8 +464,8 @@ class Database_Drivers_Pdo{
      */
     public function rowArray(){
         $rt = $this->_stmt->fetch(PDO::FETCH_ASSOC);
-        if(!$rt){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
+        if($rt===false){
+            log_message('error', 'row array error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
@@ -477,8 +478,8 @@ class Database_Drivers_Pdo{
      */
     public function resultArray(){
         $rt = $this->_stmt->fetchAll(PDO::FETCH_ASSOC);
-        if(!$rt){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
+        if($rt===false){
+            log_message('error', 'result array error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
@@ -491,8 +492,8 @@ class Database_Drivers_Pdo{
      */
     public function rowObject(){
         $rt = $this->_stmt->fetch(PDO::FETCH_OBJ);
-        if(!$rt){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
+        if($rt===false){
+            log_message('error', 'row object error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
@@ -505,8 +506,8 @@ class Database_Drivers_Pdo{
      */
     public function resultObject(){
         $rt = $this->_stmt->fetchAll(PDO::FETCH_OBJ);
-        if(!$rt){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
+        if($rt===false){
+            log_message('error', 'result object error, msg: '. json_encode($this->_stmt->errorInfo()));
             return false;
         }
                 
@@ -550,7 +551,7 @@ class Database_Drivers_Pdo{
      */
     public function update($table, $update=array(), $where=array()){
         $this->freeResult();
-        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         
         if(empty($this->_table)){
             log_message('error', 'sql error, UPDATE: need table name');
@@ -607,7 +608,7 @@ class Database_Drivers_Pdo{
             log_message('error', 'sql error, INSERT: need data');
             return false;
         }
-        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         $this->_sql = 'INSERT INTO '. $this->_table .' (';
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
@@ -647,7 +648,7 @@ class Database_Drivers_Pdo{
      */
     public function delete($table='', $where=array(), $limit=0){
         $this->freeResult();
-        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         
         if(empty($this->_table)){
             log_message('error', 'sql error, UPDATE: need table name');
@@ -693,7 +694,7 @@ class Database_Drivers_Pdo{
             log_message('error', 'sql error, REPLACE: need data');
             return false;
         }
-        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         $this->_sql = 'REPLACE INTO '. $this->_table .' (';
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';

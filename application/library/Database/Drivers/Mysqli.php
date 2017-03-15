@@ -1,5 +1,4 @@
 <?php
-defined('BASE_PATH') OR exit('No direct script access allowed');
 /**
  * 模拟CI数据库类的Mysqli封装
  * @author fangh@me.com
@@ -474,7 +473,7 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function from($table){
-        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         
         return $this;
     }
@@ -520,7 +519,7 @@ class Database_Drivers_Mysqli{
      */
     public function get($table='', $limit=null, $offset=null){
         $this->freeResult();
-        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         if(!is_null($offset)){
             $this->_limit['offset'] = $offset;
         }
@@ -658,7 +657,7 @@ class Database_Drivers_Mysqli{
      */
     public function update($table, $update=array(), $where=array()){
         $this->freeResult();
-        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         
         if(empty($this->_table)){
             log_message('error', 'sql error, UPDATE: need table name');
@@ -715,7 +714,7 @@ class Database_Drivers_Mysqli{
             log_message('error', 'sql error, INSERT: need data');
             return false;
         }
-        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         $this->_sql = 'INSERT INTO '. $this->_table .' (';
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
@@ -754,7 +753,7 @@ class Database_Drivers_Mysqli{
      */
     public function delete($table='', $where=array(), $limit=0){
         $this->freeResult();
-        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         
         if(empty($this->_table)){
             log_message('error', 'sql error, UPDATE: need table name');
@@ -800,7 +799,7 @@ class Database_Drivers_Mysqli{
             log_message('error', 'sql error, REPLACE: need data');
             return false;
         }
-        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)===false ? $this->_prefix.$table : $table;
+        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         $this->_sql = 'REPLACE INTO '. $this->_table .' (';
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
