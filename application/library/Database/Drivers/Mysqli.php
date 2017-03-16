@@ -84,6 +84,16 @@ class Database_Drivers_Mysqli{
      * @var boolean
      */
     private $_inTransaction = false;
+    /**
+     * 上次执行的SQL语句
+     * @var string
+     */
+    private $_last_sql = '';
+    /**
+     * 上次执行的SQL语句绑定的值
+     * @var string
+     */
+    private $_last_value = array();
     
     public final function __construct($config){
         // Do we have a socket path?
@@ -218,22 +228,22 @@ class Database_Drivers_Mysqli{
                 foreach($where as $k=>$v){
                     if(is_array($v)){
                         foreach($v as $_field=>$_value){
-                            $op = preg_replace('/[0-9a-z_]/', '', $_field);
+                            $op = preg_replace('/[0-9a-z_]/i', '', $_field);
                             $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
+                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
                         }
                     }else{
-                        $op = preg_replace('/[0-9a-z_]/', '', $k);
+                        $op = preg_replace('/[0-9a-z_]/i', '', $k);
                         $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                     }
                 }
             }
         }else{
             if(!empty($where)){
-                $op = preg_replace('/[0-9a-z_]/', '', $where);
+                $op = preg_replace('/[0-9a-z_]/i', '', $where);
                 $op = empty($op) ? '=' : $op;
-                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
+                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
             }
         }
         
@@ -254,14 +264,14 @@ class Database_Drivers_Mysqli{
                     foreach($where as $k=>$v){
                         if(is_array($v)){
                             foreach($v as $_field=>$_value){
-                                $op = preg_replace('/[0-9a-z_]/', '', $_field);
+                                $op = preg_replace('/[0-9a-z_]/i', '', $_field);
                                 $op = empty($op) ? '=' : $op;
-                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
+                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
                             }
                         }else{
-                            $op = preg_replace('/[0-9a-z_]/', '', $k);
+                            $op = preg_replace('/[0-9a-z_]/i', '', $k);
                             $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                         }
                     }
                     $this->_condition[] = array('key'=>')', 'value'=>'');
@@ -269,14 +279,14 @@ class Database_Drivers_Mysqli{
                     foreach($where as $k=>$v){
                         if(is_array($v)){
                             foreach($v as $_field=>$_value){
-                                $op = preg_replace('/[0-9a-z_]/', '', $_field);
+                                $op = preg_replace('/[0-9a-z_]/i', '', $_field);
                                 $op = empty($op) ? '=' : $op;
-                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $_field), 'value'=>$_value, 'connect'=>'OR', 'op'=>$op);
+                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'OR', 'op'=>$op);
                             }
                         }else{
-                            $op = preg_replace('/[0-9a-z_]/', '', $k);
+                            $op = preg_replace('/[0-9a-z_]/i', '', $k);
                             $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                         }
                     }
                 }
@@ -285,9 +295,9 @@ class Database_Drivers_Mysqli{
             if(is_array($value)){
                 $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
             }else{
-                $op = preg_replace('/[0-9a-z_]/', '', $where);
+                $op = preg_replace('/[0-9a-z_]/i', '', $where);
                 $op = empty($op) ? '=' : $op;
-                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
+                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
             }
         }
         return $this;
@@ -511,63 +521,6 @@ class Database_Drivers_Mysqli{
     }
     
     /**
-     * 查询数据N条数据
-     * @param string $table  查询表名
-     * @param int $limit  查询记录数
-     * @param int $offset  查询偏移量
-     * @return mixed boolean || Database_Drivers_Mysqli
-     */
-    public function get($table='', $limit=null, $offset=null){
-        $this->freeResult();
-        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
-        if(!is_null($offset)){
-            $this->_limit['offset'] = $offset;
-        }
-        
-        if(!is_null($limit)){
-            $this->_limit['limit'] = $limit;
-        }
-        
-        if(empty($this->_select)){
-            $this->_select = '*';
-        }
-        
-        if(empty($this->_table)){
-            log_message('error', 'sql error, select: need table name');
-            return false;
-        }
-        
-        $this->_sql = 'select '. $this->_select .' from '. $this->_table;
-        
-        $this->__buildWhere();
-        $this->__buildHaving();
-        $this->__buildGroup();
-        $this->__buildOrder();
-        $this->__buildLimit();
-
-        $this->_stmt = $this->_conn->prepare($this->_sql);
-        if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
-            return false;
-        }
-        
-        $this->__bindValue($this->_stmt);
-        $rt = $this->_stmt->execute();
-        if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
-            return false;
-        }
-        
-        $this->_result = $this->_stmt->get_result();
-        if(!$this->_result){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
-            return false;
-        }
-                
-        return $this;
-    }
-    
-    /**
      * 从结果集拿出一行数据
      * @return mixed array or boolean
      */
@@ -621,6 +574,67 @@ class Database_Drivers_Mysqli{
     }
     
     /**
+     * 查询数据N条数据
+     * @param string $table  查询表名
+     * @param int $limit  查询记录数
+     * @param int $offset  查询偏移量
+     * @return mixed boolean || Database_Drivers_Mysqli
+     */
+    public function get($table='', $limit=null, $offset=null){
+        $this->freeResult();
+        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
+        if(!is_null($offset)){
+            $this->_limit['offset'] = $offset;
+        }
+        
+        if(!is_null($limit)){
+            $this->_limit['limit'] = $limit;
+        }
+        
+        if(empty($this->_select)){
+            $this->_select = '*';
+        }
+        
+        if(empty($this->_table)){
+            log_message('error', 'sql error, select: need table name');
+            return false;
+        }
+        
+        $this->_sql = 'select '. $this->_select .' from '. $this->_table;
+        $this->_select = '';
+        $this->_table = '';
+        
+        $this->__buildWhere();
+        $this->__buildHaving();
+        $this->__buildGroup();
+        $this->__buildOrder();
+        $this->__buildLimit();
+
+        $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
+        if(!$this->_stmt){
+            $this->__log_message($this->_conn);
+            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            return false;
+        }
+        
+        $this->__bindValue($this->_stmt);
+        $rt = $this->_stmt->execute();
+        if(!$rt){
+            $this->__log_message($this->_stmt);
+            return false;
+        }
+        
+        $this->_result = $this->_stmt->get_result();
+        if(!$this->_result){
+            $this->__log_message($this->_stmt);
+            return false;
+        }
+                
+        return $this;
+    }
+    
+    /**
      * 带条件查询数据N条数据
      * @param string $table  查询表名
      * @param array $where  查询条件
@@ -633,14 +647,14 @@ class Database_Drivers_Mysqli{
             foreach($where as $k=>$v){
                 if(is_array($v)){
                     foreach($v as $_field=>$_value){
-                        $op = preg_replace('/[0-9a-z_]/', '', $_field);
+                        $op = preg_replace('/[0-9a-z_]/i', '', $_field);
                         $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
+                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
                     }
                 }else{
-                    $op = preg_replace('/[0-9a-z_]/', '', $k);
+                    $op = preg_replace('/[0-9a-z_]/i', '', $k);
                     $op = empty($op) ? '=' : $op;
-                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                 }
             }
         }
@@ -678,18 +692,21 @@ class Database_Drivers_Mysqli{
         }
         
         $this->_sql = 'UPDATE '. $this->_table .' ';
+        $this->_table = '';
+        
         $this->__buildSet();
         $this->__buildWhere();
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            $this->__log_message($this->_conn);
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            $this->__log_message($this->_stmt);
             return false;
         }
                 
@@ -716,6 +733,8 @@ class Database_Drivers_Mysqli{
         }
         $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         $this->_sql = 'INSERT INTO '. $this->_table .' (';
+        $this->_table = '';
+        
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
         }
@@ -730,14 +749,15 @@ class Database_Drivers_Mysqli{
         $this->_sql .= ')';
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            $this->__log_message($this->_conn);
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            $this->__log_message($this->_stmt);
             return false;
         }
                 
@@ -764,18 +784,22 @@ class Database_Drivers_Mysqli{
         !empty($limit) && $this->_limit['limit'] = $limit;
         
         $this->_sql = 'DELETE FROM '. $this->_table;
+        $this->_table = '';
+        
         $this->__buildWhere();
         $this->__buildLimit();
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            $this->__log_message($this->_conn);
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
             log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            $this->__log_message($this->_stmt);
             return false;
         }
                 
@@ -801,6 +825,8 @@ class Database_Drivers_Mysqli{
         }
         $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         $this->_sql = 'REPLACE INTO '. $this->_table .' (';
+        $this->_table = '';
+        
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
         }
@@ -813,16 +839,17 @@ class Database_Drivers_Mysqli{
         }
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
-        echo $this->_sql;
+
         $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            $this->__log_message($this->_conn);
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. $this->_stmt->error);
+            $this->__log_message($this->_stmt);
             return false;
         }
                 
@@ -998,9 +1025,29 @@ class Database_Drivers_Mysqli{
                 return false;
             }
         }
+        $this->_last_value = $this->_value;
         $this->_value = array();
         
         return $this;
+    }
+    
+    /**
+     * 记录错误日志
+     * @return true
+     */
+    public function __log_message($obj){
+        $message = '';
+        if($obj instanceof mysqli_stmt){
+            $message .= 'PDO execute sql error, sql: '. $this->_last_sql .' value: '. json_encode($this->_last_value) .' msg: '. json_encode($obj->error);
+        }else{
+            $message .= 'PDO prepare sql error, sql: '. $this->_last_sql .' msg: '. $obj->error;
+        }
+
+        $stack = debug_backtrace();
+        $stack = array_pop($stack);
+        $message .= "\n".'error from: '. $stack['file'] .' @line: '. $stack['line']."\n";
+        
+        return log_message('error', $message);
     }
     
     /**
@@ -1076,8 +1123,9 @@ class Database_Drivers_Mysqli{
     public function query($sql){
         $this->freeResult();
         $this->_stmt = $this->_conn->query($sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql query error, msg: '. $this->_stmt->error);
+            log_message('error', 'sql query error, sql:'. $this->_sql .' msg: '. $this->_stmt->error);
             return false;
         }
         
@@ -1101,8 +1149,6 @@ class Database_Drivers_Mysqli{
         $this->_stmt && $this->_stmt->free_result();
         $this->_stmt = null;
         $this->_result = null;
-        $this->_select = '';
-        $this->_table = '';
         return $this;
     }
     
@@ -1132,5 +1178,21 @@ class Database_Drivers_Mysqli{
             return implode(',', $value);
         }
         return "'". $this->_conn->real_escape_string($value) ."'";
+    }
+    
+    /**
+     * 上次执行的SQL语句
+     * @return string
+     */
+    public function lastQuery(){
+        return $this->_last_sql;
+    }
+    
+    /**
+     * 上次执行的SQL语句绑定的值
+     * @return array
+     */
+    public function lastValue(){
+        return $this->_last_value;
     }
 }

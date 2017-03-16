@@ -75,6 +75,16 @@ class Database_Drivers_Pdo{
      * @var string
      */
     protected $_prefix = '';
+    /**
+     * 上次执行的SQL语句
+     * @var string
+     */
+    private $_last_sql = '';
+    /**
+     * 上次执行的SQL语句绑定的值
+     * @var string
+     */
+    private $_last_value = array();
     
     /**
      * SQL语句条件分组开始:AND (
@@ -115,22 +125,22 @@ class Database_Drivers_Pdo{
                 foreach($where as $k=>$v){
                     if(is_array($v)){
                         foreach($v as $_field=>$_value){
-                            $op = preg_replace('/[0-9a-z_]/', '', $_field);
+                            $op = preg_replace('/[0-9a-z_]/i', '', $_field);
                             $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
+                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
                         }
                     }else{
-                        $op = preg_replace('/[0-9a-z_]/', '', $k);
+                        $op = preg_replace('/[0-9a-z_]/i', '', $k);
                         $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                     }
                 }
             }
         }else{
             if(!empty($where)){
-                $op = preg_replace('/[0-9a-z_]/', '', $where);
+                $op = preg_replace('/[0-9a-z_]/i', '', $where);
                 $op = empty($op) ? '=' : $op;
-                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
+                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
             }
         }
         
@@ -151,14 +161,14 @@ class Database_Drivers_Pdo{
                     foreach($where as $k=>$v){
                         if(is_array($v)){
                             foreach($v as $_field=>$_value){
-                                $op = preg_replace('/[0-9a-z_]/', '', $_field);
+                                $op = preg_replace('/[0-9a-z_]/i', '', $_field);
                                 $op = empty($op) ? '=' : $op;
-                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
+                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
                             }
                         }else{
-                            $op = preg_replace('/[0-9a-z_]/', '', $k);
+                            $op = preg_replace('/[0-9a-z_]/i', '', $k);
                             $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                         }
                     }
                     $this->_condition[] = array('key'=>')', 'value'=>'');
@@ -166,14 +176,14 @@ class Database_Drivers_Pdo{
                     foreach($where as $k=>$v){
                         if(is_array($v)){
                             foreach($v as $_field=>$_value){
-                                $op = preg_replace('/[0-9a-z_]/', '', $_field);
+                                $op = preg_replace('/[0-9a-z_]/i', '', $_field);
                                 $op = empty($op) ? '=' : $op;
-                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $_field), 'value'=>$_value, 'connect'=>'OR', 'op'=>$op);
+                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'OR', 'op'=>$op);
                             }
                         }else{
-                            $op = preg_replace('/[0-9a-z_]/', '', $k);
+                            $op = preg_replace('/[0-9a-z_]/i', '', $k);
                             $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                         }
                     }
                 }
@@ -182,9 +192,9 @@ class Database_Drivers_Pdo{
             if(is_array($value)){
                 $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
             }else{
-                $op = preg_replace('/[0-9a-z_]/', '', $where);
+                $op = preg_replace('/[0-9a-z_]/i', '', $where);
                 $op = empty($op) ? '=' : $op;
-                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
+                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
             }
         }
         return $this;
@@ -408,57 +418,6 @@ class Database_Drivers_Pdo{
     }
     
     /**
-     * 查询数据N条数据
-     * @param string $table  查询表名
-     * @param int $limit  查询记录数
-     * @param int $offset  查询偏移量
-     * @return mixed boolean || Database_Drivers_Pdo_Mysql
-     */
-    public function get($table='', $limit=null, $offset=null){
-        $this->freeResult();
-        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
-        if(!is_null($offset)){
-            $this->_limit['offset'] = $offset;
-        }
-
-        if(!is_null($limit)){
-            $this->_limit['limit'] = $limit;
-        }
-        
-        if(empty($this->_select)){
-            $this->_select = '*';
-        }
-        
-        if(empty($this->_table)){
-            log_message('error', 'sql error, select: need table name');
-            return false;
-        }
-        
-        $this->_sql = 'select '. $this->_select .' from '. $this->_table;
-        
-        $this->__buildWhere();
-        $this->__buildHaving();
-        $this->__buildGroup();
-        $this->__buildOrder();
-        $this->__buildLimit();
-
-        $this->_stmt = $this->_conn->prepare($this->_sql);
-        if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
-            return false;
-        }
-        
-        $this->__bindValue($this->_stmt);
-        $rt = $this->_stmt->execute();
-        if($rt===false){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
-            return false;
-        }
-                
-        return $this;
-    }
-    
-    /**
      * 从结果集拿出一行数据
      * @return mixed boolean || array
      */
@@ -515,6 +474,60 @@ class Database_Drivers_Pdo{
     }
     
     /**
+     * 查询数据N条数据
+     * @param string $table  查询表名
+     * @param int $limit  查询记录数
+     * @param int $offset  查询偏移量
+     * @return mixed boolean || Database_Drivers_Pdo_Mysql
+     */
+    public function get($table='', $limit=null, $offset=null){
+        $this->freeResult();
+        !empty($table) && $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
+        if(!is_null($offset)){
+            $this->_limit['offset'] = $offset;
+        }
+
+        if(!is_null($limit)){
+            $this->_limit['limit'] = $limit;
+        }
+        
+        if(empty($this->_select)){
+            $this->_select = '*';
+        }
+        
+        if(empty($this->_table)){
+            log_message('error', 'sql error, select: need table name');
+            return false;
+        }
+        
+        $this->_sql = 'select '. $this->_select .' from '. $this->_table;
+        $this->_select = '';
+        $this->_table = '';
+        
+        $this->__buildWhere();
+        $this->__buildHaving();
+        $this->__buildGroup();
+        $this->__buildOrder();
+        $this->__buildLimit();
+
+        $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
+        if(!$this->_stmt){
+            $this->__log_message($this->_conn, $this->_sql);
+            return false;
+        }
+        
+        $this->__bindValue($this->_stmt);
+        $rt = $this->_stmt->execute();
+        if($rt===false){
+            $this->__log_message($this->_stmt, $this->_sql, $this->_last_value);
+            return false;
+        }
+                
+        return $this;
+    }
+    
+    /**
      * 带条件查询数据N条数据
      * @param string $table  查询表名
      * @param array $where  查询条件
@@ -527,14 +540,14 @@ class Database_Drivers_Pdo{
             foreach($where as $k=>$v){
                 if(is_array($v)){
                     foreach($v as $_field=>$_value){
-                        $op = preg_replace('/[0-9a-z_]/', '', $_field);
+                        $op = preg_replace('/[0-9a-z_]/i', '', $_field);
                         $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
+                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
                     }
                 }else{
-                    $op = preg_replace('/[0-9a-z_]/', '', $k);
+                    $op = preg_replace('/[0-9a-z_]/i', '', $k);
                     $op = empty($op) ? '=' : $op;
-                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                 }
             }
         }
@@ -571,19 +584,21 @@ class Database_Drivers_Pdo{
         }
         
         $this->_sql = 'UPDATE '. $this->_table .' ';
+        $this->_table = '';
         
         $this->__buildSet();
         $this->__buildWhere();
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
+            $this->__log_message($this->_conn);
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
+            $this->__log_message($this->_stmt);
             return false;
         }
                 
@@ -610,6 +625,8 @@ class Database_Drivers_Pdo{
         }
         $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         $this->_sql = 'INSERT INTO '. $this->_table .' (';
+        $this->_table = '';
+        
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
         }
@@ -625,14 +642,15 @@ class Database_Drivers_Pdo{
         $this->_sql .= ')';
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
+            $this->__log_message($this->_conn);
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
+            $this->__log_message($this->_stmt);
             return false;
         }
                 
@@ -659,18 +677,21 @@ class Database_Drivers_Pdo{
         !empty($limit) && $this->_limit['limit'] = $limit;
         
         $this->_sql = 'DELETE FROM '. $this->_table;
+        $this->_table = '';
+        
         $this->__buildWhere();
         $this->__buildLimit();
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
+            $this->__log_message($this->_conn);
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
+            $this->__log_message($this->_stmt);
             return false;
         }
                 
@@ -696,6 +717,8 @@ class Database_Drivers_Pdo{
         }
         $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
         $this->_sql = 'REPLACE INTO '. $this->_table .' (';
+        $this->_table = '';
+        
         foreach($data as $k=>$v){
             $this->_sql .= $k .',';
         }
@@ -711,14 +734,15 @@ class Database_Drivers_Pdo{
         $this->_sql .= ')';
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql prepare error, msg: '. json_encode($this->_conn->errorInfo()));
+            $this->__log_message($this->_conn);
             return false;
         }
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
-            log_message('error', 'sql execute error, msg: '. json_encode($this->_stmt->errorInfo()));
+            $this->__log_message($this->_stmt);
             return false;
         }
                 
@@ -878,9 +902,29 @@ class Database_Drivers_Pdo{
                 }
             }
         }
+        $this->_last_value = $this->_value;
         $this->_value = array();
         
         return $this;
+    }
+    
+    /**
+     * 记录错误日志
+     * @return true
+     */
+    public function __log_message($obj){
+        $message = '';
+        if($obj instanceof PDOStatement){
+            $message .= 'PDO execute sql error, sql: '. $this->_last_sql .' value: '. json_encode($this->_last_value) .' msg: '. json_encode($obj->errorInfo());
+        }else{
+            $message .= 'PDO prepare sql error, sql: '. $this->_last_sql .' msg: '. json_encode($obj->errorInfo());
+        }
+
+        $stack = debug_backtrace();
+        $stack = array_pop($stack);
+        $message .= "\n".'error from: '. $stack['file'] .' @line: '. $stack['line']."\n";
+        
+        return log_message('error', $message);
     }
     
     /**
@@ -979,8 +1023,6 @@ class Database_Drivers_Pdo{
      */
     public function freeResult(){
         $this->_stmt = null;
-        $this->_select = '';
-        $this->_table = '';
         return $this;
     }
     
@@ -1010,5 +1052,21 @@ class Database_Drivers_Pdo{
             return implode(',', $value);
         }
         return $this->_conn->quote($value);
+    }
+    
+    /**
+     * 上次执行的SQL语句
+     * @return string
+     */
+    public function lastQuery(){
+        return $this->_last_sql;
+    }
+    
+    /**
+     * 上次执行的SQL语句绑定的值
+     * @return array
+     */
+    public function lastValue(){
+        return $this->_last_value;
     }
 }
