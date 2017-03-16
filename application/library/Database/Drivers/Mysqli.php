@@ -858,8 +858,8 @@ class Database_Drivers_Mysqli{
                     }
                     $this->_value[] = $tmp;
                 }elseif($v['op']==='in' || $v['op']==='not in'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' (?) ';
-                    $this->_value[] = $v['value'];
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $v['value'] .') ';
+                    //$this->_value[] = $v['value'];
                 }else if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else{
@@ -1101,6 +1101,8 @@ class Database_Drivers_Mysqli{
         $this->_stmt && $this->_stmt->free_result();
         $this->_stmt = null;
         $this->_result = null;
+        $this->_select = '';
+        $this->_table = '';
         return $this;
     }
     
@@ -1114,5 +1116,21 @@ class Database_Drivers_Mysqli{
         }
         
         return false;
+    }
+    
+    /**
+     * 对查询输入转义
+     * @param mixed $v 查询字段的值
+     * @return string
+     */
+    private function quote($value){
+        $tmp = $this;
+        if(is_array($value)){
+            $value = array_map(function($v) use($tmp){
+                return "'". $this->_conn->real_escape_string($v) ."'";
+            }, $value);
+            return implode(',', $value);
+        }
+        return "'". $this->_conn->real_escape_string($value) ."'";
     }
 }

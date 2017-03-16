@@ -197,8 +197,8 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function whereIn($field, $list){
-        $list = is_array($list) ? implode(',', $list) : $list;
-        $this->_condition[] = array('key'=>$field, 'value'=>$list, 'connect'=>'AND', 'op'=>'in');
+        $list = is_array($list) ? $list : explode(',', $list);
+        $this->_condition[] = array('key'=>$field, 'value'=>$this->quote($list), 'connect'=>'AND', 'op'=>'in');
         return $this;
     }
     
@@ -209,8 +209,8 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orWhereIn($field, $list){
-        $list = is_array($list) ? implode(',', $list) : $list;
-        $this->_condition[] = array('key'=>$field, 'value'=>$list, 'connect'=>'OR', 'op'=>'in');
+        $list = is_array($list) ? $list : explode(',', $list);
+        $this->_condition[] = array('key'=>$field, 'value'=>$this->quote($list), 'connect'=>'OR', 'op'=>'in');
         return $this;
     }
     
@@ -221,8 +221,8 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function whereNotIn($field, $list){
-        $list = is_array($list) ? implode(',', $list) : $list;
-        $this->_condition[] = array('key'=>$field, 'value'=>$list, 'connect'=>'AND', 'op'=>'not in');
+        $list = is_array($list) ? $list : explode(',', $list);
+        $this->_condition[] = array('key'=>$field, 'value'=>$this->quote($list), 'connect'=>'AND', 'op'=>'not in');
         return $this;
     }
     
@@ -233,8 +233,8 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function orWhereNotIn($field, $list){
-        $list = is_array($list) ? implode(',', $list) : $list;
-        $this->_condition[] = array('key'=>$field, 'value'=>$list, 'connect'=>'OR', 'op'=>'not in');
+        $list = is_array($list) ? $list : explode(',', $list);
+        $this->_condition[] = array('key'=>$field, 'value'=>$this->quote($list), 'connect'=>'OR', 'op'=>'not in');
         return $this;
     }
     
@@ -755,8 +755,8 @@ class Database_Drivers_Pdo{
                     }
                     $this->_value[] = array($key=>$tmp);
                 }elseif($v['op']==='in' || $v['op']==='not in'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $key .') ';
-                    $this->_value[] = array($key=>$v['value']);
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $v['value'] .') ';
+                    //$this->_value[] = array($key=>$v['value']);
                 }else if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else{
@@ -979,6 +979,8 @@ class Database_Drivers_Pdo{
      */
     public function freeResult(){
         $this->_stmt = null;
+        $this->_select = '';
+        $this->_table = '';
         return $this;
     }
     
@@ -992,5 +994,21 @@ class Database_Drivers_Pdo{
         }
         
         return false;
+    }
+    
+    /**
+     * 对查询输入转义
+     * @param mixed $v 查询字段的值
+     * @return string
+     */
+    private function quote($value){
+        $tmp = $this;
+        if(is_array($value)){
+            $value = array_map(function($v) use($tmp){
+                return $tmp->_conn->quote($v);
+            }, $value);
+            return implode(',', $value);
+        }
+        return $this->_conn->quote($value);
     }
 }
