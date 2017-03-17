@@ -213,6 +213,20 @@ class Log {
 	 */
 	protected function _format_line($level, $date, $message)
 	{
-		return $level.' - '.$date.' --> '.$message."\n";
+		$return = $level.' - '.$date.' --> '.$message."\n";
+        if($level === 'ERROR'){
+            $debug_stack = debug_backtrace();
+            foreach($debug_stack as $k=>$v){
+                if($k===2){
+                    $return .= $v['file'].' @ line '. $v['line'] ."\n";
+                    $return .= $v['function']. ' args: '. json_encode($v['args'], JSON_UNESCAPED_UNICODE) ."\n";
+                    break;
+                }
+            }
+            
+            unset($debug_stack, $k, $v);
+        }
+        
+        return $return;
 	}
 }

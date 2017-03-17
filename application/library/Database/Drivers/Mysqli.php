@@ -1,4 +1,5 @@
 <?php
+defined('BASE_PATH') OR exit('No direct script access allowed');
 /**
  * 模拟CI数据库类的Mysqli封装
  * @author fangh@me.com
@@ -14,6 +15,11 @@ class Database_Drivers_Mysqli{
      * @var object
      */
     protected $_stmt=null;
+    /**
+     * 是否出错
+     * @var boolean
+     */
+    protected $_error = false;
     /**
      * 查询的结果集
      * @var result set
@@ -53,7 +59,7 @@ class Database_Drivers_Mysqli{
      * 排序字段
      * @var array or string
      */
-    protected $_order = '';
+    protected $_order = array();
     /**
      * SQL语句的表名
      * @var string
@@ -113,25 +119,22 @@ class Database_Drivers_Mysqli{
 
 		$this->_conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
 		$this->_conn->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE);
-
+        
 		if (isset($config['stricton'])){
 			if ($config['stricton']){
-				$this->_conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode = CONCAT(@@sql_mode, ",", "STRICT_ALL_TABLES")');
+                $this->_conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode = CONCAT(@@sql_mode, ",", "STRICT_ALL_TABLES");');
 			}else{
-				$this->_conn->options(MYSQLI_INIT_COMMAND,
-					'SET SESSION sql_mode =
-					REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
-					@@sql_mode,
-					"STRICT_ALL_TABLES,", ""),
-					",STRICT_ALL_TABLES", ""),
-					"STRICT_ALL_TABLES", ""),
-					"STRICT_TRANS_TABLES,", ""),
-					",STRICT_TRANS_TABLES", ""),
-					"STRICT_TRANS_TABLES", "")'
-				);
+                $this->_conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode =
+                                                            REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+                                                            @@sql_mode,
+                                                            "STRICT_ALL_TABLES,", ""),
+                                                            ",STRICT_ALL_TABLES", ""),
+                                                            "STRICT_ALL_TABLES", ""),
+                                                            "STRICT_TRANS_TABLES,", ""),
+                                                            ",STRICT_TRANS_TABLES", ""),
+                                                            "STRICT_TRANS_TABLES", "")');
 			}
 		}
-
 		if (is_array($config['encrypt'])){
 			$ssl = array();
 			empty($config['encrypt']['ssl_key'])    OR $ssl['key']    = $config['encrypt']['ssl_key'];
@@ -181,6 +184,9 @@ class Database_Drivers_Mysqli{
 			}
             
             $this->_prefix = empty($config['prefix']) ? '' : $config['prefix'];
+            if(!empty($config['char_set'])){
+                $this->_conn->set_charset($config['char_set']);
+            }
 			return $this->_conn;
 		}
         
@@ -224,29 +230,42 @@ class Database_Drivers_Mysqli{
      */
     public function where($where, $value=null){
         if(is_null($value)){
-            if(!empty($where)){
+            if(is_array($where)){
                 foreach($where as $k=>$v){
-                    if(is_array($v)){
-                        foreach($v as $_field=>$_value){
-                            $op = preg_replace('/[0-9a-z_]/i', '', $_field);
-                            $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
-                        }
+                    if(is_array($k) || is_object($k)){
+                        log_message('error', 'column name need string, '. gettype($k) . 'given');
+                        $this->_condition = array();
+                        $this->_error = true;
+                        return false;
                     }else{
                         $op = preg_replace('/[0-9a-z_]/i', '', $k);
                         $op = empty($op) ? '=' : $op;
                         $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                     }
                 }
+            }else{
+                log_message('error', 'column name need array, '. gettype($where) . ' given');
+                $this->_condition = array();
+                $this->_error = true;
+                return false;
             }
         }else{
-            if(!empty($where)){
-                $op = preg_replace('/[0-9a-z_]/i', '', $where);
-                $op = empty($op) ? '=' : $op;
-                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
+            if(!empty($where) && is_string($where)){
+                if(is_array($value)){
+                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>'in');
+                }else{
+                    $op = preg_replace('/[0-9a-z_]/i', '', $where);
+                    $op = empty($op) ? '=' : $op;
+                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
+                }
+            }else{
+                log_message('error', 'column name need string, '. gettype($where) . ' given');
+                $this->_condition = array();
+                $this->_error = true;
+                return false;
             }
         }
-        
+
         return $this;
     }
     
@@ -258,46 +277,41 @@ class Database_Drivers_Mysqli{
      */
     public function orWhere($where, $value=null){
         if(is_null($value)){
-            if(!empty($where)){
-                if(count($where)>1){
-                    $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
-                    foreach($where as $k=>$v){
-                        if(is_array($v)){
-                            foreach($v as $_field=>$_value){
-                                $op = preg_replace('/[0-9a-z_]/i', '', $_field);
-                                $op = empty($op) ? '=' : $op;
-                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
-                            }
-                        }else{
-                            $op = preg_replace('/[0-9a-z_]/i', '', $k);
-                            $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
-                        }
-                    }
-                    $this->_condition[] = array('key'=>')', 'value'=>'');
-                }else{
-                    foreach($where as $k=>$v){
-                        if(is_array($v)){
-                            foreach($v as $_field=>$_value){
-                                $op = preg_replace('/[0-9a-z_]/i', '', $_field);
-                                $op = empty($op) ? '=' : $op;
-                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'OR', 'op'=>$op);
-                            }
-                        }else{
-                            $op = preg_replace('/[0-9a-z_]/i', '', $k);
-                            $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
-                        }
+            if(is_array($where)){
+                $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
+                foreach($where as $k=>$v){
+                    if(is_array($k) || is_object($k)){
+                        log_message('error', 'column name need string, '. gettype($k) . ' given');
+                        $this->_condition = array();
+                        $this->_error = true;
+                        return false;
+                    }else{
+                        $op = preg_replace('/[0-9a-z_]/i', '', $k);
+                        $op = empty($op) ? '=' : $op;
+                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                     }
                 }
+                $this->_condition[] = array('key'=>')', 'value'=>'');
+            }else{
+                log_message('error', 'column name need array, '. gettype($where) . ' given');
+                $this->_condition = array();
+                $this->_error = true;
+                return false;
             }
         }else{
-            if(is_array($value)){
-                $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
+            if(is_array($where) || is_object($where)){
+                if(is_array($value)){
+                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
+                }else{
+                    $op = preg_replace('/[0-9a-z_]/i', '', $where);
+                    $op = empty($op) ? '=' : $op;
+                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
+                }
             }else{
-                $op = preg_replace('/[0-9a-z_]/i', '', $where);
-                $op = empty($op) ? '=' : $op;
-                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
+                log_message('error', 'column name need string, '. gettype($where) . ' given');
+                $this->_condition = array();
+                $this->_error = true;
+                return false;
             }
         }
         return $this;
@@ -450,13 +464,13 @@ class Database_Drivers_Mysqli{
             return $this;
         }
         
-        if(is_string($order)){
+        if(is_array($order)){
+            foreach($order as $v){
+                $this->_order[] = $v;
+            }
+        }else{
             $this->_order[] = $order;
             return $this;
-        }
-        
-        foreach($order as $v){
-            $this->_order[] = $v;
         }
         
         return $this;
@@ -610,6 +624,10 @@ class Database_Drivers_Mysqli{
         $this->__buildOrder();
         $this->__buildLimit();
 
+        if($this->_error){
+            return false;
+        }
+        
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
@@ -678,14 +696,14 @@ class Database_Drivers_Mysqli{
             return false;
         }
         
-        $this->set($update);
+        !empty($update) && $this->set($update);
         if(empty($this->_set)){
             log_message('error', 'sql error, UPDATE: need data to update');
             return false;
         }
         
         
-        $this->where($where);
+        !empty($where) && $this->where($where);
         if(empty($this->_condition)){
             log_message('error', 'sql error, UPDATE: need condition');
             return false;
@@ -696,7 +714,11 @@ class Database_Drivers_Mysqli{
         
         $this->__buildSet();
         $this->__buildWhere();
-
+        
+        if($this->_error){
+            return false;
+        }
+        
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
@@ -788,6 +810,10 @@ class Database_Drivers_Mysqli{
         
         $this->__buildWhere();
         $this->__buildLimit();
+        
+        if($this->_error){
+            return false;
+        }
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
@@ -940,7 +966,7 @@ class Database_Drivers_Mysqli{
             $this->_sql .= ' order by ';
             $this->_sql .= implode(',', $this->_order);
         }
-        $this->_order = '';
+        $this->_order = array();
         
         return $this;
     }
@@ -1149,6 +1175,7 @@ class Database_Drivers_Mysqli{
         $this->_stmt && $this->_stmt->free_result();
         $this->_stmt = null;
         $this->_result = null;
+        $this->_error = false;
         return $this;
     }
     

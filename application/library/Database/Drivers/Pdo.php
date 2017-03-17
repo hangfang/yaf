@@ -16,6 +16,11 @@ class Database_Drivers_Pdo{
      */
     protected $_stmt=null;
     /**
+     * 是否出错
+     * @var boolean
+     */
+    protected $_error = false;
+    /**
      * 数据库连接属性
      * @var array
      */
@@ -49,7 +54,7 @@ class Database_Drivers_Pdo{
      * 排序字段
      * @var array or string
      */
-    protected $_order = '';
+    protected $_order = array();
     /**
      * SQL语句的表名
      * @var string
@@ -121,29 +126,42 @@ class Database_Drivers_Pdo{
      */
     public function where($where, $value=null){
         if(is_null($value)){
-            if(!empty($where)){
+            if(is_array($where)){
                 foreach($where as $k=>$v){
-                    if(is_array($v)){
-                        foreach($v as $_field=>$_value){
-                            $op = preg_replace('/[0-9a-z_]/i', '', $_field);
-                            $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
-                        }
+                    if(is_array($k) || is_object($k)){
+                        log_message('error', 'column name need string, '. gettype($k) . 'given');
+                        $this->_condition = array();
+                        $this->_error = true;
+                        return false;
                     }else{
                         $op = preg_replace('/[0-9a-z_]/i', '', $k);
                         $op = empty($op) ? '=' : $op;
                         $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                     }
                 }
+            }else{
+                log_message('error', 'column name need array, '. gettype($where) . ' given');
+                $this->_condition = array();
+                $this->_error = true;
+                return false;
             }
         }else{
-            if(!empty($where)){
-                $op = preg_replace('/[0-9a-z_]/i', '', $where);
-                $op = empty($op) ? '=' : $op;
-                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
+            if(!empty($where) && is_string($where)){
+                if(is_array($value)){
+                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>'in');
+                }else{
+                    $op = preg_replace('/[0-9a-z_]/i', '', $where);
+                    $op = empty($op) ? '=' : $op;
+                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
+                }
+            }else{
+                log_message('error', 'column name need string, '. gettype($where) . ' given');
+                $this->_condition = array();
+                $this->_error = true;
+                return false;
             }
         }
-        
+
         return $this;
     }
     
@@ -151,50 +169,45 @@ class Database_Drivers_Pdo{
      * SQL语句条件:OR column_name = 'xx'
      * @param mixed $where  查询条件键值对:array('id'=>1, 'name'=>'tom')
      * @param mixed $value  条件字段对应的值，$value不是null时，$where为字段名
-     * @return mixed boolean || Database_Drivers_Pdo_Mysql
+     * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orWhere($where, $value=null){
         if(is_null($value)){
-            if(!empty($where)){
-                if(count($where)>1){
-                    $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
-                    foreach($where as $k=>$v){
-                        if(is_array($v)){
-                            foreach($v as $_field=>$_value){
-                                $op = preg_replace('/[0-9a-z_]/i', '', $_field);
-                                $op = empty($op) ? '=' : $op;
-                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
-                            }
-                        }else{
-                            $op = preg_replace('/[0-9a-z_]/i', '', $k);
-                            $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
-                        }
-                    }
-                    $this->_condition[] = array('key'=>')', 'value'=>'');
-                }else{
-                    foreach($where as $k=>$v){
-                        if(is_array($v)){
-                            foreach($v as $_field=>$_value){
-                                $op = preg_replace('/[0-9a-z_]/i', '', $_field);
-                                $op = empty($op) ? '=' : $op;
-                                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'OR', 'op'=>$op);
-                            }
-                        }else{
-                            $op = preg_replace('/[0-9a-z_]/i', '', $k);
-                            $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
-                        }
+            if(is_array($where)){
+                $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
+                foreach($where as $k=>$v){
+                    if(is_array($k) || is_object($k)){
+                        log_message('error', 'column name need string, '. gettype($k) . ' given');
+                        $this->_condition = array();
+                        $this->_error = true;
+                        return false;
+                    }else{
+                        $op = preg_replace('/[0-9a-z_]/i', '', $k);
+                        $op = empty($op) ? '=' : $op;
+                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                     }
                 }
+                $this->_condition[] = array('key'=>')', 'value'=>'');
+            }else{
+                log_message('error', 'column name need array, '. gettype($where) . ' given');
+                $this->_condition = array();
+                $this->_error = true;
+                return false;
             }
         }else{
-            if(is_array($value)){
-                $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
+            if(is_array($where) || is_object($where)){
+                if(is_array($value)){
+                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
+                }else{
+                    $op = preg_replace('/[0-9a-z_]/i', '', $where);
+                    $op = empty($op) ? '=' : $op;
+                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
+                }
             }else{
-                $op = preg_replace('/[0-9a-z_]/i', '', $where);
-                $op = empty($op) ? '=' : $op;
-                $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
+                log_message('error', 'column name need string, '. gettype($where) . ' given');
+                $this->_condition = array();
+                $this->_error = true;
+                return false;
             }
         }
         return $this;
@@ -347,13 +360,13 @@ class Database_Drivers_Pdo{
             return $this;
         }
         
-        if(is_string($order)){
+        if(is_array($order)){
+            foreach($order as $v){
+                $this->_order[] = $v;
+            }
+        }else{
             $this->_order[] = $order;
             return $this;
-        }
-        
-        foreach($order as $v){
-            $this->_order[] = $v;
         }
         
         return $this;
@@ -510,6 +523,10 @@ class Database_Drivers_Pdo{
         $this->__buildOrder();
         $this->__buildLimit();
 
+        if($this->_error){
+            return false;
+        }
+        
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
@@ -588,6 +605,10 @@ class Database_Drivers_Pdo{
         
         $this->__buildSet();
         $this->__buildWhere();
+        
+        if($this->_error){
+            return false;
+        }
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
@@ -682,6 +703,10 @@ class Database_Drivers_Pdo{
         $this->__buildWhere();
         $this->__buildLimit();
 
+        if($this->_error){
+            return false;
+        }
+        
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
@@ -784,7 +809,7 @@ class Database_Drivers_Pdo{
                 }else if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else{
-                    $this->_sql .= $v['key'] .' = '. $key .' ';
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' '. $key .' ';
                     $this->_value[] = array($key=>$v['value']);
                 }
                 
@@ -834,7 +859,7 @@ class Database_Drivers_Pdo{
             $this->_sql .= ' order by ';
             $this->_sql .= implode(',', $this->_order);
         }
-        $this->_order = '';
+        $this->_order = array();
         
         return $this;
     }
@@ -1023,6 +1048,7 @@ class Database_Drivers_Pdo{
      */
     public function freeResult(){
         $this->_stmt = null;
+        $this->_error = false;
         return $this;
     }
     
