@@ -12,6 +12,16 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
     public function _initHelpers(){
         Yaf_Loader::import( BASE_PATH .'/application/helper/function.php' );
         Yaf_Loader::import( BASE_PATH .'/application/helper/file.php' );
+        
+        set_error_handler(function($errno, $errstr, $errfile, $errline){
+            log_message('error', 'error('. $errno .'): '.$errstr.' file:'.$errfile.' line '.$errline);
+            exit(json_encode(array('rtn'=>501, '服务器内部错误')));
+        });
+        
+        set_exception_handler(function($exception){
+            log_message('error', 'error('. $exception->getCode() .'):'. $exception->getMessage());
+            exit(json_encode(array('rtn'=>501, '服务器内部错误')));
+        });
     }
 
     public function _initConfig() {
