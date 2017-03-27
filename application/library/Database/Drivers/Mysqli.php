@@ -250,7 +250,7 @@ class Database_Drivers_Mysqli{
                 return false;
             }
         }else{
-            if(!empty($where) && is_string($where)){
+            if(!empty($where) && !is_array($where) && !is_object($where)){
                 if(is_array($value)){
                     $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>'in');
                 }else{
@@ -299,7 +299,7 @@ class Database_Drivers_Mysqli{
                 return false;
             }
         }else{
-            if(is_array($where) || is_object($where)){
+            if(!empty($where) && !is_array($where) && !is_object($where)){
                 if(is_array($value)){
                     $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
                 }else{
