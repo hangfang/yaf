@@ -190,8 +190,8 @@ class Database_Drivers_Mysqli{
 			return $this->_conn;
 		}
         
-        log_message('error', $message = 'mysqli connect failed, msg: '.$this->_conn->error() .'('. $this->_conn->errno() .')');
-        throw new Exception('error', $message, '-1');
+        log_message('error', $message = 'mysqli connect failed, msg: '.$this->_conn->error .'('. $this->_conn->errno .')');
+        throw new Exception($message, '-1');
 		return FALSE;
     }
     
