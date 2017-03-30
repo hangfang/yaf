@@ -779,7 +779,7 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     protected function __buildWhere(){
-        
+
         if(!empty($this->_condition)){
             $this->_sql .= ' where ';
             $preKey = '';
@@ -791,21 +791,25 @@ class Database_Drivers_Pdo{
                     $this->_sql .= $v['connect'] .' ';
                 }
                 
-                $key = ':'. $v['key'].count($this->_value);
+                $key = ':'. $v['key'].'_'.$k;
                 if($v['op']==='like' || $v['op']==='not like'){
                     $this->_sql .= $v['key'] .' '. $v['op'] .' '. $key .' ';
                     $tmp = $v['value'];
                     if($v['side']==='both'){
-                        $tmp = '%'.$v['value'].'%';
+                        $tmp = '%'.$key.'%';
                     }else if($v['side']==='left'){
-                        $tmp = '%'.$v['value'];
+                        $tmp = '%'.$key;
                     }else{
-                        $tmp = $v['value'].'%';
+                        $tmp = $key.'%';
                     }
-                    $this->_value[] = array($key=>$tmp);
+                    $this->_value[] = array($key=>$v['value']);
                 }elseif($v['op']==='in' || $v['op']==='not in'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $v['value'] .') ';
-                    //$this->_value[] = array($key=>$v['value']);
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $key .') ';
+                    !is_array($v['value']) && $v['value'] = explode(',', $v['value']);
+                    foreach($v['value'] as &$_tmp){
+                        $_tmp = addslashes($_tmp);
+                    }
+                    $this->_value[] = array($key=>$v['value']);
                 }else if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else{
@@ -877,7 +881,7 @@ class Database_Drivers_Pdo{
                 $this->_sql .= $this->_limit['offset'] .','. $this->_limit['limit'];
             }
         }
-        $this->_limit = '';
+        $this->_limit = array();
         
         return $this;
     }
@@ -911,7 +915,7 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     protected function __bindValue(){
-        
+
         if(!empty($this->_value)){
             foreach($this->_value as $v){
                 foreach($v as $key=>$value){
@@ -1073,11 +1077,11 @@ class Database_Drivers_Pdo{
         $tmp = $this;
         if(is_array($value)){
             $value = array_map(function($v) use($tmp){
-                return $tmp->_conn->quote($v);
+                return addslashes($v);
             }, $value);
             return implode(',', $value);
         }
-        return $this->_conn->quote($value);
+        return addslashes($value);
     }
     
     /**

@@ -119,22 +119,25 @@ class Database_Drivers_Mysqli{
 
 		$this->_conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
 		$this->_conn->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE);
-        
+
 		if (isset($config['stricton'])){
 			if ($config['stricton']){
-                $this->_conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode = CONCAT(@@sql_mode, ",", "STRICT_ALL_TABLES");');
+				$this->_conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode = CONCAT(@@sql_mode, ",", "STRICT_ALL_TABLES")');
 			}else{
-                $this->_conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode =
-                                                            REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
-                                                            @@sql_mode,
-                                                            "STRICT_ALL_TABLES,", ""),
-                                                            ",STRICT_ALL_TABLES", ""),
-                                                            "STRICT_ALL_TABLES", ""),
-                                                            "STRICT_TRANS_TABLES,", ""),
-                                                            ",STRICT_TRANS_TABLES", ""),
-                                                            "STRICT_TRANS_TABLES", "")');
+				$this->_conn->options(MYSQLI_INIT_COMMAND,
+					'SET SESSION sql_mode =
+					REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+					@@sql_mode,
+					"STRICT_ALL_TABLES,", ""),
+					",STRICT_ALL_TABLES", ""),
+					"STRICT_ALL_TABLES", ""),
+					"STRICT_TRANS_TABLES,", ""),
+					",STRICT_TRANS_TABLES", ""),
+					"STRICT_TRANS_TABLES", "")'
+				);
 			}
 		}
+        
 		if (is_array($config['encrypt'])){
 			$ssl = array();
 			empty($config['encrypt']['ssl_key'])    OR $ssl['key']    = $config['encrypt']['ssl_key'];
@@ -184,6 +187,7 @@ class Database_Drivers_Mysqli{
 			}
             
             $this->_prefix = empty($config['prefix']) ? '' : $config['prefix'];
+            
             if(!empty($config['char_set'])){
                 $this->_conn->set_charset($config['char_set']);
             }
@@ -191,7 +195,7 @@ class Database_Drivers_Mysqli{
 		}
         
         log_message('error', $message = 'mysqli connect failed, msg: '.$this->_conn->error .'('. $this->_conn->errno .')');
-        throw new Exception($message, '-1');
+        throw new Exception($message, 9999);
 		return FALSE;
     }
     
@@ -887,7 +891,7 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __buildWhere(){
-        
+
         if(!empty($this->_condition)){
             $this->_sql .= ' where ';
             $preKey = '';
@@ -903,16 +907,20 @@ class Database_Drivers_Mysqli{
                     $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
                     $tmp = $v['value'];
                     if($v['side']==='both'){
-                        $tmp = '%'.$v['value'].'%';
+                        $tmp = '%?%';
                     }else if($v['side']==='left'){
-                        $tmp = '%'.$v['value'];
+                        $tmp = '%?';
                     }else{
-                        $tmp = $v['value'].'%';
+                        $tmp = '?%';
                     }
-                    $this->_value[] = $tmp;
+                    $this->_value[] = $v['value'];
                 }elseif($v['op']==='in' || $v['op']==='not in'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $v['value'] .') ';
-                    //$this->_value[] = $v['value'];
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' (?) ';
+                    !is_array($v['value']) && $v['value'] = explode(',', $v['value']);
+                    foreach($v['value'] as &$_tmp){
+                        $_tmp = $this->_conn->real_escape_string($_tmp);
+                    }
+                    $this->_value[] = implode('\',\'', $v['value']);
                 }else if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else{
@@ -984,7 +992,7 @@ class Database_Drivers_Mysqli{
                 $this->_sql .= $this->_limit['offset'] .','. $this->_limit['limit'];
             }
         }
-        $this->_limit = '';
+        $this->_limit = array();
         
         return $this;
     }
@@ -1019,7 +1027,6 @@ class Database_Drivers_Mysqli{
         if(!empty($this->_value)){
             $param = array('');
             
-            $tmp = array();
             foreach($this->_value as $v){
                 if(is_array($v)){
                     if(is_int($v[0])){
@@ -1044,8 +1051,9 @@ class Database_Drivers_Mysqli{
                 }
                 unset($v);
             }
-            
-            $rt = call_user_func_array(array($this->_stmt, 'bind_param'), $param);  
+
+            $rt = call_user_func_array(array($this->_stmt, 'bind_param'), $param);
+
             if(!$rt){
                 log_message('error', 'bind value error, msg: '. $this->_stmt->error);
                 return false;
