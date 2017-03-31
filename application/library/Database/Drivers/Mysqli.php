@@ -328,8 +328,12 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function whereIn($field, $list){
-        $list = is_array($list) ? implode(',', $list) : $list;
-        $this->_condition[] = array('key'=>$field, 'value'=>$list, 'connect'=>'AND', 'op'=>'in');
+        $list = is_array($list) ? $list : explode(',', $list);
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND');
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'OR', 'op'=>'=');
+        }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -340,8 +344,12 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orWhereIn($field, $list){
-        $list = is_array($list) ? implode(',', $list) : $list;
-        $this->_condition[] = array('key'=>$field, 'value'=>$list, 'connect'=>'OR', 'op'=>'in');
+        $list = is_array($list) ? $list : explode(',', $list);
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'OR', 'op'=>'=');
+        }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -352,8 +360,12 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function whereNotIn($field, $list){
-        $list = is_array($list) ? implode(',', $list) : $list;
-        $this->_condition[] = array('key'=>$field, 'value'=>$list, 'connect'=>'AND', 'op'=>'not in');
+        $list = is_array($list) ? $list : explode(',', $list);
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND');
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'AND', 'op'=>'!=');
+        }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -364,8 +376,12 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orWhereNotIn($field, $list){
-        $list = is_array($list) ? implode(',', $list) : $list;
-        $this->_condition[] = array('key'=>$field, 'value'=>$list, 'connect'=>'OR', 'op'=>'not in');
+        $list = is_array($list) ? $list : explode(',', $list);
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'AND', 'op'=>'!=');
+        }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -1028,27 +1044,16 @@ class Database_Drivers_Mysqli{
             $param = array('');
             
             foreach($this->_value as $v){
-                if(is_array($v)){
-                    if(is_int($v[0])){
-                        $param[0] .= 'i';
-                    }else if(is_double($v[0])){
-                        $param[0] .= 'd';
-                    }else{
-                        $param[0] .= 's';
-                    }
-
-                    $param[] = &implode(',', $v);
+                
+                if(is_int($v)){
+                    $param[0] .= 'i';
+                }else if(is_double($v)){
+                    $param[0] .= 'd';
                 }else{
-                    if(is_int($v)){
-                        $param[0] .= 'i';
-                    }else if(is_double($v)){
-                        $param[0] .= 'd';
-                    }else{
-                        $param[0] .= 's';
-                    }
-
-                    $param[] = &$v;
+                    $param[0] .= 's';
                 }
+
+                $param[] = &$v;
                 unset($v);
             }
 

@@ -221,7 +221,11 @@ class Database_Drivers_Pdo{
      */
     public function whereIn($field, $list){
         $list = is_array($list) ? $list : explode(',', $list);
-        $this->_condition[] = array('key'=>$field, 'value'=>$this->quote($list), 'connect'=>'AND', 'op'=>'in');
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND');
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'OR', 'op'=>'=');
+        }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -233,7 +237,11 @@ class Database_Drivers_Pdo{
      */
     public function orWhereIn($field, $list){
         $list = is_array($list) ? $list : explode(',', $list);
-        $this->_condition[] = array('key'=>$field, 'value'=>$this->quote($list), 'connect'=>'OR', 'op'=>'in');
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'OR', 'op'=>'=');
+        }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -245,7 +253,11 @@ class Database_Drivers_Pdo{
      */
     public function whereNotIn($field, $list){
         $list = is_array($list) ? $list : explode(',', $list);
-        $this->_condition[] = array('key'=>$field, 'value'=>$this->quote($list), 'connect'=>'AND', 'op'=>'not in');
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND');
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'AND', 'op'=>'!=');
+        }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -257,7 +269,11 @@ class Database_Drivers_Pdo{
      */
     public function orWhereNotIn($field, $list){
         $list = is_array($list) ? $list : explode(',', $list);
-        $this->_condition[] = array('key'=>$field, 'value'=>$this->quote($list), 'connect'=>'OR', 'op'=>'not in');
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'AND', 'op'=>'!=');
+        }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -803,13 +819,6 @@ class Database_Drivers_Pdo{
                         $tmp = $key.'%';
                     }
                     $this->_value[] = array($key=>$v['value']);
-                }elseif($v['op']==='in' || $v['op']==='not in'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $key .') ';
-                    !is_array($v['value']) && $v['value'] = explode(',', $v['value']);
-                    foreach($v['value'] as &$_tmp){
-                        $_tmp = addslashes($_tmp);
-                    }
-                    $this->_value[] = array($key=>$v['value']);
                 }else if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else{
@@ -919,11 +928,8 @@ class Database_Drivers_Pdo{
         if(!empty($this->_value)){
             foreach($this->_value as $v){
                 foreach($v as $key=>$value){
-                    if(is_array($value)){
-                        $rt = $this->_stmt->bindValue($key, implode(',', $value), PDO::PARAM_STR);
-                    }else{
-                        $rt = $this->_stmt->bindValue($key, $value);
-                    }
+                    $rt = $this->_stmt->bindValue($key, $value);
+                   
                     if(!$rt){
                         log_message('error', 'bind value error, msg: '. json_encode($this->_stmt->errorInfo()));
                         return false;
