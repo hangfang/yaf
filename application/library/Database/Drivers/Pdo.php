@@ -803,12 +803,14 @@ class Database_Drivers_Pdo{
                 $this->_sql .= ' ';
                 $groupStart = $v['key']==='(';
                 $groupEnd = $v['key']===')';
-                if($k > 0 && !in_array($preKey, array('(', ''))){
+                if(isset($v['connect']) && $k > 0 && !in_array($preKey, array('(', ''))){
                     $this->_sql .= $v['connect'] .' ';
                 }
                 
                 $key = ':'. $v['key'].'_'.$k;
-                if($v['op']==='like' || $v['op']==='not like'){
+                if($groupStart || $groupEnd){
+                    $this->_sql .= $v['key'] .' ';
+                }else if($v['op']==='like' || $v['op']==='not like'){
                     $this->_sql .= $v['key'] .' '. $v['op'] .' '. $key .' ';
                     $tmp = $v['value'];
                     if($v['side']==='both'){
@@ -819,8 +821,6 @@ class Database_Drivers_Pdo{
                         $tmp = $key.'%';
                     }
                     $this->_value[] = array($key=>$v['value']);
-                }else if($groupStart || $groupEnd){
-                    $this->_sql .= $v['key'] .' ';
                 }else{
                     $this->_sql .= $v['key'] .' '. $v['op'] .' '. $key .' ';
                     $this->_value[] = array($key=>$v['value']);

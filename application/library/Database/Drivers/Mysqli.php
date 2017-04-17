@@ -915,11 +915,13 @@ class Database_Drivers_Mysqli{
                 $this->_sql .= ' ';
                 $groupStart = $v['key']==='(';
                 $groupEnd = $v['key']===')';
-                if($k > 0 && !in_array($preKey, array('(', ''))){
+                if(isset($v['connect']) && $k > 0 && !in_array($preKey, array('(', ''))){
                     $this->_sql .= $v['connect'] .' ';
                 }
 
-                if($v['op']==='like' || $v['op']==='not like'){
+                if($groupStart || $groupEnd){
+                    $this->_sql .= $v['key'] .' ';
+                }else if($v['op']==='like' || $v['op']==='not like'){
                     $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
                     $tmp = $v['value'];
                     if($v['side']==='both'){
@@ -937,8 +939,6 @@ class Database_Drivers_Mysqli{
                         $_tmp = $this->_conn->real_escape_string($_tmp);
                     }
                     $this->_value[] = implode('\',\'', $v['value']);
-                }else if($groupStart || $groupEnd){
-                    $this->_sql .= $v['key'] .' ';
                 }else{
                     $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
                     $this->_value[] = $v['value'];
