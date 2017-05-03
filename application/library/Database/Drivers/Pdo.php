@@ -1046,7 +1046,7 @@ class Database_Drivers_Pdo{
         }else if(strpos($sql, 'insert')===0){
             return $this->_conn->lastInsertId();
         }else if(strpos($sql, 'replace')===0){
-            return $this->_conn->lastInsertId();
+            return $this->_conn->rowCount();
         }else{
             return $this->_stmt->rowCount();
         }

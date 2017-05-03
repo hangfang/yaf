@@ -1164,7 +1164,7 @@ class Database_Drivers_Mysqli{
         $this->_stmt = $this->_conn->query($sql);
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql query error, sql:'. $this->_sql .' msg: '. $this->_stmt->error);
+            log_message('error', 'sql query error, sql:'. $this->_sql .' msg: '. $this->_conn->error);
             return false;
         }
         
@@ -1174,7 +1174,7 @@ class Database_Drivers_Mysqli{
         }else if(strpos($sql, 'insert')===0){
             return $this->_stmt->insert_id;
         }else if(strpos($sql, 'replace')===0){
-            return $this->_stmt->insert_id;
+            return $this->_stmt->affected_rows;
         }else{
             return $this->_stmt->affected_rows;
         }

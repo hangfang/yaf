@@ -27,7 +27,6 @@ class Database{
             $config = new Yaf_Config_Ini(BASE_PATH . '/conf/database.ini', ini_get('yaf.environ'));
             $config = $config->toArray();
             $config = $config['database'][$default_group][rand(0,count($config)-1)];
-            Yaf_Registry::set('db_config', $config);
         }
         
         $dbdriver = strtolower($config['dbdriver']);
