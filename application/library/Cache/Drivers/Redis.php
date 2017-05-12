@@ -41,8 +41,10 @@ class Cache_Drivers_Redis extends Redis{
         }
         if(isset($this->_config['password']) && $this->_config['password']){
             $auth = $this->auth($this->_config['password']);
-            log_message('error', 'redis auth failed: '. print_r($this->_config, true));
-            return false;
+            if(!$auth){
+                log_message('error', 'redis auth failed: '. print_r($this->_config, true));
+                return false;
+            }
         }
         
         $this->setOption(Redis::OPT_PREFIX, $this->_config['prefix']);
