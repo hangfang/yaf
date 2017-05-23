@@ -42,16 +42,15 @@ class Session {
             }
         }
         
-        //设置hash单个field的value
-        if($cache->hSet($sessionid, $name, $value)){
-            $session = Yaf_Registry::get('session');
-            $session[$name] = $value;
-            Yaf_Registry::set('session', $session);
-            return true;
-        }
-        
         try{
+            $session = $cache->hGetAll($sessionid);
+            if(empty($session)){
+                $cache->hMSet($sessionid, array());
+            }
+            
+            //设置hash单个field的value
             $cache->hSet($sessionid, $name, $value);
+            $cache->expireAt($sessionid);
             $session = Yaf_Registry::get('session');
             $session[$name] = $value;
             Yaf_Registry::set('session', $session);
