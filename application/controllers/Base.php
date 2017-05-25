@@ -11,6 +11,7 @@ class BaseController extends Yaf_Controller_Abstract {
         if(!is_cli()){
             
         }else{
+            Yaf_Dispatcher::getInstance()->autoRender(FALSE);
             $tmp = get_class_methods($this->_request->getControllerName().'Controller');
             $methods = array();
             foreach($tmp as $v){
