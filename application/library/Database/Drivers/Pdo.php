@@ -1,5 +1,5 @@
 <?php
-defined('BASE_PATH') OR exit('No direct script access allowed');
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * 模拟CI数据库类的Pdo封装
  * @author fangh@me.com
@@ -928,6 +928,10 @@ class Database_Drivers_Pdo{
         if(!empty($this->_value)){
             foreach($this->_value as $v){
                 foreach($v as $key=>$value){
+                    
+                    $this->_last_value = $this->_value;
+                    $this->_value = array();
+                    
                     $rt = $this->_stmt->bindValue($key, $value);
                    
                     if(!$rt){
@@ -937,8 +941,6 @@ class Database_Drivers_Pdo{
                 }
             }
         }
-        $this->_last_value = $this->_value;
-        $this->_value = array();
         
         return $this;
     }
@@ -1018,6 +1020,7 @@ class Database_Drivers_Pdo{
             return false;
         }
         
+        $this->_conn->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
         return true;
     }
     
@@ -1046,7 +1049,7 @@ class Database_Drivers_Pdo{
         }else if(strpos($sql, 'insert')===0){
             return $this->_conn->lastInsertId();
         }else if(strpos($sql, 'replace')===0){
-            return $this->_conn->rowCount();
+            return $this->_conn->lastInsertId();
         }else{
             return $this->_stmt->rowCount();
         }

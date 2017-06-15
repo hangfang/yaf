@@ -1,5 +1,5 @@
 <?php
-defined('BASE_PATH') OR exit('No direct script access allowed');
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * 数据库单例，用来实例化指定的Mysql驱动
  * @author fangh@me.com
@@ -17,14 +17,14 @@ class Database{
      * @param string $default_group 数据库组名
      * @return Mysql驱动类的实例
      */
-    public static function getInstance($default_group='db'){
+    public static function getInstance($default_group='real'){
         
         if(self::$_instance = Yaf_Registry::get($default_group)){
             return self::$_instance;
         }
 
         if(! $config = Yaf_Registry::get('db_config')){
-            $config = new Yaf_Config_Ini(BASE_PATH . '/conf/database.ini', ini_get('yaf.environ'));
+            $config = new Yaf_Config_Ini(APPLICATION_PATH . '/conf/database.ini', ini_get('yaf.environ'));
             $config = $config->toArray();
             $config = $config['database'][$default_group][rand(0,count($config)-1)];
         }

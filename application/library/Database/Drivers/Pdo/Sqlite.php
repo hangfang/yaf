@@ -1,4 +1,5 @@
 <?php
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * 模拟CI数据库类的Pdo_Sqlite封装
  * @author fangh@me.com

@@ -1,5 +1,5 @@
 <?php
-defined('BASE_PATH') OR exit('No direct script access allowed');
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * 模拟CI数据库类的Mysqli封装
  * @author fangh@me.com
@@ -722,7 +722,6 @@ class Database_Drivers_Mysqli{
             return false;
         }
         
-        
         !empty($where) && $this->where($where);
         if(empty($this->_condition)){
             log_message('error', 'sql error, UPDATE: need condition');
@@ -738,7 +737,7 @@ class Database_Drivers_Mysqli{
         if($this->_error){
             return false;
         }
-        
+
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
@@ -1056,6 +1055,9 @@ class Database_Drivers_Mysqli{
                 $param[] = &$v;
                 unset($v);
             }
+            
+            $this->_last_value = $this->_value;
+            $this->_value = array();
 
             $rt = call_user_func_array(array($this->_stmt, 'bind_param'), $param);
 
@@ -1064,8 +1066,6 @@ class Database_Drivers_Mysqli{
                 return false;
             }
         }
-        $this->_last_value = $this->_value;
-        $this->_value = array();
         
         return $this;
     }
@@ -1077,9 +1077,9 @@ class Database_Drivers_Mysqli{
     public function __log_message($obj){
         $message = '';
         if($obj instanceof mysqli_stmt){
-            $message .= 'PDO execute sql error, sql: '. $this->_last_sql .' value: '. json_encode($this->_last_value) .' msg: '. json_encode($obj->error);
+            $message .= 'mysqli execute sql error, sql: '. $this->_last_sql .' value: '. json_encode($this->_last_value) .' msg: '. json_encode($obj->error);
         }else{
-            $message .= 'PDO prepare sql error, sql: '. $this->_last_sql .' msg: '. $obj->error;
+            $message .= 'mysqli prepare sql error, sql: '. $this->_last_sql .' msg: '. $obj->error;
         }
 
         $stack = debug_backtrace();
@@ -1151,6 +1151,7 @@ class Database_Drivers_Mysqli{
             return false;
         }
         
+        $rt = $this->_conn->autocommit(true);
         return true;
     }
     
@@ -1174,7 +1175,7 @@ class Database_Drivers_Mysqli{
         }else if(strpos($sql, 'insert')===0){
             return $this->_stmt->insert_id;
         }else if(strpos($sql, 'replace')===0){
-            return $this->_stmt->affected_rows;
+            return $this->_stmt->insert_id;
         }else{
             return $this->_stmt->affected_rows;
         }

@@ -1,5 +1,5 @@
 <?php
-defined('BASE_PATH') OR exit('No direct script access allowed');
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 /**
  * 对Redis的封装，添加默认时间支持
  * @author fangh@me.com
@@ -22,8 +22,8 @@ class Cache_Drivers_Redis extends Redis{
      * 初始化Redis实例：连接服务器，如有必要则进行授权
      * @return boolean
      */
-    public function __construct(){
-        $config = new Yaf_Config_Ini(BASE_PATH . '/conf/cache.ini', ini_get('yaf.environ'));
+    public function __construct($prefix){
+        $config = new Yaf_Config_Ini(APPLICATION_PATH . '/conf/cache.ini', ini_get('yaf.environ'));
         $config = $config->toArray();
         if ($config){
             $this->_config = array_merge($this->_config, $config);
@@ -47,6 +47,7 @@ class Cache_Drivers_Redis extends Redis{
             }
         }
         
+        !$prefix && $this->_config['prefix'] = '';
         $this->setOption(Redis::OPT_PREFIX, $this->_config['prefix']);
     }
     
@@ -101,5 +102,44 @@ class Cache_Drivers_Redis extends Redis{
             $expire = $this->_config['ttl'];
         }
         return parent::setex($key, $expire, $value);
+    }
+    
+    /**
+     * 设置key的值
+     * @param string $key 键名
+     * @param string $value 值
+     * @return boolean
+     */
+    public function set($key, $value){
+        return parent::setex($key, $this->_config['ttl'], $value);
+    }
+    
+    /**
+     * 设置HASH表
+     * @param string $key 键名
+     * @param string $value 值
+     * @param int $expire 可选.生存时间，默认取配置文件的ttl字段值
+     * @return boolean
+     */
+    public function hMset($key, $value, $expire=null){
+        if(is_null($expire)){
+            $expire = $this->_config['ttl'];
+        }
+        parent::hMset($key, $value);
+        return $this->expire($expire);
+    }
+    
+    /**
+     * 发布消息
+     * @param string $channel 消息主题
+     * @param string $msg 消息内容
+     * @return boolean
+     */
+    public function publish($channel, $msg){
+        if(Yaf_Registry::get('app')->environ()!=='demo'){
+            return parent::publish($channel, $msg);
+        }
+        
+        return true;
     }
 }

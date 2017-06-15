@@ -30,10 +30,12 @@ class Session {
             $sessionid = md5(microtime(true) .'_'. ip_address() . uniqid());
             cookie($config['application']['sess_cookie_name'], $sessionid);
         }
+        Yaf_Registry::set('sessionid', $sessionid);
         
         $cache = Cache::getInstance();
         if(is_null($value)){//设置整个hash值
             try{
+                $cache->del($sessionid);
                 $cache->hMSet($sessionid, $name);
                 Yaf_Registry::set('session', $name);
                 return true;
@@ -50,7 +52,6 @@ class Session {
             
             //设置hash单个field的value
             $cache->hSet($sessionid, $name, $value);
-            $cache->expireAt($sessionid);
             $session = Yaf_Registry::get('session');
             $session[$name] = $value;
             Yaf_Registry::set('session', $session);
@@ -69,6 +70,6 @@ class Session {
         
         $cache = Cache::getInstance();
         Yaf_Registry::set('session', array());
-        return $cache->hMSet($sessionid, array());
+        return $cache->del($sessionid);
     }
 }
