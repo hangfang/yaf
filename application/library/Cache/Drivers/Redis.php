@@ -47,7 +47,7 @@ class Cache_Drivers_Redis extends Redis{
             }
         }
         
-        !$prefix && $this->_config['prefix'] = '';
+        $prefix && $this->_config['prefix'] = $prefix;
         $this->setOption(Redis::OPT_PREFIX, $this->_config['prefix']);
     }
     
@@ -136,10 +136,6 @@ class Cache_Drivers_Redis extends Redis{
      * @return boolean
      */
     public function publish($channel, $msg){
-        if(Yaf_Registry::get('app')->environ()!=='demo'){
-            return parent::publish($channel, $msg);
-        }
-        
-        return true;
+        return parent::publish($channel, $msg);
     }
 }

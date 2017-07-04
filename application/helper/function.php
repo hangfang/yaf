@@ -183,8 +183,6 @@ if ( ! function_exists('is_cli'))
 	}
 }
 
-// ------------------------------------------------------------------------
-
 if ( ! function_exists('set_status_header'))
 {
 	/**
@@ -343,9 +341,11 @@ if ( ! function_exists('html_escape'))
 	}
 }
 
+// ------------------------------------------------------------------------
+
 if(!function_exists('ip_address')){
     function ip_address(){
-        $unknown = 'unknown';  
+		$unknown = 'unknown';  
         if ( isset($_SERVER['HTTP_X_FORWARDED_FOR'])  && $_SERVER['HTTP_X_FORWARDED_FOR']  && strcasecmp($_SERVER['HTTP_X_FORWARDED_FOR'], $unknown) ) {  
             $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];  
         } elseif ( isset($_SERVER['REMOTE_ADDR'])  && $_SERVER['REMOTE_ADDR'] &&  strcasecmp($_SERVER['REMOTE_ADDR'], $unknown) ) {  
@@ -368,11 +368,17 @@ if(!function_exists('ip_address')){
 }
 
 if(!function_exists('get_var_from_conf')){
-    function get_var_from_conf($filename){
+    function get_var_from_conf($filename, $filepath=APPLICATION_PATH .'/conf/'){
         $filename = basename($filename, '.php');
         $var = Yaf_Registry::get($filename);
 		if(!$var){
-            Yaf_Loader::import(BASE_PATH .'/conf/'.$filename.'.php');
+            $filepath = rtrim($filepath).'/'. $filename .'.php';
+            if(!file_exists($filepath)){
+                lExit(json_encode(array('rtn'=>501, 'error_msg'=>'file not exists, file:'. $filepath)));
+                return false;
+            }
+            
+            Yaf_Loader::import($filepath);
             Yaf_Registry::set($filename, $$filename);
             return $$filename;
         }else{
@@ -394,21 +400,23 @@ if(!function_exists('http')){
             'type' => 'json',
             'cookie' => array(),
             'auth'=>isset($args['auth']) ? $args['auth'] : false,
-            'header' => array('Connection: keep-alive', 'Expect: ')
+            'header' => array('Connection: keep-alive', 'Expect: '),
+            'withheader' => isset($args['withheader']) ? $args['withheader'] : true,
         ) ,$args);
         if(strtolower($args['method']) === 'post'){
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $args['data']);
-        }else if(strtolower($args['method']) === 'input'){
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($args['data']) ? json_encode($args['data']) : $args['data']);
+        }else if(strtolower($args['method']) === 'put'){
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($ch,CURLOPT_HTTPHEADER,array("X-HTTP-Method-Override: PUT"));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($args['data']) ? json_encode($args['data'], JSON_UNESCAPED_UNICODE) : $args['data']);
         }else{
             $data = array();
             foreach ($args['data'] as $key => $value) {
-                $data[] = urlencode($key).'='.urlencode($value);
+                $data[] = $key.'='.$value;
             }
             $data = implode('&', $data);
-            $args['url'].=(strpos($args['url'] ,'?')==false?'?':'&').$data;
+            $args['url'] .= trim((strpos($args['url'] ,'?')==false?'?':'&').$data, '&');
         }
         curl_setopt($ch, CURLOPT_URL, $args['url']);
         //跟踪301
@@ -418,15 +426,15 @@ if(!function_exists('http')){
             curl_setopt($ch, CURLOPT_REFERER, $_SERVER['HTTP_REFERER']);
         }
         // 头部信息
-        curl_setopt($ch ,CURLOPT_HEADER, true);
+        curl_setopt($ch ,CURLOPT_HEADER, $args['withheader']);
         $args['auth'] && curl_setopt($ch, CURLOPT_USERPWD, HTTP_BASIC_AUTH_USER .':'. HTTP_BASIC_AUTH_PASSWD);
         // 返回字符串，而非直接输出
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         // 30秒超时
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         // cookie
-        $args['cookie'] = array_merge($request->getCookie(), $args['cookie']);
-        if($args['cookie']){
+        if($args['cookie']!==false){
+            $args['cookie'] = array_merge($request->getCookie(), $args['cookie']);
             $cookie = array();
             foreach ($args['cookie'] as $key => $value) {
                 if($cookiePrefix !== '' && strpos($key, $cookiePrefix)===0){
@@ -437,46 +445,97 @@ if(!function_exists('http')){
             $cookie = implode(';', $cookie);
             curl_setopt($ch ,CURLOPT_COOKIE, $cookie);
         }
+
         // http头
         curl_setopt($ch ,CURLOPT_HTTPHEADER, $args['header']);
-        isset($_SERVER['HTTP_USER_AGENT']) && curl_setopt($ch ,CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        curl_setopt($ch ,CURLOPT_USERAGENT, isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.18 Safari/537.36');
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查 
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 从证书中检查SSL加密算法是否存在 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 从证书中检查SSL加密算法是否存在
+        
+        log_message('debug', 'request remote server'. "\n" .'url: ['. $args['url'] .']'."\n".'param: ['. json_encode($args['data'], JSON_UNESCAPED_UNICODE) .']');
         $result = curl_exec($ch);
-
-        if($result === false){
-            log_message('error', "requrest remote server failed, args: ". print_r($args, true) ."\ninfo: ". print_r(curl_getinfo($ch), true));
-            $return = array();
-            $return['rtn'] = -1;
-            $return['error_msg'] = 'requrest remote server failed';
-            return $return;
+        
+        $tmp = $result;
+        $from = strtoupper(mb_detect_encoding($tmp));
+        $from == false && $from = 'GB2312';
+        if($from != 'UTF-8'){
+            $tmp = mb_convert_encoding($tmp, 'UTF-8', $from);
         }
+        log_message('debug', 'result: ['. $tmp .']');
 
         curl_close($ch);
-
-        $header_body = preg_split("#\r\n\r\n#" ,$result ,2);//$header_body[0]是返回头的字符串形式，$header_body[1]是返回数据的字符串形式
-        $headers = preg_split("#\r\n#", $header_body[0] ,2);//$headers是返回头的数组
-        $status = preg_split("# #" ,$headers[0] ,3);//返回头第一行，用空格分隔，形成数组：协议、状态码、状态码对应的英文字符
-        $code = $status[1];//状态码，如200、302、404
-        $text = $status[2];
-        $data = $header_body[1];//返回数据
-
-        if(200 != $code){
-            log_message('error', "remote server returns error, args: ". print_r($args, true) ."\nresult: ". print_r($result, true));
-            $return = array();
-            $return['rtn'] = $code;
-            $return['error_msg'] = $text;
-            return $return;
+        
+        if($args['withheader']){
+            $header_body = preg_split("#\r\n\r\n#" ,$result ,2);//$header_body[0]是返回头的字符串形式，$header_body[1]是返回数据的字符串形式
+            $headers = preg_split("#\r\n#", $header_body[0] ,2);//$headers是返回头的数组
+            $status = preg_split("# #" ,$headers[0] ,3);//返回头第一行，用空格分隔，形成数组：协议、状态码、状态码对应的英文字符
+            $code = isset($status[1]) ? $status[1] : '502';//状态码，如200、302、404
+            $text = isset($status[2]) ? $status[2] : '第三方响应超时';
+            $data = isset($header_body[1]) ? $header_body[1] : '';//返回数据
+        }else{
+            $code = 200;
+            $data = $result;
         }
 
-        $return = json_decode($data);
+        if($args['type']==='json'){
+            if($result === false){
+                $return = array();
+                $return['err'] = 1;
+                $return['message'] = 'requrest remote server failed';
+                return $return;
+            }
+            
+            $from = mb_detect_encoding($data);
+            if(strtoupper($from) != 'UTF-8'){
+                $data = mb_convert_encoding($data, 'UTF-8', $from);
+            }
+            
+            $return = json_decode($data ,true);
 
-        if(!$return){
-            log_message('error', "remote server returns a not json formated data, args: ". print_r($args, true) ."\nresult: ". print_r($result, true));
+            if(!$return){
+                $return = array();
+                $return['err'] = 2;
+                $return['message'] = '返回数据非json格式';
+                return $return;
+            }
+            
+            if(isset($return['error'])){
+                $return = array();
+                $return['err'] = 9999;
+                $return['message'] = isset($return['error']['message']) ? $return['error']['message'] : $data;
+                return $return;
+            }
+        }else if($args['type']==='xml'){
+            $from = strtoupper(mb_detect_encoding($data));
+            $from == false && $from = 'GB2312';
+            if($from != 'UTF-8'){
+                $data = mb_convert_encoding($data, 'UTF-8', $from);
+            }
+            $data = str_replace($from, 'UTF-8', $data);
+            
+            $return = json_decode(json_encode(simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+
+            if(!$return){
+                $return = array();
+                $return['err'] = 2;
+                $return['message'] = '返回数据非xml格式';
+                $return['source_code'] = $data;
+                return $return;
+            }
+
+            if($args['withheader']){
+                $headers = preg_split('/\n/', $headers[1]);
+                foreach($headers as $v){
+                    list($key, $value) = explode(': ', $v);
+                    $return['header'][$key] = rtrim($value); 
+                }
+            }
+            $return['err'] = $code==200 ? 0 : $code;
+            $return['source_code'] = $data;
+        }else{
             $return = array();
-            $return['rtn'] = -2;
-            $return['error_msg'] = '返回数据非json格式';
-            return $return;
+            $return['err'] = 0;
+            $return['message'] = $data;
         }
 
         return $return;
@@ -515,6 +574,7 @@ if(!function_exists('cookie')){
                     $k = str_replace($prefix, '', $k);
                 }
                 cookie($k, null);
+                cookie($k, null, -86400, SERVER_NAME, '/', 'pre_demo_');
             }
             return true;
         }
@@ -651,287 +711,30 @@ if(!function_exists('cookie')){
 	 * @param	string	$font_path	server path to font
 	 * @return	string
 	 */
-	function create_captcha($data = '', $img_path = '', $img_url = '', $font_path = '')
+	function create_captcha($conf)
 	{
-		$defaults = array(
-			'word'		=> '',
-			'img_path'	=> '',
-			'img_url'	=> '',
-			'img_width'	=> 100,
-			'img_height'	=> 46,
-			'font_path'	=> '',
-			'expiration'	=> 7200,
-			'word_length'	=> 4,
-			'font_size'	=> 16,
-			'img_id'	=> '',
-			'pool'		=> '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-			'colors'	=> array(
-				'background'	=> array(255,255,255),
-				'border'	=> array(153,102,102),
-				'text'		=> array(204,153,153),
-				'grid'		=> array(255,182,182)
-			)
-		);
-
-		foreach ($defaults as $key => $val)
-		{
-			if ( ! is_array($data) && empty($$key))
-			{
-				$$key = $val;
-			}
-			else
-			{
-				$$key = isset($data[$key]) ? $data[$key] : $val;
-			}
-		}
-
-		if ($img_path === '' OR $img_url === ''
-			OR ! is_dir($img_path) OR ! is_really_writable($img_path)
-			OR ! extension_loaded('gd'))
-		{
-			return FALSE;
-		}
-
-		// -----------------------------------
-		// Remove old images
-		// -----------------------------------
-
-		$now = microtime(TRUE);
-
-		$current_dir = @opendir($img_path);
-		while ($filename = @readdir($current_dir))
-		{
-			if (substr($filename, -4) === '.jpg' && (str_replace('.jpg', '', $filename) + $expiration) < $now)
-			{
-				@unlink($img_path.$filename);
-			}
-		}
-
-		@closedir($current_dir);
-
-		// -----------------------------------
-		// Do we have a "word" yet?
-		// -----------------------------------
-
-		if (empty($word))
-		{
-			$word = '';
-			$pool_length = strlen($pool);
-			$rand_max = $pool_length - 1;
-
-			// PHP7 or a suitable polyfill
-			if (function_exists('random_int'))
-			{
-				try
-				{
-					for ($i = 0; $i < $word_length; $i++)
-					{
-						$word .= $pool[random_int(0, $rand_max)];
-					}
-				}
-				catch (Exception $e)
-				{
-					// This means fallback to the next possible
-					// alternative to random_int()
-					$word = '';
-				}
-			}
-		}
-
-		if (empty($word))
-		{
-			// Nobody will have a larger character pool than
-			// 256 characters, but let's handle it just in case ...
-			//
-			// No, I do not care that the fallback to mt_rand() can
-			// handle it; if you trigger this, you're very obviously
-			// trying to break it. -- Narf
-			if ($pool_length > 256)
-			{
-				return FALSE;
-			}
-
-			// We'll try using the operating system's PRNG first,
-			// which we can access through CI_Security::get_random_bytes()
-			$security = get_instance()->security;
-
-			// To avoid numerous get_random_bytes() calls, we'll
-			// just try fetching as much bytes as we need at once.
-			if (($bytes = $security->get_random_bytes($pool_length)) !== FALSE)
-			{
-				$byte_index = $word_index = 0;
-				while ($word_index < $word_length)
-				{
-					// Do we have more random data to use?
-					// It could be exhausted by previous iterations
-					// ignoring bytes higher than $rand_max.
-					if ($byte_index === $pool_length)
-					{
-						// No failures should be possible if the
-						// first get_random_bytes() call didn't
-						// return FALSE, but still ...
-						for ($i = 0; $i < 5; $i++)
-						{
-							if (($bytes = $security->get_random_bytes($pool_length)) === FALSE)
-							{
-								continue;
-							}
-
-							$byte_index = 0;
-							break;
-						}
-
-						if ($bytes === FALSE)
-						{
-							// Sadly, this means fallback to mt_rand()
-							$word = '';
-							break;
-						}
-					}
-
-					list(, $rand_index) = unpack('C', $bytes[$byte_index++]);
-					if ($rand_index > $rand_max)
-					{
-						continue;
-					}
-
-					$word .= $pool[$rand_index];
-					$word_index++;
-				}
-			}
-		}
-
-		if (empty($word))
-		{
-			for ($i = 0; $i < $word_length; $i++)
-			{
-				$word .= $pool[mt_rand(0, $rand_max)];
-			}
-		}
-		elseif ( ! is_string($word))
-		{
-			$word = (string) $word;
-		}
-
-		// -----------------------------------
-		// Determine angle and position
-		// -----------------------------------
-		$length	= strlen($word);
-		$angle	= ($length >= 6) ? mt_rand(-($length-6), ($length-6)) : 0;
-		//$x_axis	= mt_rand(6, (360/$length)-16);
-        $x_axis	= mt_rand(6, 8);
-		$y_axis = ($angle >= 0) ? mt_rand($img_height, $img_width) : mt_rand(6, $img_height);
-
-		// Create image
-		// PHP.net recommends imagecreatetruecolor(), but it isn't always available
-		$im = function_exists('imagecreatetruecolor')
-			? imagecreatetruecolor($img_width, $img_height)
-			: imagecreate($img_width, $img_height);
-
-		// -----------------------------------
-		//  Assign colors
-		// ----------------------------------
-
-		is_array($colors) OR $colors = $defaults['colors'];
-
-		foreach (array_keys($defaults['colors']) as $key)
-		{
-			// Check for a possible missing value
-			is_array($colors[$key]) OR $colors[$key] = $defaults['colors'][$key];
-			$colors[$key] = imagecolorallocate($im, $colors[$key][0], $colors[$key][1], $colors[$key][2]);
-		}
-
-		// Create the rectangle
-		ImageFilledRectangle($im, 0, 0, $img_width, $img_height, $colors['background']);
-
-		// -----------------------------------
-		//  Create the spiral pattern
-		// -----------------------------------
-		$theta		= 1;
-		$thetac		= 7;
-		$radius		= 16;
-		$circles	= 20;
-		$points		= 32;
-
-		for ($i = 0, $cp = ($circles * $points) - 1; $i < $cp; $i++)
-		{
-			$theta += $thetac;
-			$rad = $radius * ($i / $points);
-			$x = ($rad * cos($theta)) + $x_axis;
-			$y = ($rad * sin($theta)) + $y_axis;
-			$theta += $thetac;
-			$rad1 = $radius * (($i + 1) / $points);
-			$x1 = ($rad1 * cos($theta)) + $x_axis;
-			$y1 = ($rad1 * sin($theta)) + $y_axis;
-			imageline($im, $x, $y, $x1, $y1, $colors['grid']);
-			$theta -= $thetac;
-		}
-
-		// -----------------------------------
-		//  Write the text
-		// -----------------------------------
-
-		$use_font = ($font_path !== '' && file_exists($font_path) && function_exists('imagettftext'));
-		if ($use_font === FALSE)
-		{
-			($font_size > 30) && $font_size = 30;
-			$x = mt_rand(0, $img_width/$word_length-$font_size/10);
-			$y = 0;
-		}
-		else
-		{
-			($font_size > 30) && $font_size = 30;
-			$x = mt_rand(0, $img_width/$word_length-$font_size/10);
-			$y = 0;
-		}
-
-		for ($i = 0; $i < $length; $i++)
-		{
-			if ($use_font === FALSE)
-			{
-				$y = mt_rand(12 , 16);
-				imagestring($im, $font_size, $x, $y, $word[$i], $colors['text']);
-				$x += min(array(round($img_width/$word_length-$font_size/12), 20));
-			}
-			else
-			{
-				$y = mt_rand(8 , 12);
-				imagettftext($im, $font_size, $angle, $x, $y, $colors['text'], $font_path, $word[$i]);
-				$x += min(array(round($img_width/$word_length-$font_size/12), 20));
-			}
-		}
-
-		// Create the border
-		imagerectangle($im, 0, 0, $img_width - 1, $img_height - 1, $colors['border']);
-
-		// -----------------------------------
-		//  Generate the image
-		// -----------------------------------
-		$img_url = rtrim($img_url, '/').'/';
-
-		if (function_exists('imagejpeg'))
-		{
-			$img_filename = $now.'.jpg';
-			imagejpeg($im, $img_path.$img_filename);
-		}
-		elseif (function_exists('imagepng'))
-		{
-			$img_filename = $now.'.png';
-			imagepng($im, $img_path.$img_filename);
-		}
-		else
-		{
-			return FALSE;
-		}
-
-		//$img = '<img '.($img_id === '' ? '' : 'id="'.$img_id.'"').' src="'.$img_url.$img_filename.'" style="width: '.$img_width.'; height: '.$img_height .'; border: 0;" alt=" " />';
-		ImageDestroy($im);
+        //$func = array('Captcha_Elephant', 'Captcha_Animation', 'Captcha_Twist');
+        $func = array('Captcha_Elephant', 'Captcha_Animation');
+        $index = array_rand($func);
         
-        $img = 'data:image/jpg;base64,'.base64_encode(file_get_contents(BASE_PATH.'/captcha/'.$img_filename));
-        @unlink(BASE_PATH.'/captcha/'.$img_filename);
-		return array('word' => $word, 'time' => $now, 'image' => $img, 'filename' => $img_filename);
-		//return array('word' => $word, 'time' => $now, 'image' => $img_url.$img_filename, 'filename' => $img_filename);
-	}
+        $captcha = new $func[$index]($conf);
+        $image = $captcha->doImg();
+        $code = $captcha->getCode();
+        return array('code' => $code, 'image' =>$image );
+    }
+}
+
+if ( ! function_exists('getStructure'))
+{
+    function getStructure($node, $staff){
+        foreach($staff as $sub_k=>$sub_v){
+            if($node['s_id']==$sub_v['s_sid']){
+                $node['item'][$sub_v['s_id']] = getStructure($sub_v, $staff);
+            }
+        }
+        
+        return $node;
+    }
 }
 
 if ( ! function_exists('is_id_card')){
@@ -972,7 +775,7 @@ if ( ! function_exists('get_sex_by_id_card')){
 	 * @return string
 	 */
 	function get_sex_by_id_card($cid) {
-		if (!isIdCard($cid)){
+		if (!is_id_card($cid)){
 			return 'unknown';
 		}
 
@@ -988,7 +791,7 @@ if ( ! function_exists('get_birthday_by_id_card')){
      * @return string
      */
     function get_birthday_by_id_card($cid){
-        if (!isIdCard($cid)){
+        if (!is_id_card($cid)){
 			return 'unknown';
 		}
         return substr($cid,6,4)."-".substr($cid,10,2).'-'.substr($cid,12,2);
@@ -1028,5 +831,123 @@ if ( ! function_exists('is_phone')){
     function is_phone($phone){
         $exp = '/^1[3|4|5|6|7|8|9][0-9]{9}$/';
         return preg_match($exp,$phone);
+    }
+}
+
+if(!function_exists('rand_str')){
+    function rand_str($len){
+        //$number = '0123456789';
+        $number = '23456789';
+        //$alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $alpha = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+        $rt = '';
+        for($i=0;$i<$len;$i++){
+            if($i&1){
+                $rt .= $number{mt_rand(0, strlen($number)-1)};
+            }else{
+                $rt .= $alpha{mt_rand(0, strlen($alpha)-1)};
+            }
+        }
+        return $rt;
+    }
+}
+
+if(!function_exists('arrayTo2d')){
+    function arrayTo2d($array){
+        $rt = array();
+        foreach($array as $k=>$v){
+            if(is_array($v)){
+                $rt = array_merge($rt, arrayTo2d($v));
+            }else{
+                $rt[$k] = $v;
+            }
+        }
+        
+        return $rt;
+    }
+}
+
+if(!function_exists('is_bank_card')){
+    function is_bank_card($bankCard){
+        $bankCard = str_split($bankCard);
+        $last_n = $bankCard[count($bankCard)-1];
+        krsort($bankCard);
+        $i = 1;
+        $total = 0;
+        foreach ($bankCard as $n){
+            if($i%2==0){
+                $ix = $n*2;
+                if($ix>=10){
+                    $nx = 1 + ($ix % 10);
+                    $total += $nx;
+                }else{
+                    $total += $ix;
+                }
+            }else{
+                $total += $n;
+            }
+            $i++;
+        }
+        $total -= $last_n;
+        $total *= 9;
+        
+        return $last_n == ($total%10);
+    }
+}
+
+if(!function_exists('passwd_strength')){
+    function passwd_strength($passwd){
+        $strength = 1;//密码强度：弱
+
+        $count = 0;
+        if(preg_match('/[a-z]/', $passwd)){
+            ++$count;
+        }
+        
+        if(preg_match('/[A-Z]/', $passwd)){
+            ++$count;
+        }
+        
+        if(preg_match('/\d/', $passwd)){
+            ++$count;
+        }
+        
+        if(preg_match('/[`~!@#$%^&*()_+\-={}:"<>?\[\];\',.\/ \\|]/', $passwd)){
+            ++$count;
+        }
+
+        $length = strlen($passwd);
+        if(($length >= 12 && $count >=3) || ($length >= 8 && $count >= 4)){
+            // 8位及以上，包含4种 强
+            // 12位及以上，包含3种 强
+            $strength = 3;
+        }else if(($length >= 12 && $count >= 2) || ($length >= 8 && $count >= 3)){
+            // 8位及以上，包含3种 中
+            // 12位及以上，包含2种 中
+            $strength = 2;
+        }
+        
+        return $strength;
+    }
+}
+
+if(!function_exists('lExit')){
+    function lExit($body){
+        if($tmp = json_decode($body, true)){
+            $tmp['env'] = COOKIE_MIDDEL_FIX;
+            $body = json_encode($tmp, JSON_UNESCAPED_UNICODE);
+        }else{
+            header('content-type:text/html;charset=utf-8', true);
+        }
+        log_message('all', 'request_id:'.Yaf_Registry::get('request_id')."\n    ".'response:'.$body."\n");
+        exit($body);
+    }
+}
+
+//方便调试
+if(!function_exists('dd')){
+    function dd($param){
+        var_dump($param);
+        exit;
     }
 }

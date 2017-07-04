@@ -40,7 +40,8 @@ class Session {
                 Yaf_Registry::set('session', $name);
                 return true;
             }catch(Exception $e){
-                exit(json_encode(array('rtn'=>$e->getCode()+10000, 'error_msg'=>$e->getMessage())));
+                
+lExit(json_encode(array('rtn'=>$e->getCode()+10000, 'error_msg'=>$e->getMessage())));
             }
         }
         
@@ -57,7 +58,8 @@ class Session {
             Yaf_Registry::set('session', $session);
             return true;
         }catch(Exception $e){
-            exit(json_encode(array('rtn'=>$e->getCode()+10000, 'error_msg'=>$e->getMessage())));
+            
+lExit(json_encode(array('rtn'=>$e->getCode()+10000, 'error_msg'=>$e->getMessage())));
         }
     }
     

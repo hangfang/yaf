@@ -1,6 +1,6 @@
 <?php
 
-defined('BASE_PATH') OR exit('No direct script access allowed');
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 /**
  * Logging Class
@@ -80,7 +80,7 @@ class Log {
 	{
 		$config = Yaf_Registry::get('config');
 
-		$this->_log_path = $config['application']['logPath'] ? $config['application']['logPath'] : BASE_PATH.'/logs/';
+		$this->_log_path = $config['application']['logPath'] ? $config['application']['logPath'] : APPLICATION_PATH.'/logs/';
 		$this->_file_ext = (isset($config['application']['logFileExtension']) && $config['application']['logFileExtension'])
 			? ltrim($config['application']['logFileExtension'], '.') : 'log';
 
@@ -141,19 +141,18 @@ class Log {
 		$filepath = $this->_log_path.$level;
 		$message = '';
         
-		if ( ! file_exists($this->_log_path.$level.'/')){
-		    mkdir ($filepath, 0777, true);
-		}
+        if ( ! file_exists($this->_log_path.$level.'/')){
+            mkdir ($filepath, 0777, true);
+        }
         
 		$filepath .= '/log-'. date('Y-m-d') .'.'.$this->_file_ext;
-
 		if ( ! file_exists($filepath))
 		{
 			$newfile = TRUE;
 			// Only add protection to php files
 			if ($this->_file_ext === 'php')
 			{
-				$message .= "<?php defined('BASE_PATH') OR exit('No direct script access allowed'); ?>\n\n";
+				$message .= "<?php defined('APPLICATION_PATH') OR exit('No direct script access allowed'); ?>\n\n";
 			}
 		}
 
@@ -213,6 +212,6 @@ class Log {
 	 */
 	protected function _format_line($level, $date, $message)
 	{
-        return $level.' - '.$date.' --> '.$message."\n";
+		return $level.' - '.$date.' --> '.$message."\n";
 	}
 }
