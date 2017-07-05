@@ -821,7 +821,7 @@ class Database_Drivers_Pdo{
                         $tmp = $key.'%';
                     }
                     $this->_value[] = array($key=>$v['value']);
-                }else if(is_null($v) || strtoupper($v)==='NULL'){
+                }else if(is_null($v['value']) || strtoupper($v['value'])==='NULL'){
                     if($v['op']==='='){
                         $v['op'] = 'is';
                     }else{

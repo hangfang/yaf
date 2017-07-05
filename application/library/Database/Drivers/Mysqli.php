@@ -938,7 +938,7 @@ class Database_Drivers_Mysqli{
                         $_tmp = $this->_conn->real_escape_string($_tmp);
                     }
                     $this->_value[] = implode('\',\'', $v['value']);
-                }else if(is_null($v) || strtoupper($v)==='NULL'){
+                }else if(is_null($v['value']) || strtoupper($v['value'])==='NULL'){
                     if($v['op']==='='){
                         $v['op'] = 'is';
                     }else{
