@@ -66,6 +66,11 @@ class Database_Drivers_Pdo{
      */
     protected $_select = '';
     /**
+     * 连表查询
+     * @var string
+     */
+    protected $_join = '';
+    /**
      * 拼接的SQL语句
      * @var string
      */
@@ -134,9 +139,9 @@ class Database_Drivers_Pdo{
                         $this->_error = true;
                         return false;
                     }else{
-                        $op = preg_replace('/[0-9a-z_]/i', '', $k);
+                        $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
                         $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                     }
                 }
             }else{
@@ -150,9 +155,9 @@ class Database_Drivers_Pdo{
                 if(is_array($value)){
                     $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>'in');
                 }else{
-                    $op = preg_replace('/[0-9a-z_]/i', '', $where);
+                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
                     $op = empty($op) ? '=' : $op;
-                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
+                    $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
                 }
             }else{
                 log_message('error', 'column name need string, '. gettype($where) . ' given');
@@ -182,9 +187,9 @@ class Database_Drivers_Pdo{
                         $this->_error = true;
                         return false;
                     }else{
-                        $op = preg_replace('/[0-9a-z_]/i', '', $k);
+                        $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
                         $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                     }
                 }
                 $this->_condition[] = array('key'=>')', 'value'=>'');
@@ -199,9 +204,9 @@ class Database_Drivers_Pdo{
                 if(is_array($value)){
                     $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
                 }else{
-                    $op = preg_replace('/[0-9a-z_]/i', '', $where);
+                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
                     $op = empty($op) ? '=' : $op;
-                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
+                    $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
                 }
             }else{
                 log_message('error', 'column name need string, '. gettype($where) . ' given');
@@ -415,6 +420,32 @@ class Database_Drivers_Pdo{
     }
     
     /**
+     * SQL语句:inner join tablename on a.name=b.name
+     * @param string $table 表名
+     * @param string $on 连表条件
+     * @return mixed boolean || Database_Drivers_Mysqli
+     */
+    public function join($table, $on, $type='inner'){
+        if(empty($table)){
+            log_message('error', 'sql join table name can not be empty, table:'. print_r($table, true));
+            return false;
+        }
+        
+        $on = trim($on);
+        if(preg_match('/^[a-z_0-9]+\s*\=\s*[a-z_0-9]+$/', $on)){
+            log_message('error', 'sql join condition illegal, on:'. print_r($on, true));
+            return false;
+        }
+        
+        if(!in_array(strtolower($type), ['left', 'right', 'inner', 'outer', 'union'])){
+            log_message('error', 'sql join type error, type can be: left/right/inner/outer/union, type:'. print_r($type, true));
+            return false;
+        }
+        $this->_join .= ' '. $type .' join '. $table .' on '. $on .' ';
+        return $this;
+    }
+    
+    /**
      * 设置更新字段
      * @param mixed $data  需要更新的键值对
      * @param mixed $value  当$value不为null时，$data是待更新的字段名
@@ -529,9 +560,10 @@ class Database_Drivers_Pdo{
             return false;
         }
         
-        $this->_sql = 'select '. $this->_select .' from '. $this->_table;
+        $this->_sql = 'select '. $this->_select .' from '. $this->_table . $this->_join;
         $this->_select = '';
         $this->_table = '';
+        $this->_join = '';
         
         $this->__buildWhere();
         $this->__buildHaving();
@@ -573,14 +605,14 @@ class Database_Drivers_Pdo{
             foreach($where as $k=>$v){
                 if(is_array($v)){
                     foreach($v as $_field=>$_value){
-                        $op = preg_replace('/[0-9a-z_]/i', '', $_field);
+                        $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $_field);
                         $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
+                        $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
                     }
                 }else{
-                    $op = preg_replace('/[0-9a-z_]/i', '', $k);
+                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
                     $op = empty($op) ? '=' : $op;
-                    $this->_condition[] = array('key'=>preg_replace('/[^0-9a-z_]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                    $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                 }
             }
         }
@@ -807,7 +839,7 @@ class Database_Drivers_Pdo{
                     $this->_sql .= $v['connect'] .' ';
                 }
                 
-                $key = ':'. $v['key'].'_'.$k;
+                $key = ':'. str_replace(['.', ' '], ['',''], $v['key']).'_'.$k;
                 if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else if($v['op']==='like' || $v['op']==='not like'){
@@ -823,13 +855,12 @@ class Database_Drivers_Pdo{
                     $this->_value[] = array($key=>$v['value']);
                 }else if(is_null($v['value']) || strtoupper($v['value'])==='NULL'){
                     if($v['op']==='='){
-                        $v['op'] = 'is';
+                        $v['op'] = ' IS ';
                     }else{
-                        $v['op'] = ' is not ';
+                        $v['op'] = ' IS NOT ';
                     }
                     
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
-                    $this->_value[] = 'null';
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' NULL ';
                 }else{
                     $this->_sql .= $v['key'] .' '. $v['op'] .' '. $key .' ';
                     $this->_value[] = array($key=>$v['value']);
@@ -918,7 +949,7 @@ class Database_Drivers_Pdo{
                     $this->_sql .= ', ';
                 }
                 
-                $key = ':'.$v['key'].count($this->_value);
+                $key = ':'.str_replace(['.',' '], ['',''], $v['key']).count($this->_value);
                 $this->_sql .= $v['key'] .' = '. $key .' ';
                 $this->_value[] = array($key=>$v['value']);
             }
@@ -940,7 +971,7 @@ class Database_Drivers_Pdo{
                     
                     $this->_last_value = $this->_value;
                     $this->_value = array();
-                    
+
                     $rt = $this->_stmt->bindValue($key, $value);
                    
                     if(!$rt){
