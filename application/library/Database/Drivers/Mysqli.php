@@ -938,6 +938,15 @@ class Database_Drivers_Mysqli{
                         $_tmp = $this->_conn->real_escape_string($_tmp);
                     }
                     $this->_value[] = implode('\',\'', $v['value']);
+                }else if(strtoupper($v)==='NULL'){
+                    if($v['op']==='='){
+                        $v['op'] = 'is';
+                    }else{
+                        $v['op'] = ' is not ';
+                    }
+                    
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
+                    $this->_value[] = $v['value'];
                 }else{
                     $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
                     $this->_value[] = $v['value'];
