@@ -545,8 +545,8 @@ class Database_Drivers_Mysqli{
             return false;
         }
         
-        if(!in_array(strtolower($type), ['left', 'right', 'inner', 'outer', 'union'])){
-            log_message('error', 'sql join type error, type can be: left/right/inner/outer/union, type:'. print_r($type, true));
+        if(!in_array(strtolower($type), ['left', 'right', 'inner', 'outer'])){
+            log_message('error', 'sql join type error, type can be: left/right/inner/outer, type:'. print_r($type, true));
             return false;
         }
         $this->_join .= ' '. $type .' join '. $table .' on '. $on .' ';
@@ -1226,7 +1226,11 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function freeResult(){
-        $this->_stmt && $this->_stmt->free_result();
+        try{
+            $this->_stmt && $this->_stmt->free_result();
+        }catch(Exception $e){
+            log_message('error', 'mysqli free_result error, code:'. $e->getCode() .' msg: '.$e->getMessage());
+        }
         $this->_stmt = null;
         $this->_result = null;
         $this->_error = false;

@@ -437,8 +437,8 @@ class Database_Drivers_Pdo{
             return false;
         }
         
-        if(!in_array(strtolower($type), ['left', 'right', 'inner', 'outer', 'union'])){
-            log_message('error', 'sql join type error, type can be: left/right/inner/outer/union, type:'. print_r($type, true));
+        if(!in_array(strtolower($type), ['left', 'right', 'inner', 'outer'])){
+            log_message('error', 'sql join type error, type can be: left/right/inner/outer, type:'. print_r($type, true));
             return false;
         }
         $this->_join .= ' '. $type .' join '. $table .' on '. $on .' ';
