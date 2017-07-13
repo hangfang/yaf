@@ -446,6 +446,31 @@ class Database_Drivers_Pdo{
     }
     
     /**
+     * SQL语句:select * from a where id=1 union select * from a where id=2
+     * @param boolean $all 是否union all
+     * @return mixed boolean || Database_Drivers_Mysqli
+     */
+    public function union($all=false){
+        $this->_sql = 'select '. $this->_select .' from '. $this->_table . $this->_join;
+        
+        $this->__buildWhere();
+        $this->__buildHaving();
+        $this->__buildGroup();
+        $this->__buildOrder();
+        $this->__buildLimit();
+
+        if($this->_error){
+            return false;
+        }
+        
+        $this->_sql .= $all ? ' union all ' : ' union ';
+        $this->_select = '';
+        $this->_table = '';
+        $this->_join = '';
+        return $this;
+    }
+    
+    /**
      * 设置更新字段
      * @param mixed $data  需要更新的键值对
      * @param mixed $value  当$value不为null时，$data是待更新的字段名
@@ -559,8 +584,8 @@ class Database_Drivers_Pdo{
             log_message('error', 'sql error, select: need table name');
             return false;
         }
-        
-        $this->_sql = 'select '. $this->_select .' from '. $this->_table . $this->_join;
+
+        $this->_sql = ' (select '. $this->_select .' from '. $this->_table . $this->_join;
         $this->_select = '';
         $this->_table = '';
         $this->_join = '';
@@ -575,8 +600,10 @@ class Database_Drivers_Pdo{
             return false;
         }
         
+        $this->_sql .= ')';
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn, $this->_sql);
             return false;
@@ -660,6 +687,7 @@ class Database_Drivers_Pdo{
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             return false;
@@ -712,6 +740,7 @@ class Database_Drivers_Pdo{
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             return false;
@@ -757,6 +786,7 @@ class Database_Drivers_Pdo{
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             return false;
@@ -808,6 +838,7 @@ class Database_Drivers_Pdo{
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             return false;
@@ -839,18 +870,22 @@ class Database_Drivers_Pdo{
                     $this->_sql .= $v['connect'] .' ';
                 }
                 
+                $v['value'] = str_replace('%', '\%', $v['value']);
+                
                 $key = ':'. str_replace(['.', ' '], ['',''], $v['key']).'_'.$k;
                 if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else if($v['op']==='like' || $v['op']==='not like'){
                     $this->_sql .= $v['key'] .' '. $v['op'] .' '. $key .' ';
-                    $tmp = $v['value'];
                     if($v['side']==='both'){
-                        $tmp = '%'.$key.'%';
+                        //$tmp = '%?%';
+                        $v['value'] = '%'. $v['value'] .'%';
                     }else if($v['side']==='left'){
-                        $tmp = '%'.$key;
+                        //$tmp = '%?';
+                        $v['value'] = '%'. $v['value'];
                     }else{
-                        $tmp = $key.'%';
+                        //$tmp = '?%';
+                        $v['value'] = $v['value'] .'%';
                     }
                     $this->_value[] = array($key=>$v['value']);
                 }else if(is_null($v['value']) || strtoupper($v['value'])==='NULL'){

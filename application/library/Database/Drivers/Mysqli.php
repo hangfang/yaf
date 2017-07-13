@@ -552,6 +552,31 @@ class Database_Drivers_Mysqli{
         $this->_join .= ' '. $type .' join '. $table .' on '. $on .' ';
         return $this;
     }
+        
+    /**
+     * SQL语句:select * from a where id=1 union select * from a where id=2
+     * @param boolean $all 是否union all
+     * @return mixed boolean || Database_Drivers_Mysqli
+     */
+    public function union($all=false){
+        $this->_sql = '(select '. $this->_select .' from '. $this->_table . $this->_join;
+        
+        $this->__buildWhere();
+        $this->__buildHaving();
+        $this->__buildGroup();
+        $this->__buildOrder();
+        $this->__buildLimit();
+
+        if($this->_error){
+            return false;
+        }
+        
+        $this->_sql .= $all ? ') union all ' : ') union ';
+        $this->_select = '';
+        $this->_table = '';
+        $this->_join = '';
+        return $this;
+    }
     
     /**
      * 设置更新字段
@@ -665,7 +690,7 @@ class Database_Drivers_Mysqli{
             return false;
         }
         
-        $this->_sql = 'select '. $this->_select .' from '. $this->_table . $this->_join;
+        $this->_sql .= ' (select '. $this->_select .' from '. $this->_table . $this->_join;
         $this->_select = '';
         $this->_table = '';
         $this->_join = '';
@@ -680,8 +705,10 @@ class Database_Drivers_Mysqli{
             return false;
         }
         
+        $this->_sql .= ')';
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
@@ -772,6 +799,7 @@ class Database_Drivers_Mysqli{
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             return false;
@@ -823,6 +851,7 @@ class Database_Drivers_Mysqli{
         
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             return false;
@@ -868,6 +897,7 @@ class Database_Drivers_Mysqli{
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             return false;
@@ -919,6 +949,7 @@ class Database_Drivers_Mysqli{
 
         $this->_stmt = $this->_conn->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
+        $this->_sql = '';
         if(!$this->_stmt){
             $this->__log_message($this->_conn);
             return false;
@@ -950,18 +981,22 @@ class Database_Drivers_Mysqli{
                     $this->_sql .= $v['connect'] .' ';
                 }
 
+                $v['value'] = str_replace('%', '\%', $v['value']);
+                
                 if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else if($v['op']==='like' || $v['op']==='not like'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
-                    $tmp = $v['value'];
                     if($v['side']==='both'){
-                        $tmp = '%?%';
+                        //$tmp = '%?%';
+                        $v['value'] = '%'. $v['value'] .'%';
                     }else if($v['side']==='left'){
-                        $tmp = '%?';
+                        //$tmp = '%?';
+                        $v['value'] = '%'. $v['value'];
                     }else{
-                        $tmp = '?%';
+                        //$tmp = '?%';
+                        $v['value'] = $v['value'] .'%';
                     }
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
                     $this->_value[] = $v['value'];
                 }elseif($v['op']==='in' || $v['op']==='not in'){
                     $this->_sql .= $v['key'] .' '. $v['op'] .' (?) ';
