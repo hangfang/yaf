@@ -1135,7 +1135,7 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function freeResult(){
-        $this->_stmt = null;
+        #$this->_stmt = null;//send of 9 bytes failed with errno=32 Broken pipe
         $this->_error = false;
         return $this;
     }

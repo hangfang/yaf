@@ -1266,7 +1266,7 @@ class Database_Drivers_Mysqli{
         }catch(Exception $e){
             log_message('error', 'mysqli free_result error, code:'. $e->getCode() .' msg: '.$e->getMessage());
         }
-        $this->_stmt = null;
+        #$this->_stmt = null;//send of 9 bytes failed with errno=32 Broken pipe
         $this->_result = null;
         $this->_error = false;
         return $this;
