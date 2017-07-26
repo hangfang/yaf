@@ -5,7 +5,13 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  * @author fangh@me.com
  */
 class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
-    public final function __construct($config){
+
+    private $_config = array();
+    public $_default_group = '';
+    private $_options = array();
+    public final function __construct($config, $default_group){
+        $this->_default_group = $default_group;
+        $this->_config = $config;
 		if (empty($config['dsn'])){
 			$config['dsn'] = 'mysql:host='.(empty($config['hostname']) ? '127.0.0.1' : $config['hostname']);
 
@@ -67,23 +73,17 @@ class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
 			// It re-indexes numeric keys and the PDO_MYSQL_ATTR_SSL_* constants are integers.
 			empty($ssl) OR $this->_options += $ssl;
 		}
-
 		// Prior to version 5.7.3, MySQL silently downgrades to an unencrypted connection if SSL setup fails
         $this->_options[PDO::ATTR_PERSISTENT] = $config['pconnect'];
-		$this->_options[PDO::ATTR_STRINGIFY_FETCHES] = false;
+		$this->_options[PDO::ATTR_STRINGIFY_FETCHES] = false;   //ATTR_STRINGIFY_FETCHES 提取的时候将数值转换为字符串
         $this->_options[PDO::ATTR_EMULATE_PREPARES] = false;
 
-		try{
-			$this->_conn = new PDO($config['dsn'], $config['username'], $config['password'], $this->_options);
-		}catch (PDOException $e){
-			log_message('error', $message = 'connect mysql failed, msg:'. $e->getMessage());
-            throw new Exception($message, $e->getCode());
-			return FALSE;
-		}
-        
+        $_conn = new PDO($config['dsn'], $config['username'], $config['password'], $this->_options);
+        Yaf_Registry::set($this->_default_group, $_conn);
+
 		if (! empty($ssl)
-			&& version_compare($this->_conn->getAttribute(PDO::ATTR_CLIENT_VERSION), '5.7.3', '<=')
-			&& empty($this->_conn->query("SHOW STATUS LIKE 'ssl_cipher'")->fetchObject()->Value)
+			&& version_compare($_conn->getAttribute(PDO::ATTR_CLIENT_VERSION), '5.7.3', '<=')
+			&& empty($_conn->query("SHOW STATUS LIKE 'ssl_cipher'")->fetchObject()->Value)
 		){
 			log_message('error', $message = 'PDO_MYSQL was configured for an SSL connection, but got an unencrypted connection instead!');
             throw new Exception($message, '-1');
@@ -91,5 +91,28 @@ class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
 		}
         
         $this->_prefix = empty($config['prefix']) ? '' : $config['prefix'];
+    }
+
+    public function ping(){
+        //sleep(20);
+        Yaf_Registry::set('ping_error',1);
+        $conn = Yaf_Registry::get($this->_default_group);
+        try{
+            if(!$conn->query('SELECT 1')){
+                log_message('error', 'pdo mysql reconnect...');
+                $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
+                $conn = null;
+                Yaf_Registry::del($this->_default_group);
+                new self($this->_config, $this->_default_group);
+                log_message('error', 'pdo mysql reconnected!');
+            }
+        }catch (Exception $e){
+            log_message('error', 'pdo mysql reconnect exception...');
+            $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
+            $conn = null;
+            Yaf_Registry::del($this->_default_group);
+            new self($this->_config, $this->_default_group);
+            log_message('error', 'pdo mysql reconnected!');
+        }
     }
 }

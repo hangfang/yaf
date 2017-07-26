@@ -105,8 +105,17 @@ class Database_Drivers_Mysqli{
      * @var string
      */
     private $_last_value = array();
+
+    /**
+     *配置数据的集合
+     * @var array
+     */
+    private  $_config = array();
+    private  $_default_group = '';
     
-    public final function __construct($config){
+    public final function __construct($config, $default_group){
+        $this->_config = $config;
+        $this->_default_group = $default_group;
         // Do we have a socket path?
 		if ($config['hostname'][0] === '/'){
 			$hostname = NULL;
@@ -120,16 +129,16 @@ class Database_Drivers_Mysqli{
 		}
 
 		$client_flags = ($config['compress'] == TRUE) ? MYSQLI_CLIENT_COMPRESS : 0;
-		$this->_conn = mysqli_init();
+		$conn = mysqli_init();
 
-		$this->_conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
-		$this->_conn->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE);
+		$conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
+		$conn->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE);
 
 		if (isset($config['stricton'])){
 			if ($config['stricton']){
-				$this->_conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode = CONCAT(@@sql_mode, ",", "STRICT_ALL_TABLES")');
+				$conn->options(MYSQLI_INIT_COMMAND, 'SET SESSION sql_mode = CONCAT(@@sql_mode, ",", "STRICT_ALL_TABLES")');
 			}else{
-				$this->_conn->options(MYSQLI_INIT_COMMAND,
+				$conn->options(MYSQLI_INIT_COMMAND,
 					'SET SESSION sql_mode =
 					REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
 					@@sql_mode,
@@ -154,7 +163,7 @@ class Database_Drivers_Mysqli{
 			if ( ! empty($ssl)){
 				if (isset($config['encrypt']['ssl_verify'])){
 					if ($config['encrypt']['ssl_verify']){
-						defined('MYSQLI_OPT_SSL_VERIFY_SERVER_CERT') && $this->_conn->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, TRUE);
+						defined('MYSQLI_OPT_SSL_VERIFY_SERVER_CERT') && $conn->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, TRUE);
 					}
 					// Apparently (when it exists), setting MYSQLI_OPT_SSL_VERIFY_SERVER_CERT
 					// to FALSE didn't do anything, so PHP 5.6.16 introduced yet another
@@ -163,12 +172,12 @@ class Database_Drivers_Mysqli{
 					// https://secure.php.net/ChangeLog-5.php#5.6.16
 					// https://bugs.php.net/bug.php?id=68344
 					elseif (defined('MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT')){
-						$this->_conn->options(MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT, TRUE);
+						$conn->options(MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT, TRUE);
 					}
 				}
 
 				$client_flags |= MYSQLI_CLIENT_SSL;
-				$this->_conn->ssl_set(
+				$conn->ssl_set(
 					isset($ssl['key'])    ? $ssl['key']    : NULL,
 					isset($ssl['cert'])   ? $ssl['cert']   : NULL,
 					isset($ssl['ca'])     ? $ssl['ca']     : NULL,
@@ -178,14 +187,14 @@ class Database_Drivers_Mysqli{
 			}
 		}
 
-		if ($this->_conn->real_connect($hostname, $config['username'], $config['password'], $config['database'], $port, $socket, $client_flags)){
+		if (@$conn->real_connect($hostname, $config['username'], $config['password'], $config['database'], $port, $socket, $client_flags)){
 			// Prior to version 5.7.3, MySQL silently downgrades to an unencrypted connection if SSL setup fails
 			if (
 				($client_flags & MYSQLI_CLIENT_SSL)
-				&& version_compare($this->_conn->client_info, '5.7.3', '<=')
-				&& empty($this->_conn->query("SHOW STATUS LIKE 'ssl_cipher'")->fetch_object()->Value)
+				&& version_compare($conn->client_info, '5.7.3', '<=')
+				&& empty($conn->query("SHOW STATUS LIKE 'ssl_cipher'")->fetch_object()->Value)
 			){
-				$this->_conn->close();
+				$conn->close();
 				log_message('error', $message = 'MySQLi was configured for an SSL connection, but got an unencrypted connection instead!');
                 throw new Exception('error', $message, '-1');
 				return FALSE;
@@ -194,12 +203,13 @@ class Database_Drivers_Mysqli{
             $this->_prefix = empty($config['prefix']) ? '' : $config['prefix'];
             
             if(!empty($config['char_set'])){
-                $this->_conn->set_charset($config['char_set']);
+                $conn->set_charset($config['char_set']);
             }
-			return $this->_conn;
+            Yaf_Registry::set($this->_default_group, $conn);
+			return true;
 		}
         
-        log_message('error', $message = 'mysqli connect failed, msg: '.$this->_conn->error .'('. $this->_conn->errno .')');
+        log_message('error', $message = 'mysqli connect failed, msg: '.$conn->error .'('. $conn->errno .')');
         throw new Exception($message, 9999);
 		return FALSE;
     }
@@ -645,22 +655,25 @@ class Database_Drivers_Mysqli{
         }
         return $this->_result->fetch_object();
     }
-    
-    /**
-     * 从结果集拿出所有数据
-     * @return mixed object or boolean
-     */
-    public function resultObject(){
-        if(!$this->_result){
-            log_message('error', 'row array error, msg: got no _result');
-            return false;
+
+    public function ping(){
+        Yaf_Registry::set('ping_error',1);
+        try{
+            $conn = Yaf_Registry::get($this->_default_group);
+            if(!$conn->ping()){
+                log_message('error', 'mysqli reconnect...');
+                $conn->close();
+                Yaf_Registry::del($this->_default_group);
+                new self($this->_config, $this->_default_group);
+                log_message('error', 'mysqli reconnected!');
+            }
+        }catch (Exception $e){
+            log_message('error', 'mysqli reconnect exception...');
+            Yaf_Registry::get($this->_default_group)->close();
+            Yaf_Registry::del($this->_default_group);
+            new self($this->_config);
+            log_message('error', 'mysqli reconnected!');
         }
-        
-        $rt = array();
-        while($tmp=$this->_result->fetch_object()){
-            $rt[] = $tmp;
-        }
-        return $rt;
     }
     
     /**
@@ -694,7 +707,7 @@ class Database_Drivers_Mysqli{
         $this->_select = '';
         $this->_table = '';
         $this->_join = '';
-        
+
         $this->__buildWhere();
         $this->__buildHaving();
         $this->__buildGroup();
@@ -706,12 +719,13 @@ class Database_Drivers_Mysqli{
         }
         
         $this->_sql .= ')';
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
-            log_message('error', 'sql prepare error, msg: '. $this->_conn->error);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
+            log_message('error', 'sql prepare error, msg: '. Yaf_Registry::get($this->_default_group)->error);
             return false;
         }
         
@@ -727,7 +741,6 @@ class Database_Drivers_Mysqli{
             $this->__log_message($this->_stmt);
             return false;
         }
-                
         return $this;
     }
     
@@ -755,7 +768,6 @@ class Database_Drivers_Mysqli{
                 }
             }
         }
-
         return $this->get($table, $limit, $offset);
     }
     
@@ -797,11 +809,12 @@ class Database_Drivers_Mysqli{
             return false;
         }
 
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
         $this->__bindValue($this->_stmt);
@@ -848,12 +861,13 @@ class Database_Drivers_Mysqli{
         }
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
-        
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
         $this->__bindValue($this->_stmt);
@@ -895,11 +909,12 @@ class Database_Drivers_Mysqli{
             return false;
         }
 
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
         $this->__bindValue($this->_stmt);
@@ -947,11 +962,12 @@ class Database_Drivers_Mysqli{
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
 
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
         $this->__bindValue($this->_stmt);
@@ -1002,7 +1018,7 @@ class Database_Drivers_Mysqli{
                     $this->_sql .= $v['key'] .' '. $v['op'] .' (?) ';
                     !is_array($v['value']) && $v['value'] = explode(',', $v['value']);
                     foreach($v['value'] as &$_tmp){
-                        $_tmp = $this->_conn->real_escape_string($_tmp);
+                        $_tmp = Yaf_Registry::get($this->_default_group)->real_escape_string($_tmp);
                     }
                     $this->_value[] = implode('\',\'', $v['value']);
                 }else if(is_null($v['value']) || strtoupper($v['value'])==='NULL'){
@@ -1158,7 +1174,7 @@ class Database_Drivers_Mysqli{
         }
 
         $stack = debug_backtrace();
-        $stack = array_pop($stack);
+        $stack = array_shift($stack);
         $message .= "\n".'error from: '. $stack['file'] .' @line: '. $stack['line']."\n";
         
         return log_message('error', $message);
@@ -1169,19 +1185,19 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function startTransaction(){
-        $rt = $this->_conn->autocommit(false);
+        $rt = Yaf_Registry::get($this->_default_group)->autocommit(false);
         if(!$rt){
-            log_message('error', 'set auto commit error, msg: '. $this->_conn->error);
+            log_message('error', 'set auto commit error, msg: '. Yaf_Registry::get($this->_default_group)->error);
             return false;
         }
         
-        $rt = $this->_conn->begin_transaction();
+        $rt = Yaf_Registry::get($this->_default_group)->begin_transaction();
         if(!$rt){
-            log_message('error', 'start transaction error, msg: '. $this->_conn->error);
+            log_message('error', 'start transaction error, msg: '. Yaf_Registry::get($this->_default_group)->error);
             return false;
         }
         
-        $this->_conn->_inTransaction = true;
+        Yaf_Registry::get($this->_default_group)->_inTransaction = true;
         return $this;
     }
     
@@ -1190,7 +1206,7 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function inTransaction(){
-        return $this->_conn->_inTransaction;
+        return Yaf_Registry::get($this->_default_group)->_inTransaction;
     }
     
     /**
@@ -1198,10 +1214,10 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function rollBack(){
-        $this->_conn->_inTransaction = false;
-        $rt = $this->_conn->rollback();
+        Yaf_Registry::get($this->_default_group)->_inTransaction = false;
+        $rt = Yaf_Registry::get($this->_default_group)->rollback();
         if(!$rt){
-            log_message('error', 'rollback error, msg: '. $this->_conn->error);
+            log_message('error', 'rollback error, msg: '. Yaf_Registry::get($this->_default_group)->error);
             return false;
         }
         
@@ -1213,20 +1229,20 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function commit(){
-        $this->_conn->_inTransaction = false;
-        $rt = $this->_conn->commit();
+        Yaf_Registry::get($this->_default_group)->_inTransaction = false;
+        $rt = Yaf_Registry::get($this->_default_group)->commit();
         if(!$rt){
-            $rt = $this->_conn->rollback();
+            $rt = Yaf_Registry::get($this->_default_group)->rollback();
             if(!$rt){
-                log_message('error', 'rollback error, msg: '. $this->_conn->error);
+                log_message('error', 'rollback error, msg: '. Yaf_Registry::get($this->_default_group)->error);
                 return false;
             }
             
-            log_message('error', 'commit error, msg: '. $this->_conn->error);
+            log_message('error', 'commit error, msg: '. Yaf_Registry::get($this->_default_group)->error);
             return false;
         }
         
-        $rt = $this->_conn->autocommit(true);
+        $rt = Yaf_Registry::get($this->_default_group)->autocommit(true);
         return true;
     }
     
@@ -1237,10 +1253,10 @@ class Database_Drivers_Mysqli{
      */
     public function query($sql){
         $this->freeResult();
-        $this->_stmt = $this->_conn->query($sql);
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->query($sql);
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql query error, sql:'. $this->_sql .' msg: '. $this->_conn->error);
+            log_message('error', 'sql query error, sql:'. $this->_sql .' msg: '. Yaf_Registry::get($this->_default_group)->error);
             return false;
         }
         
@@ -1264,9 +1280,10 @@ class Database_Drivers_Mysqli{
         try{
             $this->_stmt && $this->_stmt->free_result();
         }catch(Exception $e){
+            Yaf_Registry::set('ping_error',1);
             log_message('error', 'mysqli free_result error, code:'. $e->getCode() .' msg: '.$e->getMessage());
         }
-        #$this->_stmt = null;//send of 9 bytes failed with errno=32 Broken pipe
+        #$this->_stmt = null;//会有报错send of 9 bytes failed with errno=32 Broken pipe
         $this->_result = null;
         $this->_error = false;
         return $this;
@@ -1293,11 +1310,11 @@ class Database_Drivers_Mysqli{
         $tmp = $this;
         if(is_array($value)){
             $value = array_map(function($v) use($tmp){
-                return "'". $this->_conn->real_escape_string($v) ."'";
+                return "'". Yaf_Registry::get($this->_default_group)->real_escape_string($v) ."'";
             }, $value);
             return implode(',', $value);
         }
-        return "'". $this->_conn->real_escape_string($value) ."'";
+        return "'". Yaf_Registry::get($this->_default_group)->real_escape_string($value) ."'";
     }
     
     /**

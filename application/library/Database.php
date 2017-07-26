@@ -17,9 +17,9 @@ class Database{
      * @param string $default_group 数据库组名
      * @return Mysql驱动类的实例
      */
-    public static function getInstance($default_group='real'){
-        
-        if(self::$_instance = Yaf_Registry::get($default_group)){
+    public static function getInstance($default_group='dr'){
+        $key = $default_group.'_instance';
+        if(self::$_instance = Yaf_Registry::get($key)){
             return self::$_instance;
         }
 
@@ -35,7 +35,7 @@ class Database{
             $driver = 'Database_Drivers_'.$driverName;
             if (class_exists($driver) ){
                 try{
-                    self::$_instance = new $driver($config);
+                    self::$_instance = new $driver($config, $default_group);
                 }catch(Exception $e){
                     self::$_instance = false;
                 }    
@@ -52,7 +52,7 @@ class Database{
             // Check for a subdriver
             if (class_exists($driver) ){
                 try{
-                    self::$_instance = new $driver($config);
+                    self::$_instance = new $driver($config, $default_group);
                 }catch(Exception $e){
                     self::$_instance = false;
                 }
@@ -65,7 +65,7 @@ class Database{
             self::$_instance = false;
         }
 
-        Yaf_Registry::set($default_group, self::$_instance);
+        Yaf_Registry::set($key, self::$_instance);
         return self::$_instance;
     }
 }

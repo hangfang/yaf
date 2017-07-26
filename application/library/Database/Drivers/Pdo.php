@@ -9,7 +9,7 @@ class Database_Drivers_Pdo{
      * 数据库连接句柄
      * @var PDO
      */
-    protected $_conn=null;
+    //protected $_conn=null;
     /**
      * 预编译对象
      * @var PDOStatement
@@ -24,7 +24,7 @@ class Database_Drivers_Pdo{
      * 数据库连接属性
      * @var array
      */
-    protected $_options = array();
+    //protected $_options = array();
     /**
      * 查询条件 
      * @var array
@@ -507,13 +507,8 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || array
      */
     public function rowArray(){
-        $rt = $this->_stmt->fetch(PDO::FETCH_ASSOC);
-        if($rt===false){
-            log_message('error', 'row array error, msg: '. json_encode($this->_stmt->errorInfo()));
-            return false;
-        }
-                
-        return $rt;
+        $rt = $this->_stmt->fetch(PDO::FETCH_ASSOC);  
+        return $rt ? $rt : [];
     }
     
     /**
@@ -522,12 +517,7 @@ class Database_Drivers_Pdo{
      */
     public function resultArray(){
         $rt = $this->_stmt->fetchAll(PDO::FETCH_ASSOC);
-        if($rt===false){
-            log_message('error', 'result array error, msg: '. json_encode($this->_stmt->errorInfo()));
-            return false;
-        }
-                
-        return $rt;
+        return $rt ? $rt : [];
     }
     
     /**
@@ -536,12 +526,7 @@ class Database_Drivers_Pdo{
      */
     public function rowObject(){
         $rt = $this->_stmt->fetch(PDO::FETCH_OBJ);
-        if($rt===false){
-            log_message('error', 'row object error, msg: '. json_encode($this->_stmt->errorInfo()));
-            return false;
-        }
-                
-        return $rt;
+        return $rt ? $rt : [];
     }
     
     /**
@@ -550,12 +535,7 @@ class Database_Drivers_Pdo{
      */
     public function resultObject(){
         $rt = $this->_stmt->fetchAll(PDO::FETCH_OBJ);
-        if($rt===false){
-            log_message('error', 'result object error, msg: '. json_encode($this->_stmt->errorInfo()));
-            return false;
-        }
-                
-        return $rt;
+        return $rt ? $rt : [];
     }
     
     /**
@@ -589,7 +569,7 @@ class Database_Drivers_Pdo{
         $this->_select = '';
         $this->_table = '';
         $this->_join = '';
-        
+
         $this->__buildWhere();
         $this->__buildHaving();
         $this->__buildGroup();
@@ -601,11 +581,13 @@ class Database_Drivers_Pdo{
         }
         
         $this->_sql .= ')';
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+        $this->ping();
+
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn, $this->_sql);
+            $this->__log_message(Yaf_Registry::get($this->_default_group), $this->_sql);
             return false;
         }
         
@@ -684,12 +666,13 @@ class Database_Drivers_Pdo{
         if($this->_error){
             return false;
         }
-        
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
         $this->__bindValue($this->_stmt);
@@ -737,12 +720,13 @@ class Database_Drivers_Pdo{
         }
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
-        
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
         $this->__bindValue($this->_stmt);
@@ -752,7 +736,7 @@ class Database_Drivers_Pdo{
             return false;
         }
                 
-        return $this->_conn->lastInsertId();
+        return Yaf_Registry::get($this->_default_group)->lastInsertId();
     }
     
     /**
@@ -783,12 +767,13 @@ class Database_Drivers_Pdo{
         if($this->_error){
             return false;
         }
-        
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
         $this->__bindValue($this->_stmt);
@@ -835,12 +820,13 @@ class Database_Drivers_Pdo{
         }
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
-        
-        $this->_stmt = $this->_conn->prepare($this->_sql);
+
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
-            $this->__log_message($this->_conn);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
         $this->__bindValue($this->_stmt);
@@ -850,7 +836,7 @@ class Database_Drivers_Pdo{
             return false;
         }
                 
-        return $this->_conn->lastInsertId();
+        return Yaf_Registry::get($this->_default_group)->lastInsertId();
     }
     
     /**
@@ -1033,7 +1019,7 @@ class Database_Drivers_Pdo{
         }
 
         $stack = debug_backtrace();
-        $stack = array_pop($stack);
+        $stack = array_shift($stack);
         $message .= "\n".'error from: '. $stack['file'] .' @line: '. $stack['line']."\n";
         
         return log_message('error', $message);
@@ -1044,12 +1030,12 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function startTransaction(){
-        if($this->_conn->inTransaction()){
+        if(Yaf_Registry::get($this->_default_group)->inTransaction()){
             return $this;
         }
-        $rt = $this->_conn->beginTransaction();
+        $rt = Yaf_Registry::get($this->_default_group)->beginTransaction();
         if(!$rt){
-            log_message('error', 'start transaction error, msg: '. json_encode($this->_conn->errorInfo()));
+            log_message('error', 'start transaction error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
             return false;
         }
         
@@ -1061,7 +1047,7 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function inTransaction(){
-        return $this->_conn->inTransaction();
+        return Yaf_Registry::get($this->_default_group)->inTransaction();
     }
     
     /**
@@ -1069,9 +1055,9 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function rollBack(){
-        $rt = $this->_conn->rollBack();
+        $rt = Yaf_Registry::get($this->_default_group)->rollBack();
         if(!$rt){
-            log_message('error', 'rollback error, msg: '. json_encode($this->_conn->errorInfo()));
+            log_message('error', 'rollback error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
             return false;
         }
         
@@ -1083,19 +1069,19 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function commit(){
-        $rt = $this->_conn->commit();
+        $rt = Yaf_Registry::get($this->_default_group)->commit();
         if(!$rt){
-            $rt = $this->_conn->rollBack();
+            $rt = Yaf_Registry::get($this->_default_group)->rollBack();
             if(!$rt){
-                log_message('error', 'rollback error, msg: '. json_encode($this->_conn->errorInfo()));
+                log_message('error', 'rollback error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
                 return false;
             }
             
-            log_message('error', 'commit error, msg: '. json_encode($this->_conn->errorInfo()));
+            log_message('error', 'commit error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
             return false;
         }
         
-        $this->_conn->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
+        Yaf_Registry::get($this->_default_group)->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
         return true;
     }
     
@@ -1106,9 +1092,9 @@ class Database_Drivers_Pdo{
      */
     public function query($sql){
         $this->freeResult();
-        $this->_stmt = $this->_conn->query($sql);
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->query($sql);
         if(!$this->_stmt){
-            log_message('error', 'sql query error, msg: '. json_encode($this->_conn->errorInfo()));
+            log_message('error', 'sql query error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
             return false;
         }
 
@@ -1122,9 +1108,9 @@ class Database_Drivers_Pdo{
         if(strpos($sql, 'select')===0){
             return $this->_stmt->fetchAll();
         }else if(strpos($sql, 'insert')===0){
-            return $this->_conn->lastInsertId();
+            return Yaf_Registry::get($this->_default_group)->lastInsertId();
         }else if(strpos($sql, 'replace')===0){
-            return $this->_conn->lastInsertId();
+            return Yaf_Registry::get($this->_default_group)->lastInsertId();
         }else{
             return $this->_stmt->rowCount();
         }
@@ -1135,7 +1121,12 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function freeResult(){
-        #$this->_stmt = null;//send of 9 bytes failed with errno=32 Broken pipe
+        try{
+            $this->_stmt = null;
+        }catch(Exception $e){
+            Yaf_Registry::set('ping_error',1);
+            log_message('error', 'pdo free_result error, code:'. $e->getCode() .' msg: '.$e->getMessage());
+        }
         $this->_error = false;
         return $this;
     }
