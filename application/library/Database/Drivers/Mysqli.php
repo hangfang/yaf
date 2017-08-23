@@ -997,7 +997,7 @@ class Database_Drivers_Mysqli{
                     $this->_sql .= $v['connect'] .' ';
                 }
 
-                $v['value'] = str_replace('%', '\%', $v['value']);
+                !is_null($v['value']) && $v['value'] = str_replace('%', '\%', $v['value']);
                 
                 if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';

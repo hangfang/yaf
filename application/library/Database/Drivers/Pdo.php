@@ -856,7 +856,7 @@ class Database_Drivers_Pdo{
                     $this->_sql .= $v['connect'] .' ';
                 }
                 
-                $v['value'] = str_replace('%', '\%', $v['value']);
+                !is_null($v['value']) && $v['value'] = str_replace('%', '\%', $v['value']);
                 
                 $key = ':'. str_replace(['.', ' '], ['',''], $v['key']).'_'.$k;
                 if($groupStart || $groupEnd){
