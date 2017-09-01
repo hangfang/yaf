@@ -139,9 +139,15 @@ class Database_Drivers_Pdo{
                         $this->_error = true;
                         return false;
                     }else{
-                        $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                        $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        if(is_array($v)){
+                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                            $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                            $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        }else{
+                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                            $op = empty($op) ? '=' : $op;
+                            $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        }
                     }
                 }
             }else{
@@ -153,7 +159,9 @@ class Database_Drivers_Pdo{
         }else{
             if(!empty($where) && !is_array($where) && !is_object($where)){
                 if(is_array($value)){
-                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>'in');
+                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
+                    $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
                 }else{
                     $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
                     $op = empty($op) ? '=' : $op;
@@ -187,9 +195,15 @@ class Database_Drivers_Pdo{
                         $this->_error = true;
                         return false;
                     }else{
-                        $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                        $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        if(is_array($v)){
+                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                            $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                            $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>'OR', 'op'=>$op);
+                        }else{
+                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                            $op = empty($op) ? '=' : $op;
+                            $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'OR', 'op'=>$op);
+                        }
                     }
                 }
                 $this->_condition[] = array('key'=>')', 'value'=>'');
@@ -202,7 +216,9 @@ class Database_Drivers_Pdo{
         }else{
             if(!empty($where) && !is_array($where) && !is_object($where)){
                 if(is_array($value)){
-                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
+                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
+                    $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
                 }else{
                     $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
                     $op = empty($op) ? '=' : $op;
@@ -584,9 +600,15 @@ class Database_Drivers_Pdo{
         $this->ping();
 
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+                
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group), $this->_sql);
             return false;
         }
@@ -669,9 +691,15 @@ class Database_Drivers_Pdo{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
@@ -723,9 +751,15 @@ class Database_Drivers_Pdo{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+                
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
@@ -770,9 +804,15 @@ class Database_Drivers_Pdo{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+                
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
@@ -823,9 +863,15 @@ class Database_Drivers_Pdo{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+                
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
@@ -874,6 +920,16 @@ class Database_Drivers_Pdo{
                         $v['value'] = $v['value'] .'%';
                     }
                     $this->_value[] = array($key=>$v['value']);
+                }elseif($v['op']==='in' || $v['op']==='not in'){
+                    !is_array($v['value']) && $v['value'] = explode(',', $v['value']);
+                    $repeat = '';
+                    foreach($v['value'] as $_tmpk=>$_tmpv){
+                        $this->_value[] = array($key.$_tmpk=>$_tmpv);
+                        $repeat .= $key.$_tmpk.',';
+                    }
+
+                    $repeat = rtrim($repeat, ',');
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $repeat .') ';
                 }else if(is_null($v['value']) || strtoupper($v['value'])==='NULL'){
                     if($v['op']==='='){
                         $v['op'] = ' IS ';

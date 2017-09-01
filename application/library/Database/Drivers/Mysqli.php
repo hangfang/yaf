@@ -257,9 +257,15 @@ class Database_Drivers_Mysqli{
                         $this->_error = true;
                         return false;
                     }else{
-                        $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                        $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        if(is_array($v)){
+                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                            $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                            $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        }else{
+                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                            $op = empty($op) ? '=' : $op;
+                            $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        }
                     }
                 }
             }else{
@@ -271,7 +277,9 @@ class Database_Drivers_Mysqli{
         }else{
             if(!empty($where) && !is_array($where) && !is_object($where)){
                 if(is_array($value)){
-                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>'in');
+                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
+                    $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
                 }else{
                     $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
                     $op = empty($op) ? '=' : $op;
@@ -305,9 +313,15 @@ class Database_Drivers_Mysqli{
                         $this->_error = true;
                         return false;
                     }else{
-                        $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                        $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                        if(is_array($v)){
+                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                            $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                            $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>'OR', 'op'=>$op);
+                        }else{
+                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                            $op = empty($op) ? '=' : $op;
+                            $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'OR', 'op'=>$op);
+                        }
                     }
                 }
                 $this->_condition[] = array('key'=>')', 'value'=>'');
@@ -320,7 +334,9 @@ class Database_Drivers_Mysqli{
         }else{
             if(!empty($where) && !is_array($where) && !is_object($where)){
                 if(is_array($value)){
-                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>'in');
+                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
+                    $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
                 }else{
                     $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
                     $op = empty($op) ? '=' : $op;
@@ -721,9 +737,15 @@ class Database_Drivers_Mysqli{
         $this->_sql .= ')';
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             log_message('error', 'sql prepare error, msg: '. Yaf_Registry::get($this->_default_group)->error);
             return false;
@@ -811,9 +833,15 @@ class Database_Drivers_Mysqli{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
@@ -864,9 +892,15 @@ class Database_Drivers_Mysqli{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
@@ -911,9 +945,15 @@ class Database_Drivers_Mysqli{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
@@ -964,9 +1004,15 @@ class Database_Drivers_Mysqli{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+        
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
         if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
@@ -998,7 +1044,7 @@ class Database_Drivers_Mysqli{
                 }
 
                 !is_null($v['value']) && $v['value'] = str_replace('%', '\%', $v['value']);
-                
+
                 if($groupStart || $groupEnd){
                     $this->_sql .= $v['key'] .' ';
                 }else if($v['op']==='like' || $v['op']==='not like'){
@@ -1015,12 +1061,13 @@ class Database_Drivers_Mysqli{
                     $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
                     $this->_value[] = $v['value'];
                 }elseif($v['op']==='in' || $v['op']==='not in'){
-                    $this->_sql .= $v['key'] .' '. $v['op'] .' (?) ';
                     !is_array($v['value']) && $v['value'] = explode(',', $v['value']);
                     foreach($v['value'] as &$_tmp){
-                        $_tmp = Yaf_Registry::get($this->_default_group)->real_escape_string($_tmp);
+                        $this->_value[] = $_tmp;
                     }
-                    $this->_value[] = implode('\',\'', $v['value']);
+
+                    $repeat = rtrim(str_repeat('?,', count($v['value'])), ',');
+                    $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $repeat .') ';
                 }else if(is_null($v['value']) || strtoupper($v['value'])==='NULL'){
                     if($v['op']==='='){
                         $v['op'] = ' IS ';
@@ -1157,7 +1204,7 @@ class Database_Drivers_Mysqli{
                 return false;
             }
         }
-        
+
         return $this;
     }
     
