@@ -738,9 +738,7 @@ class Database_Drivers_Mysqli{
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         
-        if(DEBUG){
-            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
-        }
+        log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
         
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
