@@ -951,3 +951,32 @@ if(!function_exists('dd')){
         exit;
     }
 }
+
+if(!function_exists('line2Hump')){
+    /**
+     * 下划线转驼峰
+     * @param string $str 字符串 
+     * @return string
+    */
+   function line2Hump($str)
+   {
+       $str = preg_replace_callback('/([-_]+([a-z]{1}))/i',function($matches){
+           return strtoupper($matches[2]);
+       },$str);
+       return $str;
+   }
+}
+
+if(!function_exists('hump2Line')){
+    /**
+     * 驼峰转下划线
+     * @param string $str 字符串
+     * @return string
+     */
+    function hump2Line($str){
+        $str = preg_replace_callback('/([A-Z]{1})/',function($matches){
+            return '_'.strtolower($matches[0]);
+        },$str);
+        return $str;
+    }
+}
