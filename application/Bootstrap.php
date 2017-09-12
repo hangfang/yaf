@@ -42,7 +42,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
 <?php
 defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
-class {$_dir}_{$_className}Model extends BaseModel {
+class {$_className}Model extends BaseModel {
 public static \$_table = '{$_table}';
 }
 EOF;
