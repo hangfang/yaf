@@ -14,6 +14,14 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
         Yaf_Loader::import( APPLICATION_PATH .'/application/helper/file.php' );
                 
         set_error_handler(function($errno, $errstr, $errfile, $errline){
+            if(Yaf_Registry::get('ping_error')){
+                Yaf_Registry::del('ping_error');
+                return true;
+            }
+            if(stripos($errstr, 'MySQL server has gone away')!==false){
+                return true;
+            }
+            
             log_message('error', 'error('. $errno .'): '.$errstr.' file:'.$errfile.' line '.$errline);
             lExit(json_encode(array('rtn'=>$errno+100000, 'error_msg'=>$errstr)));
         });
@@ -23,6 +31,35 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
             lExit(json_encode(array('rtn'=>$e->getCode()+10000, 'error_msg'=>$e->getMessage())));
         };
         set_exception_handler($tmp);
+
+        spl_autoload_register(function($modelName) {
+            if(stripos($modelName, 'Model')!==false){
+
+                $_className = str_replace('Model', '', $modelName);
+                $_table = preg_replace('/^_|_$/', '', strtolower(hump2Line($_className)));
+                
+                $tpl = <<<EOF
+<?php
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
+
+class {$_dir}_{$_className}Model extends BaseModel {
+public static \$_table = '{$_table}';
+}
+EOF;
+                $path = realpath(APPLICATION_PATH).DIRECTORY_SEPARATOR.'application'.DIRECTORY_SEPARATOR.'models';
+                if(!file_exists($path)){
+                    mkdir($path, '0744', true);
+                }
+                
+                $file = $path.DIRECTORY_SEPARATOR.$_className.'.php';
+                file_put_contents($file, $tpl);
+                
+                require_once $file;
+                return true;
+            }
+
+            throw new Exception('class '. $modelName . ' not found!', 500);
+        });
     }
 
     public function _initConfig() {
@@ -41,53 +78,10 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
         //在这里注册自己的路由协议,默认使用简单路由
         $request = new Yaf_Request_Http();
         if(!is_cli()){
-            if(strpos(strtolower($_SERVER['SERVER_NAME']), 'crm')===false){
-                if(strtolower($request->module) === 'manage'){
-                    lExit(json_encode($this->_error[3]));
-                    return false;
-                }
-                
-                $defaultModule = "Client";
-            }else{
-                if(strtolower($request->module) === 'client'){
-                    lExit(json_encode($this->_error[3]));
-                    return false;
-                }
-                
-                $defaultModule = "Manage";
-            }
+            Yaf_Registry::set('defaultModule', 'Index');
             
-            if(strpos($_SERVER['REQUEST_URI'], '?')!==false){
-                $request_uri = explode('/', trim(strstr($_SERVER['REQUEST_URI'], '?', true), '/'));
-            }else{
-                $request_uri = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
-            }
-            
-            if(empty($request_uri[0])){
-                $request_uri = array();
-            }
-
-            switch(count($request_uri)){
-                case 1:
-                    $route = new Yaf_Route_Regex("#/([^/]+)#i", ['module'=>$defaultModule, 'controller'=>'index','action'=>'index']);
-                    break;
-
-                case 2:
-                    $route = new Yaf_Route_Regex("#/([^/]+)/([^/]+)[/]{0,}#i", ['module'=>$defaultModule, 'controller'=>':first','action'=>':second'], [1=>'first', 2=>'second']);
-                    break;
-
-                case 3:
-                    $route = new Yaf_Route_Regex("#/([^/]+)/([^/]+)/([^/]+)#i", ['module'=>':first', 'controller'=>':second','action'=>':third'], [1=>'first', 2=>'second', 3=>'third']);
-                    break;
-
-                default :
-                    $route = new Yaf_Route_Regex("#.*#i", ['module'=>$defaultModule, 'controller'=>'index','action'=>'index']);
-                    break;
-            }
-            $dispatcher->getRouter()->addRoute('route', $route);
+            $dispatcher->getRouter()->addRoute('route', new Router());
         }
-        
-        //$dispatcher->setDefaultModule($defaultModule)->setDefaultController("Index")->setDefaultAction("index");
     }
     
     public function _initView(Yaf_Dispatcher $dispatcher){
