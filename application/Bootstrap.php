@@ -9,6 +9,18 @@ defined('BASE_PATH') OR exit('No direct script access allowed');
  * 调用的次序, 和申明的次序相同
  */
 class Bootstrap extends Yaf_Bootstrap_Abstract{
+
+    public function _initConfig() {
+        //把配置保存起来
+        $arrConfig = Yaf_Application::app()->getConfig();
+        Yaf_Registry::set('config', $arrConfig);
+        Yaf_Loader::import( APPLICATION_PATH .'/conf/constants.php' );
+        ini_set('session.handler', $arrConfig['application']['session']['handler']);
+        ini_set('session.save_path', $arrConfig['application']['session']['save_path']);
+        ini_set('session.gc_maxlifetime', $arrConfig['application']['session']['gc_maxlifetime']);
+        Yaf_Session::getInstance()->start();
+    }
+
     public function _initHelpers(){
         Yaf_Loader::import( APPLICATION_PATH .'/application/helper/function.php' );
         Yaf_Loader::import( APPLICATION_PATH .'/application/helper/file.php' );
@@ -60,13 +72,6 @@ EOF;
 
             throw new Exception('class '. $modelName . ' not found!', 500);
         });
-    }
-
-    public function _initConfig() {
-        //把配置保存起来
-        $arrConfig = Yaf_Application::app()->getConfig();
-        Yaf_Registry::set('config', $arrConfig);
-        Yaf_Loader::import( APPLICATION_PATH .'/conf/constants.php' );
     }
 
     public function _initPlugin(Yaf_Dispatcher $dispatcher) {
