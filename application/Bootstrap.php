@@ -15,7 +15,8 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
         $arrConfig = Yaf_Application::app()->getConfig();
         Yaf_Registry::set('config', $arrConfig);
         Yaf_Loader::import( APPLICATION_PATH .'/conf/constants.php' );
-        ini_set('session.handler', $arrConfig['application']['session']['handler']);
+        ini_set('session.name', $arrConfig['application']['session']['name']);
+        ini_set('session.save_handler', $arrConfig['application']['session']['save_handler']);
         ini_set('session.save_path', $arrConfig['application']['session']['save_path']);
         ini_set('session.gc_maxlifetime', $arrConfig['application']['session']['gc_maxlifetime']);
         Yaf_Session::getInstance()->start();
