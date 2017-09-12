@@ -3,7 +3,7 @@
 define('BASE_PATH', dirname(__FILE__));
 define('PHP_ENV', ini_get('yaf.environ'));
 define('SERVER_NAME', $_SERVER['HTTP_HOST']);
-define('REQUEST_SCHEME', $_SERVER['REQUEST_SCHEME']);
+define('REQUEST_SCHEME', $_SERVER['HTTPS'] === "on" ? 'https' : 'http');
 
 if (!extension_loaded("yaf"))
 {
