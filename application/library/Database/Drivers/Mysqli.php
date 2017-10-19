@@ -85,6 +85,7 @@ class Database_Drivers_Mysqli{
      * @var array
      */
     protected $_value = array();
+    protected $_batchValue = array();
     /**
      * 表名的前缀
      * @var string
@@ -123,7 +124,7 @@ class Database_Drivers_Mysqli{
 			$socket = $config['hostname'];
 		}else{
 			// Persistent connection support was added in PHP 5.3.0
-			$hostname = ($config['pconnect'] === TRUE && is_php('5.3')) ? 'p:'.$config['hostname'] : $config['hostname'];
+			$hostname = ($config['pconnect'] == TRUE && is_php('5.3')) ? 'p:'.$config['hostname'] : $config['hostname'];
 			$port = empty($config['port']) ? NULL : $config['port'];
 			$socket = NULL;
 		}
@@ -132,7 +133,7 @@ class Database_Drivers_Mysqli{
 		$conn = mysqli_init();
 
 		$conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
-		$conn->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE);
+		$conn->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, false);
 
 		if (isset($config['stricton'])){
 			if ($config['stricton']){
@@ -245,55 +246,54 @@ class Database_Drivers_Mysqli{
      * SQL语句条件:AND column_name = 'xx'
      * @param mixed $where  查询条件键值对:array('id'=>1, 'name'=>'tom')
      * @param mixed $value  条件字段对应的值，$value不是null时，$where为字段名
+     * @param string $connect 字句连接符 AND/OR
+     * @return mixed boolean || Database_Drivers_Mysqli
+     */
+    private function __where($where, $value, $connect='AND'){
+        if(is_array($where)){
+            foreach($where as $k=>$v){
+                if(is_array($k) || is_object($k)){
+                    log_message('error', 'column name need string, '. gettype($k) . 'given');
+                    $this->_condition = array();
+                    $this->_error = true;
+                    return false;
+                }else{
+                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
+                    $k = preg_replace('/[\s><=!]/i', '', $k);
+
+                    if(is_array($v)){
+                        $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+                    }else{
+                        $op = empty($op) ? '=' : $op;
+                    }
+
+                    $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>$connect, 'op'=>$op);
+                }
+            }
+        }else{
+            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
+            $where = preg_replace('/[\s><=!]/i', '', $where);
+
+            if(is_array($value)){
+                $op = (empty($op) || $op==='=') ? 'in' : 'not in';
+            }else{
+                $op = empty($op) ? '=' : $op;
+            }
+
+            $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>$connect, 'op'=>$op);
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * SQL语句条件:AND column_name = 'xx'
+     * @param mixed $where  查询条件键值对:array('id'=>1, 'name'=>'tom')
+     * @param mixed $value  条件字段对应的值，$value不是null时，$where为字段名
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function where($where, $value=null){
-        if(is_null($value)){
-            if(is_array($where)){
-                foreach($where as $k=>$v){
-                    if(is_array($k) || is_object($k)){
-                        log_message('error', 'column name need string, '. gettype($k) . 'given');
-                        $this->_condition = array();
-                        $this->_error = true;
-                        return false;
-                    }else{
-                        if(is_array($v)){
-                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                            $op = (empty($op) || $op==='=') ? 'in' : 'not in';
-                            $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
-                        }else{
-                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                            $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
-                        }
-                    }
-                }
-            }else{
-                log_message('error', 'column name need array, '. gettype($where) . ' given');
-                $this->_condition = array();
-                $this->_error = true;
-                return false;
-            }
-        }else{
-            if(!empty($where) && !is_array($where) && !is_object($where)){
-                if(is_array($value)){
-                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
-                    $op = (empty($op) || $op==='=') ? 'in' : 'not in';
-                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
-                }else{
-                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
-                    $op = empty($op) ? '=' : $op;
-                    $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $where), 'value'=>$value, 'connect'=>'AND', 'op'=>$op);
-                }
-            }else{
-                log_message('error', 'column name need string, '. gettype($where) . ' given');
-                $this->_condition = array();
-                $this->_error = true;
-                return false;
-            }
-        }
-
-        return $this;
+        return $this->__where($where, $value);
     }
     
     /**
@@ -303,52 +303,23 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function orWhere($where, $value=null){
-        if(is_null($value)){
-            if(is_array($where)){
-                $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
-                foreach($where as $k=>$v){
-                    if(is_array($k) || is_object($k)){
-                        log_message('error', 'column name need string, '. gettype($k) . ' given');
-                        $this->_condition = array();
-                        $this->_error = true;
-                        return false;
-                    }else{
-                        if(is_array($v)){
-                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                            $op = (empty($op) || $op==='=') ? 'in' : 'not in';
-                            $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>'OR', 'op'=>$op);
-                        }else{
-                            $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                            $op = empty($op) ? '=' : $op;
-                            $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'OR', 'op'=>$op);
-                        }
-                    }
-                }
-                $this->_condition[] = array('key'=>')', 'value'=>'');
-            }else{
-                log_message('error', 'column name need array, '. gettype($where) . ' given');
-                $this->_condition = array();
-                $this->_error = true;
-                return false;
-            }
-        }else{
-            if(!empty($where) && !is_array($where) && !is_object($where)){
-                if(is_array($value)){
-                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
-                    $op = (empty($op) || $op==='=') ? 'in' : 'not in';
-                    $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
-                }else{
-                    $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
-                    $op = empty($op) ? '=' : $op;
-                    $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $where), 'value'=>$value, 'connect'=>'OR', 'op'=>$op);
-                }
-            }else{
-                log_message('error', 'column name need string, '. gettype($where) . ' given');
-                $this->_condition = array();
-                $this->_error = true;
-                return false;
-            }
+        return $this->__where($where, $value, 'OR');
+    }
+    
+    /**
+     * SQL语句条件:AND column_name IN ()
+     * @param string $field  表字段名
+     * @param mixed $list  查询字段的值，数组或单个值
+     * @param string $connect 字句连接符 AND/OR
+     * @param string $op 运算符 !=/=
+     * @return mixed boolean || Database_Drivers_Mysqli
+     */
+    private function __in($field, $list, $connect='AND', $op='='){
+        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>$connect);
+        foreach($list as $v){
+            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'OR', 'op'=>$op);
         }
+        $this->_condition[] = array('key'=>')', 'value'=>'');
         return $this;
     }
     
@@ -360,12 +331,7 @@ class Database_Drivers_Mysqli{
      */
     public function whereIn($field, $list){
         $list = is_array($list) ? $list : explode(',', $list);
-        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND');
-        foreach($list as $v){
-            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'OR', 'op'=>'=');
-        }
-        $this->_condition[] = array('key'=>')', 'value'=>'');
-        return $this;
+        return $this->__in($field, $list);
     }
     
     /**
@@ -376,12 +342,7 @@ class Database_Drivers_Mysqli{
      */
     public function orWhereIn($field, $list){
         $list = is_array($list) ? $list : explode(',', $list);
-        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
-        foreach($list as $v){
-            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'OR', 'op'=>'=');
-        }
-        $this->_condition[] = array('key'=>')', 'value'=>'');
-        return $this;
+        return $this->__in($field, $list, 'OR');
     }
     
     /**
@@ -392,12 +353,7 @@ class Database_Drivers_Mysqli{
      */
     public function whereNotIn($field, $list){
         $list = is_array($list) ? $list : explode(',', $list);
-        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'AND');
-        foreach($list as $v){
-            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'AND', 'op'=>'!=');
-        }
-        $this->_condition[] = array('key'=>')', 'value'=>'');
-        return $this;
+        return $this->__in($field, $list, 'AND', '!=');
     }
     
     /**
@@ -408,12 +364,7 @@ class Database_Drivers_Mysqli{
      */
     public function orWhereNotIn($field, $list){
         $list = is_array($list) ? $list : explode(',', $list);
-        $this->_condition[] = array('key'=>'(', 'value'=>'', 'connect'=>'OR');
-        foreach($list as $v){
-            $this->_condition[] = array('key'=>$field, 'value'=>$v, 'connect'=>'AND', 'op'=>'!=');
-        }
-        $this->_condition[] = array('key'=>')', 'value'=>'');
-        return $this;
+        return $this->__in($field, $list, 'OR', '!=');
     }
     
     /**
@@ -466,7 +417,7 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function having($having){
-        $this->_having[] = $having;
+        $this->_having = $having;
         return $this;
     }
     
@@ -496,13 +447,12 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function groupBy($field){
-        if(is_array($field)){
-            $this->_group = implode(',', $field);
+        if(empty($field)){
             return $this;
         }
-        $this->_group = $field;
         
-        return $this;
+        $field = is_array($field) ? $field : explode(',', $field);
+        $this->_group = strpos($field[0], '`')===false ? '`'.implode('`,`', $field).'`' : implode(',', $field);
     }
     
     /**
@@ -533,12 +483,38 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     public function select($field){
-        if(is_array($field)){
-            $this->_select = trim(implode(',', $field), ',');
-            return $this;
-        }
-        $this->_select = trim($field, ',');
+        $field = is_array($field) ? $field : explode(',', $field);
         
+        $this->_select = '';
+        foreach($field as $_field){
+            if(strpos($_field, ' as ')!==false){
+                list($origin, $alias) = explode(' as ', $_field);
+                $this->_select .= preg_match('/[`()]/', $origin) ? $origin : '`'.trim($origin).'`';
+                $this->_select .= ' as ';
+                $this->_select .= preg_match('/[`()]/', $alias) ? $alias : '`'.trim($alias).'`,';
+                continue;
+            }
+            $this->_select .= preg_match('/[`()]/', $_field) ? trim($_field).',' : '`'.trim($_field).'`,';
+        }
+        
+        $this->_select = trim($this->_select, ',');
+        
+        return $this;
+    }
+
+    /**
+     * SQL语句:select count(id) as `cid`, left(...) as `lv`
+     * @param $field
+     * @return mixed
+     * @desc 使用该方法时，应该给相应字段加上反引号
+     */
+    public function selectRaw($field)
+    {
+        if (!is_string($field)) {
+            log_message('error', 'param error, selectRaw: need string');
+            return false;
+        }
+        $this->_select = $field;
         return $this;
     }
     
@@ -588,8 +564,8 @@ class Database_Drivers_Mysqli{
         $this->_sql = '(select '. $this->_select .' from '. $this->_table . $this->_join;
         
         $this->__buildWhere();
-        $this->__buildHaving();
         $this->__buildGroup();
+        $this->__buildHaving();
         $this->__buildOrder();
         $this->__buildLimit();
 
@@ -725,8 +701,8 @@ class Database_Drivers_Mysqli{
         $this->_join = '';
 
         $this->__buildWhere();
-        $this->__buildHaving();
         $this->__buildGroup();
+        $this->__buildHaving();
         $this->__buildOrder();
         $this->__buildLimit();
 
@@ -738,7 +714,9 @@ class Database_Drivers_Mysqli{
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         
-        log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
         
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
@@ -779,12 +757,12 @@ class Database_Drivers_Mysqli{
                     foreach($v as $_field=>$_value){
                         $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $_field);
                         $op = empty($op) ? '=' : $op;
-                        $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
+                        $this->_condition[] = array('key'=>preg_replace('/[\s><=!]/i', '', $_field), 'value'=>$_value, 'connect'=>'AND', 'op'=>$op);
                     }
                 }else{
                     $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
                     $op = empty($op) ? '=' : $op;
-                    $this->_condition[] = array('key'=>preg_replace('/[><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
+                    $this->_condition[] = array('key'=>preg_replace('/[\s><=!]/i', '', $k), 'value'=>$v, 'connect'=>'AND', 'op'=>$op);
                 }
             }
         }
@@ -876,6 +854,7 @@ class Database_Drivers_Mysqli{
         $this->_table = '';
         
         foreach($data as $k=>$v){
+            $k = strpos($k, '`')===false ? '`'.$k.'`' : $k;
             $this->_sql .= $k .',';
         }
         $this->_sql = trim($this->_sql, ',');
@@ -909,6 +888,94 @@ class Database_Drivers_Mysqli{
             return false;
         }
                 
+        return $this->_stmt->insert_id;
+    }
+
+    /**
+     * 批量插入数据
+     * @param string $table  查询表名
+     * @param array $fields ['f1', 'f2', ...]
+     * @param array $data   [ [$v1, $v2], [$v1, $v2], ... ]
+     * @param string $insertOrUpdateKey 用于执行批量更新（如果记录不存在会插入数据！）
+     * @return mixed boolean || Database_Drivers_Mysqli
+     */
+    public function batchInsert($table, Array $fields, Array $data, $insertOrUpdateKey='') {
+        $this->freeResult();
+
+        if(empty($table)){
+            log_message('error', 'sql error, batchInsert: need table name');
+            return false;
+        }
+
+        if(empty($fields)){
+            log_message('error', 'sql error, batchInsert: need table fields');
+            return false;
+        }
+
+        if(empty($data)){
+            log_message('error', 'sql error, batchInsert: need data');
+            return false;
+        }
+
+        if (!is_array($fields) || empty($data[0]) || !is_array($data[0])) {
+            log_message('error', 'sql error, batchInsert: fields|data format is not correct');
+            return false;
+        }
+
+        $this->_table = !empty($this->_prefix) && strpos($table, $this->_prefix)!==0 ? $this->_prefix.$table : $table;
+        $this->_sql = 'INSERT INTO '. $this->_table .' (';
+        $this->_table = '';
+
+        foreach($fields as $k){
+            $k = strpos($k, '`')===false ? '`'.$k.'`' : $k;
+            $this->_sql .= $k .',';
+        }
+        $this->_sql = trim($this->_sql, ',');
+
+        $this->_sql .= ') VALUES ';
+        foreach($data as $k=>$value){
+            $this->_sql .= '(';
+            foreach ($value as $_v) {
+                $this->_sql .= '?,';
+                $this->_value[] = $_v;
+            }
+            $this->_sql = rtrim($this->_sql, ',');
+            $this->_sql .= '), ';
+        }
+        $this->_sql = rtrim($this->_sql, ', ');  // 尾部的空格也要去除
+
+        // 如果是更新
+        if (!empty($insertOrUpdateKey)) {
+            $this->_sql .= ' ON DUPLICATE KEY UPDATE ';
+            foreach ($fields as $_field) {
+                if ($_field==$insertOrUpdateKey) continue;
+                $this->_sql .= '`'.$_field.'`=VALUES(`'.$_field.'`), ';
+            }
+            $this->_sql  = rtrim($this->_sql, ', ');
+        }
+
+
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+
+        if(DEBUG){
+            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+        }
+
+        $this->_last_sql = $this->_sql;
+        $this->_sql = '';
+        if(!$this->_stmt){
+            $this->_condition = $this->_value = array();
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
+            return false;
+        }
+        $this->__bindValue();
+        $rt = $this->_stmt->execute();
+        if(!$rt){
+            $this->__log_message($this->_stmt);
+            return false;
+        }
+
         return $this->_stmt->insert_id;
     }
     
@@ -988,6 +1055,7 @@ class Database_Drivers_Mysqli{
         $this->_table = '';
         
         foreach($data as $k=>$v){
+            $k = strpos($k, '`')===false ? '`'.$k.'`' : $k;
             $this->_sql .= $k .',';
         }
         $this->_sql = trim($this->_sql, ',');
@@ -1056,6 +1124,8 @@ class Database_Drivers_Mysqli{
                         //$tmp = '?%';
                         $v['value'] = $v['value'] .'%';
                     }
+                    
+                    $v['key'] = strpos($v['key'], '`')===false ? '`'.$v['key'].'`' : $v['key'];
                     $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
                     $this->_value[] = $v['value'];
                 }elseif($v['op']==='in' || $v['op']==='not in'){
@@ -1065,6 +1135,7 @@ class Database_Drivers_Mysqli{
                     }
 
                     $repeat = rtrim(str_repeat('?,', count($v['value'])), ',');
+                    $v['key'] = strpos($v['key'], '`')===false ? '`'.$v['key'].'`' : $v['key'];
                     $this->_sql .= $v['key'] .' '. $v['op'] .' ('. $repeat .') ';
                 }else if(is_null($v['value']) || strtoupper($v['value'])==='NULL'){
                     if($v['op']==='='){
@@ -1073,8 +1144,10 @@ class Database_Drivers_Mysqli{
                         $v['op'] = ' IS NOT ';
                     }
                     
+                    $v['key'] = strpos($v['key'], '`')===false ? '`'.$v['key'].'`' : $v['key'];
                     $this->_sql .= $v['key'] .' '. $v['op'] .' NULL ';
                 }else{
+                    $v['key'] = strpos($v['key'], '`')===false ? '`'.$v['key'].'`' : $v['key'];
                     $this->_sql .= $v['key'] .' '. $v['op'] .' ? ';
                     $this->_value[] = $v['value'];
                 }
@@ -1106,8 +1179,8 @@ class Database_Drivers_Mysqli{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __buildGroup(){
-        
         if(!empty($this->_group)){
+            $this->_group = strpos($this->_group, '`')===false ? '`'.$this->_group.'`' : $this->_group;
             $this->_sql .= ' group by '. $this->_group .' ';
         }
         $this->_group = '';
@@ -1161,6 +1234,7 @@ class Database_Drivers_Mysqli{
                     $this->_sql .= ', ';
                 }
                 
+                $v['key'] = strpos($v['key'], '`')===false ? '`'.$v['key'].'`' : $v['key'];
                 $this->_sql .= $v['key'] .' = ? ';
                 $this->_value[] = $v['value'];
             }
@@ -1298,20 +1372,27 @@ class Database_Drivers_Mysqli{
      */
     public function query($sql){
         $this->freeResult();
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->query($sql);
+        $this->ping();
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($sql);
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            log_message('error', 'sql query error, sql:'. $this->_sql .' msg: '. Yaf_Registry::get($this->_default_group)->error);
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;
         }
-        
+
+        $rt = $this->_stmt->execute();
+        if(!$rt){
+            $this->__log_message($this->_stmt);
+            return false;
+        }
+
         $sql = strtolower($sql);
-        if(strpos($sql, 'select')===0){
-            return $this->_stmt->fetch_array(MYSQLI_ASSOC);
+        if(strpos($sql, 'select')===0 || strpos($sql, 'desc')===0){
+            return $this->_stmt->fetch_all(MYSQLI_ASSOC);
         }else if(strpos($sql, 'insert')===0){
-            return $this->_stmt->insert_id;
+            return $this->_stmt;
         }else if(strpos($sql, 'replace')===0){
-            return $this->_stmt->insert_id;
+            return $this->_stmt;
         }else{
             return $this->_stmt->affected_rows;
         }
@@ -1323,7 +1404,7 @@ class Database_Drivers_Mysqli{
      */
     public function freeResult(){
         try{
-            $this->_stmt && $this->_stmt->free_result();
+            $this->_stmt && ($this->_stmt instanceof mysqli_stmt) && $this->_stmt->free_result();
         }catch(Exception $e){
             Yaf_Registry::set('ping_error',1);
             log_message('error', 'mysqli free_result error, code:'. $e->getCode() .' msg: '.$e->getMessage());
