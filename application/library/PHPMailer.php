@@ -889,7 +889,7 @@ class PHPMailer
             $msg = "发送失败，电子邮箱地址是无效的：(addAnAddress $kind): $address";
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         $params = array($kind, $address, $name);
         // Enqueue addresses with IDN until we know the PHPMailer::$CharSet.
@@ -927,13 +927,13 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
             $msg = '无效的收件人类型:'. $kind;
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         if (!$this->validateAddress($address)) {
             $msg = "发送失败，电子邮箱地址是无效的: (addAnAddress $kind): $address";
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         if ($kind != 'Reply-To') {
             if (!array_key_exists(strtolower($address), $this->all_recipients)) {
@@ -1024,7 +1024,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
             $msg = '发送失败，电子邮箱地址是无效的:(setFrom) '. $$address;
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         $this->From = $address;
         $this->FromName = $name;
@@ -1242,7 +1242,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                 $msg = '必须提供至少一个收件人地址。';
                 log_message('error', $msg);
                 
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
             }
 
             // Validate From, Sender, and ConfirmReadingTo addresses
@@ -1256,7 +1256,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                     $msg = '发送失败，电子邮箱地址是无效的：(punyEncode) '. $this->$address_kind;
                     log_message('error', $msg);
                     
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
                 }
             }
 
@@ -1271,7 +1271,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                 $msg = '邮件正文为空。';
                 log_message('error', $msg);
                 
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
             }
 
             // Create body before headers in case body makes changes to headers (e.g. altering transfer encoding)
@@ -1348,7 +1348,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
             $msg = $e->getMessage();
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         return false;
     }
@@ -1387,7 +1387,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                 if (!@$mail = popen($sendmail, 'w')) {
                     log_message('error', '无法执行：'. $this->Sendmail);
                     
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>'无法执行：'. $this->Sendmail)));
+lExit(-1, '无法执行：'. $this->Sendmail);
                 }
                 fputs($mail, 'To: ' . $toAddr . "\n");
                 fputs($mail, $header);
@@ -1405,14 +1405,14 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>'无法执行：'. $this->Sendma
                 if ($result != 0) {
                     log_message('error', '无法执行：'. $this->Sendmail);
                     
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>'无法执行：'. $this->Sendmail)));
+lExit(-1, '无法执行：'. $this->Sendmail);
                 }
             }
         } else {
         if (!@$mail = popen($sendmail, 'w')) {
                 log_message('error', '无法执行：'. $this->Sendmail);
                 
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>'无法执行：'. $this->Sendmail)));
+lExit(-1, '无法执行：'. $this->Sendmail);
             }
             fputs($mail, $header);
             fputs($mail, $body);
@@ -1429,7 +1429,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>'无法执行：'. $this->Sendma
             if ($result != 0) {
                 log_message('error', '无法执行：'. $this->Sendmail);
                 
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>'无法执行：'. $this->Sendmail)));
+lExit(-1, '无法执行：'. $this->Sendmail);
             }
         }
         return true;
@@ -1515,7 +1515,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>'无法执行：'. $this->Sendma
             $msg = '未知函数调用。';
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         return true;
     }
@@ -1552,7 +1552,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
             $msg = 'SMTP服务器连接失败。';
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         if (!empty($this->Sender) and $this->validateAddress($this->Sender)) {
             $smtp_from = $this->Sender;
@@ -1560,10 +1560,10 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
             $smtp_from = $this->From;
         }
         if (!$this->smtp->mail($smtp_from)) {
-            $msg = '发送地址错误：' . $smtp_from . ' : ' . implode(',', $this->smtp->getError());
+            $msg = '发送地址错误：' . $smtp_from . ' : ' . mb_convert_encoding(implode(',', $this->smtp->getError()), 'utf-8', 'gb2312');
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
 
         // Attempt to send to all recipients
@@ -1585,7 +1585,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
             $msg = 'SMTP 错误：数据不被接受。';
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         if ($this->SMTPKeepAlive) {
             $this->smtp->reset();
@@ -1602,7 +1602,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
             $msg = 'SMTP 错误：收件人地址错误：'. $errstr;
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         return true;
     }
@@ -1670,7 +1670,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                     $msg = 'Extension missing：openssl';
                     log_message('error', $msg);
                     
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
                 }
             }
             $host = $hostinfo[3];
@@ -1700,7 +1700,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                             $msg = 'SMTP 错误：无法连接到 SMTP 主机。';
                             log_message('error', $msg);
                             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
                         }
                         // We must resend EHLO after TLS negotiation
                         $this->smtp->hello($hello);
@@ -1717,7 +1717,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                             $msg = 'SMTP 错误：登录失败。';
                             log_message('error', $msg);
                             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
                         }
                     }
                     return true;
@@ -2295,7 +2295,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                     $msg = 'extension missing: openssl';
                     log_message('error', $msg);
                     
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
                 }
                 // @TODO would be nice to use php://temp streams here, but need to wrap for PHP < 5.1
                 $file = tempnam(sys_get_temp_dir(), 'mail');
@@ -2303,7 +2303,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                     $msg = '登录失败： Could not write temp file';
                     log_message('error', $msg);
                     
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
                 }
                 $signed = tempnam(sys_get_temp_dir(), 'signed');
                 //Workaround for PHP bug https://bugs.php.net/bug.php?id=69197
@@ -2340,13 +2340,13 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                     $msg = '登录失败：'. openssl_error_string();
                     log_message('error', $msg);
                     
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
                 }
             } catch (Exception $e) {
                 $msg = $e->getMessage();
                 log_message('error', $msg);
                 
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
             }
         }
         return $body;
@@ -2463,7 +2463,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                 $msg = '无法访问文件：';
                 log_message('error', $msg);
                 
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
             }
 
             // If a MIME type is not specified, try to work it out from the file name
@@ -2491,7 +2491,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
             $msg = $e->getMessage();
             log_message('error', $msg);
             
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
         }
         return true;
     }
@@ -2645,7 +2645,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                 $msg = '文件错误：无法打开文件：';
                 log_message('error', $msg);
                 
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
             }
             $magic_quotes = get_magic_quotes_runtime();
             if ($magic_quotes) {
@@ -3714,7 +3714,7 @@ lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
                 $msg = 'extension_missing: openssl';
                 log_message('error', $msg);
                 
-lExit(json_encode(array('rtn'=>-1, 'error_msg'=>$msg)));
+lExit(-1, $msg);
             }
             return '';
         }

@@ -299,7 +299,7 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function having($having){
-        $this->_having[] = $having;
+        $this->_having = $having;
         return $this;
     }
     
@@ -366,18 +366,22 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function select($field){
+        if(is_string($field) && preg_match('/[`()\*]/', $field)){
+            $this->_select = $field;
+            return $this;
+        }
         $field = is_array($field) ? $field : explode(',', $field);
         
         $this->_select = '';
         foreach($field as $_field){
-            if(strpos($_field, ' as ')!==false){
-                list($origin, $alias) = explode(' as ', $_field);
+            if(preg_match('/\s+as\s+/i', $_field)){
+                list($origin, $alias) = preg_split('/\s+as\s+/i', $_field);
                 $this->_select .= preg_match('/[`()]/', $origin) ? $origin : '`'.trim($origin).'`';
                 $this->_select .= ' as ';
                 $this->_select .= preg_match('/[`()]/', $alias) ? $alias : '`'.trim($alias).'`,';
                 continue;
             }
-            $this->_select .= preg_match('/[`()]/', $_field) ? trim($_field).',' : '`'.trim($_field).'`,';
+            $this->_select .= preg_match('/[`()\*]/', $_field) ? trim($_field).',' : '`'.trim($_field).'`,';
         }
         
         $this->_select = trim($this->_select, ',');
@@ -579,7 +583,7 @@ class Database_Drivers_Pdo{
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
-            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         }
         
         $this->_last_sql = $this->_sql;
@@ -670,7 +674,7 @@ class Database_Drivers_Pdo{
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         
         if(DEBUG){
-            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         }
         
         $this->_last_sql = $this->_sql;
@@ -731,7 +735,7 @@ class Database_Drivers_Pdo{
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
-            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         }
         
         $this->_last_sql = $this->_sql;
@@ -747,19 +751,20 @@ class Database_Drivers_Pdo{
             $this->__log_message($this->_stmt);
             return false;
         }
-                
-        return Yaf_Registry::get($this->_default_group)->lastInsertId();
+        
+        $tmp = Yaf_Registry::get($this->_default_group)->lastInsertId();
+        return intval($tmp) ? $tmp : true;
     }
 
     /**
      * 批量插入数据
      * @param string $table  查询表名
-     * @param array $fields ['f1', 'f2', ...]
-     * @param array $data   [ [$v1, $v2], [$v1, $v2], ... ]
+     * @param array $fields ['f1', 'f2', ...]               或   [ ['f1'=>$v1, 'f2'=>$v2], ['f1'=>$v1, 'f2'=>$v2], ... ]
+     * @param mixed $data [ [$v1, $v2], [$v1, $v2], ... ]   或   null
      * @param string $insertOrUpdateKey 用于执行批量更新（如果记录不存在会插入数据！）
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
-    public function batchInsert($table, Array $fields, Array $data, $insertOrUpdateKey=''){
+    public function batchInsert($table, Array $fields, $data=null, $insertOrUpdateKey=''){
         $this->freeResult();
 
         if(empty($table)){
@@ -770,6 +775,17 @@ class Database_Drivers_Pdo{
         if(empty($fields)){
             log_message('error', 'sql error, batchInsert: need table fields');
             return false;
+        }
+
+        if (empty($data) && is_array($fields[0])) {
+            array_walk($fields, function (&$value) {
+                ksort($value);
+            });
+            $tmpFields = array_keys($fields[0]);
+            foreach ($fields as $item) {
+                $data[] = array_values($item);
+            }
+            $fields = $tmpFields;
         }
 
         if(empty($data)){
@@ -819,7 +835,7 @@ class Database_Drivers_Pdo{
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
 
         if(DEBUG){
-            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         }
 
         $this->_last_sql = $this->_sql;
@@ -836,7 +852,7 @@ class Database_Drivers_Pdo{
             return false;
         }
 
-        return Yaf_Registry::get($this->_default_group)->lastInsertId();
+        return $this->_stmt->rowCount();
     }
     
     /**
@@ -872,7 +888,7 @@ class Database_Drivers_Pdo{
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
-            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         }
         
         $this->_last_sql = $this->_sql;
@@ -932,7 +948,7 @@ class Database_Drivers_Pdo{
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
-            log_message('debug', 'sql: '. $this->_sql ."\n".print_r($this->_value, true));
+            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         }
         
         $this->_last_sql = $this->_sql;
@@ -949,7 +965,8 @@ class Database_Drivers_Pdo{
             return false;
         }
                 
-        return Yaf_Registry::get($this->_default_group)->lastInsertId();
+        $tmp = Yaf_Registry::get($this->_default_group)->lastInsertId();
+        return intval($tmp) ? $tmp : true;
     }
     
     /**
@@ -1029,7 +1046,7 @@ class Database_Drivers_Pdo{
      */
     protected function __buildHaving(){
         if(!empty($this->_having)){
-            $this->_sql .= ' '. $this->_having .' ';
+            $this->_sql .= ' having '. $this->_having .' ';
         }
         $this->_having = '';
         
@@ -1147,10 +1164,15 @@ class Database_Drivers_Pdo{
         }
 
         $stack = debug_backtrace();
+        $fileStack = [];
+        foreach ($stack as $item) {
+            $fileStack[] = $item['file'] . '@' . $item['line'];
+        }
         $stack = array_shift($stack);
         $message .= "\n".'error from: '. $stack['file'] .' @line: '. $stack['line']."\n";
-        
-        return log_message('error', $message);
+        $message .= print_r($fileStack, true) . PHP_EOL;
+
+        log_message('error', $message);
     }
     
     /**
@@ -1222,6 +1244,12 @@ class Database_Drivers_Pdo{
         $this->freeResult();
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($sql);
+        $this->_last_sql = $sql;
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $sql);
+        }
+        
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group));
             return false;

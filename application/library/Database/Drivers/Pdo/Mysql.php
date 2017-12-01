@@ -55,7 +55,7 @@ class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
 			}
 		}
 
-		if ($config['compress'] === TRUE){
+		if ($config['compress'] == TRUE){
 			$this->_options[PDO::MYSQL_ATTR_COMPRESS] = TRUE;
 		}
 
@@ -75,7 +75,7 @@ class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
 		}
 		// Prior to version 5.7.3, MySQL silently downgrades to an unencrypted connection if SSL setup fails
         $this->_options[PDO::ATTR_PERSISTENT] = $config['pconnect'];
-		$this->_options[PDO::ATTR_STRINGIFY_FETCHES] = false;   //ATTR_STRINGIFY_FETCHES 提取的时候将数值转换为字符串
+		$this->_options[PDO::ATTR_STRINGIFY_FETCHES] = true;   //ATTR_STRINGIFY_FETCHES 提取的时候将数值转换为字符串
         $this->_options[PDO::ATTR_EMULATE_PREPARES] = false;
 
         $_conn = new PDO($config['dsn'], $config['username'], $config['password'], $this->_options);

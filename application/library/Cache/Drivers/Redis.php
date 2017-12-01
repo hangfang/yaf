@@ -107,11 +107,15 @@ class Cache_Drivers_Redis extends Redis{
     /**
      * 设置key的值
      * @param string $key 键名
-     * @param string $value 值
+     * @param string|array $value 值
      * @return boolean
      */
-    public function set($key, $value){
-        return parent::setex($key, $this->_config['ttl'], $value);
+    public function set($key, $value, $expire=null){
+        if(is_null($expire)){
+            $expire = $this->_config['ttl'];
+        }
+        $value = is_string($value) ? $value : json_encode($value);
+        return parent::setex($key, $expire, $value);
     }
     
     /**
@@ -126,7 +130,7 @@ class Cache_Drivers_Redis extends Redis{
             $expire = $this->_config['ttl'];
         }
         parent::hMset($key, $value);
-        return $this->expire($expire);
+        return $this->expire($key, $expire);
     }
     
     /**

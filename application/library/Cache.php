@@ -10,19 +10,26 @@ class Cache {
      * 缓存对象实例
      * @var Cache_Drivers_Redis
      */
-    private static $_instance = null;
+    private static $_instance = [];
     private function __construct(){}
     private function __clone(){}
     
-    public static function getInstance($force=false, $prefix=''){
+    /**
+     * 获取cache实例
+     * @param string $prefix key的前缀,默认/conf/cache.ini配置prefix字段
+     * @return boolean
+     */
+    public static function getInstance($prefix=''){
         $config = new Yaf_Config_Ini(APPLICATION_PATH . '/conf/cache.ini', ini_get('yaf.environ'));
         $config = $config->toArray();
         
         if(empty($prefix)){
-            $prefix = $config['prefix'];
+            $prefix = eval($config['prefix']);
         }
-        if(!$force && isset(self::$_instance[$prefix]) && self::$_instance[$prefix]->ping()){
-            return self::$_instance[$prefix];
+        
+        $index = 'cache_'.$prefix;
+        if(isset(self::$_instance[$index]) && self::$_instance[$index]->ping()){
+            return self::$_instance[$index];
         }
         
         $adapter = isset($config['adapter']) ? $config['adapter'] : 'redis';
@@ -38,7 +45,7 @@ class Cache {
             return false;
         }
         
-        self::$_instance[$prefix] = new $class($prefix);
-        return self::$_instance[$prefix];
+        self::$_instance[$index] = new $class($prefix);
+        return self::$_instance[$index];
     }
 }

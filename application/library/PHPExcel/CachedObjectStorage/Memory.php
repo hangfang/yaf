@@ -121,5 +121,9 @@ class PHPExcel_CachedObjectStorage_Memory extends PHPExcel_CachedObjectStorage_C
 		//	detach ourself from the worksheet, so that it can then delete this object successfully
 		$this->_parent = null;
 	}	//	function unsetWorksheetCells()
-
+    
+    public function getStyle($pCellCooldinate='A1')
+    {
+        return $this->_parent->getStyle($pCellCooldinate) ;
+    }
 }

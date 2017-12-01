@@ -145,7 +145,8 @@ class Log {
             mkdir ($filepath, 0777, true);
         }
         
-		$filepath .= '/log-'. date('Y-m-d') .'.'.$this->_file_ext;
+        $env = Yaf_Registry::get('app')->environ();
+		$filepath .= '/log-'. date('Y-m-d') .'-'.$env.'.'.$this->_file_ext;
 		if ( ! file_exists($filepath))
 		{
 			$newfile = TRUE;
