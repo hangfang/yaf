@@ -146,6 +146,46 @@ class BaseModel {
         
         return true;
     }
+
+    /**
+     * 批量插入
+     * @param array $fields ['f1', 'f2', ...]               或   [ ['f1'=>$v1, 'f2'=>$v2], ['f1'=>$v1, 'f2'=>$v2], ... ]
+     * @param mixed $data [ [$v1, $v2], [$v1, $v2], ... ]   或   null
+     * @param string $insertOrUpdateKey 用于执行批量更新（如果记录不存在会插入数据！）
+     * @return array|bool|mixed
+     */
+    public static function batchInsert(array $fields, $data = null, $insertOrUpdateKey = '')
+    {
+        if (empty(static::$_database) || empty(static::$_table)) {
+            return [];
+        }
+
+        if (empty($fields) || !is_array($fields)) {
+            log_message('error', 'sql: insert into ' . static::$_database . '.' . static::$_table . ' failed, param $field error.');
+            return false;
+        }
+
+        /** @var Database_Drivers_Mysqli $db */
+        if (static::$_database === 'g3') {
+            $clientId = self::domain2Id();
+            static::$_database = 'g3';
+            $db = Database::getInstance(static::$_database = 'g3', $clientId);
+        } else if (is_numeric(static::$_database)) {
+            $clientId = static::$_database;
+            static::$_database = 'g3';
+            $db = Database::getInstance(static::$_database, $clientId);
+        } else {
+            $db = Database::getInstance(static::$_database);
+        }
+
+        $query = $db->batchInsert(static::$_table, $fields, $data, $insertOrUpdateKey);
+        if ($query === false) {
+            static::$_error = 501;
+            return false;
+        }
+
+        return $query;
+    }
     
     /**
      * 查询数据库记录
@@ -252,5 +292,19 @@ class BaseModel {
         }
         
         return $rt->resultArray();
+    }
+    
+    /**
+     * 统计
+     * @param array $where
+     * @param string $field
+     * @param string $funcName
+     * @return int
+     */
+    public static function count($where = [], $field = '*', $funcName = 'count')
+    {
+        $fieldName = 'fieldAggregate';
+        $rt = self::getRow($where, "$funcName($field) as $fieldName");
+        return empty($rt) ? 0 : $rt[$fieldName];
     }
 }

@@ -1,5 +1,5 @@
 <?php
-defined('BASE_PATH') OR exit('No direct script access allowed');
+defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 
 if ( ! function_exists('dump'))
 {
@@ -345,6 +345,7 @@ if ( ! function_exists('html_escape'))
 
 if(!function_exists('ip_address')){
     function ip_address(){
+        $ip = '';
 		$unknown = 'unknown';  
         if ( isset($_SERVER['HTTP_X_FORWARDED_FOR'])  && $_SERVER['HTTP_X_FORWARDED_FOR']  && strcasecmp($_SERVER['HTTP_X_FORWARDED_FOR'], $unknown) ) {  
             $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];  
@@ -374,7 +375,7 @@ if(!function_exists('get_var_from_conf')){
 		if(!$var){
             $filepath = rtrim($filepath).'/'. $filename .'.php';
             if(!file_exists($filepath)){
-                lExit(json_encode(array('rtn'=>501, 'error_msg'=>'file not exists, file:'. $filepath)));
+                lExit(501, 'file not exists, file:'. $filepath);
                 return false;
             }
             
@@ -399,7 +400,6 @@ if(!function_exists('http')){
             'method' => 'get',
             'type' => 'json',
             'cookie' => array(),
-            'auth'=>isset($args['auth']) ? $args['auth'] : false,
             'header' => array('Connection: keep-alive', 'Expect: '),
             'withheader' => isset($args['withheader']) ? $args['withheader'] : true,
         ) ,$args);
@@ -407,16 +407,16 @@ if(!function_exists('http')){
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $args['data']);
         }else if(strtolower($args['method']) === 'put'){
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch,CURLOPT_HTTPHEADER,array("X-HTTP-Method-Override: PUT"));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($args['data']) ? json_encode($args['data'], JSON_UNESCAPED_UNICODE) : $args['data']);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_HTTPHEADER,array("X-HTTP-Method-Override: PUT"));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, (is_array($args['data']) || is_object($args['data'])) ? json_encode($args['data'], JSON_UNESCAPED_UNICODE) : $args['data']);
         }else{
             $data = array();
             foreach ($args['data'] as $key => $value) {
                 $data[] = $key.'='.$value;
             }
             $data = implode('&', $data);
-            $args['url'] .= trim((strpos($args['url'] ,'?')==false?'?':'&').$data, '&');
+            $args['url'] .= (strpos($args['url'] ,'?')===false?'?':'&').$data;
         }
         curl_setopt($ch, CURLOPT_URL, $args['url']);
         //跟踪301
@@ -427,7 +427,6 @@ if(!function_exists('http')){
         }
         // 头部信息
         curl_setopt($ch ,CURLOPT_HEADER, $args['withheader']);
-        $args['auth'] && curl_setopt($ch, CURLOPT_USERPWD, HTTP_BASIC_AUTH_USER .':'. HTTP_BASIC_AUTH_PASSWD);
         // 返回字符串，而非直接输出
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         // 30秒超时
@@ -449,11 +448,14 @@ if(!function_exists('http')){
         // http头
         curl_setopt($ch ,CURLOPT_HTTPHEADER, $args['header']);
         curl_setopt($ch ,CURLOPT_USERAGENT, isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.18 Safari/537.36');
+        $args['auth'] && curl_setopt($ch, CURLOPT_USERPWD, $args['auth']);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查 
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 从证书中检查SSL加密算法是否存在
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // 从证书中检查SSL加密算法是否存在
         
         log_message('debug', 'request remote server'. "\n" .'url: ['. $args['url'] .']'."\n".'param: ['. json_encode($args['data'], JSON_UNESCAPED_UNICODE) .']');
         $result = curl_exec($ch);
+
+        //lExit(curl_getinfo($ch));
         
         $tmp = $result;
         $from = strtoupper(mb_detect_encoding($tmp));
@@ -464,7 +466,7 @@ if(!function_exists('http')){
         log_message('debug', 'result: ['. $tmp .']');
 
         curl_close($ch);
-        
+
         if($args['withheader']){
             $header_body = preg_split("#\r\n\r\n#" ,$result ,2);//$header_body[0]是返回头的字符串形式，$header_body[1]是返回数据的字符串形式
             $headers = preg_split("#\r\n#", $header_body[0] ,2);//$headers是返回头的数组
@@ -472,6 +474,22 @@ if(!function_exists('http')){
             $code = isset($status[1]) ? $status[1] : '502';//状态码，如200、302、404
             $text = isset($status[2]) ? $status[2] : '第三方响应超时';
             $data = isset($header_body[1]) ? $header_body[1] : '';//返回数据
+            
+            $_is_image = false;
+            // 头部写入
+            $headers = preg_split("#\r\n#", $headers[1]);
+            foreach ($headers as $_header) {
+                if(preg_match("#^Content-Type:\s*image.*#", $_header)===1){
+                    $_is_image = true;
+                    header($_header);
+                    break;
+                }
+            }
+
+            if($_is_image){
+                header('Content-Length:'. strlen($data));
+                return $data;
+            }
         }else{
             $code = 200;
             $data = $result;
@@ -480,28 +498,28 @@ if(!function_exists('http')){
         if($args['type']==='json'){
             if($result === false){
                 $return = array();
-                $return['err'] = 1;
+                $return['code'] = 1;
                 $return['message'] = 'requrest remote server failed';
                 return $return;
             }
-            
+
             $from = mb_detect_encoding($data);
             if(strtoupper($from) != 'UTF-8'){
                 $data = mb_convert_encoding($data, 'UTF-8', $from);
             }
-            
+
             $return = json_decode($data ,true);
 
             if(!$return){
                 $return = array();
-                $return['err'] = 2;
+                $return['code'] = 2;
                 $return['message'] = '返回数据非json格式';
                 return $return;
             }
-            
+
             if(isset($return['error'])){
                 $return = array();
-                $return['err'] = 9999;
+                $return['code'] = 9999;
                 $return['message'] = isset($return['error']['message']) ? $return['error']['message'] : $data;
                 return $return;
             }
@@ -517,7 +535,7 @@ if(!function_exists('http')){
 
             if(!$return){
                 $return = array();
-                $return['err'] = 2;
+                $return['code'] = 2;
                 $return['message'] = '返回数据非xml格式';
                 $return['source_code'] = $data;
                 return $return;
@@ -530,11 +548,11 @@ if(!function_exists('http')){
                     $return['header'][$key] = rtrim($value); 
                 }
             }
-            $return['err'] = $code==200 ? 0 : $code;
+            $return['code'] = $code==200 ? 0 : $code;
             $return['source_code'] = $data;
         }else{
             $return = array();
-            $return['err'] = 0;
+            $return['code'] = 0;
             $return['message'] = $data;
         }
 
@@ -574,7 +592,6 @@ if(!function_exists('cookie')){
                     $k = str_replace($prefix, '', $k);
                 }
                 cookie($k, null);
-                cookie($k, null, -86400, SERVER_NAME, '/', 'pre_demo_');
             }
             return true;
         }
@@ -635,70 +652,7 @@ if(!function_exists('cookie')){
         setcookie($prefix.$name, $value, intval($expire), $path, $domain, $secure, $httponly);
      }
  }
- 
- if(!function_exists('is_mobile')){
-    /*移动端判断*/
-    function is_mobile(){ 
-        // 如果有HTTP_X_WAP_PROFILE则一定是移动设备
-        if (isset ($_SERVER['HTTP_X_WAP_PROFILE'])){
-            return true;
-        } 
-        // 如果via信息含有wap则一定是移动设备,部分服务商会屏蔽该信息
-        if (isset ($_SERVER['HTTP_VIA'])){ 
-            // 找不到为flase,否则为true
-            return stristr($_SERVER['HTTP_VIA'], "wap") ? true : false;
-        } 
-        // 脑残法，判断手机发送的客户端标志,兼容性有待提高
-        if (isset ($_SERVER['HTTP_USER_AGENT'])){
-            $clientkeywords = array ('nokia',
-                'sony',
-                'ericsson',
-                'mot',
-                'samsung',
-                'htc',
-                'sgh',
-                'lg',
-                'sharp',
-                'sie-',
-                'philips',
-                'panasonic',
-                'alcatel',
-                'lenovo',
-                'iphone',
-                'ipod',
-                'blackberry',
-                'meizu',
-                'android',
-                'netfront',
-                'symbian',
-                'ucweb',
-                'windowsce',
-                'palm',
-                'operamini',
-                'operamobi',
-                'openwave',
-                'nexusone',
-                'cldc',
-                'midp',
-                'wap',
-                'mobile'
-                ); 
-            // 从HTTP_USER_AGENT中查找手机浏览器的关键字
-            if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))){
-                return true;
-            } 
-        } 
-        // 协议法，因为有可能不准确，放到最后判断
-        if (isset ($_SERVER['HTTP_ACCEPT'])){ 
-            // 如果只支持wml并且不支持html那一定是移动设备
-            // 如果支持wml和html但是wml在html之前则是移动设备
-            if ((strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') !== false) && (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false || (strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') < strpos($_SERVER['HTTP_ACCEPT'], 'text/html')))){
-                return true;
-            } 
-        } 
-        return false;
-    }
- }
+
  
  if ( ! function_exists('create_captcha'))
 {
@@ -721,19 +675,6 @@ if(!function_exists('cookie')){
         $image = $captcha->doImg();
         $code = $captcha->getCode();
         return array('code' => $code, 'image' =>$image );
-    }
-}
-
-if ( ! function_exists('getStructure'))
-{
-    function getStructure($node, $staff){
-        foreach($staff as $sub_k=>$sub_v){
-            if($node['s_id']==$sub_v['s_sid']){
-                $node['item'][$sub_v['s_id']] = getStructure($sub_v, $staff);
-            }
-        }
-        
-        return $node;
     }
 }
 
@@ -798,13 +739,13 @@ if ( ! function_exists('get_birthday_by_id_card')){
     }
 }
 
-if ( ! function_exists('isEmail')){
+if ( ! function_exists('is_email')){
     /**
      * 是否是邮箱
      * @param string $email
      * @return bool
      */
-    function isEmail($email){
+    function is_email($email){
         $exp = '/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/';
         return preg_match($exp,$email);
     }
@@ -932,23 +873,74 @@ if(!function_exists('passwd_strength')){
 }
 
 if(!function_exists('lExit')){
-    function lExit($body){
-        if($tmp = json_decode($body, true)){
-            $tmp['env'] = COOKIE_MIDDEL_FIX;
-            $body = json_encode($tmp, JSON_UNESCAPED_UNICODE);
+    function lExit($code=[], $msg=null){
+        header('content-type:application/json;charset=utf-8', true);
+        if(is_object($code) || is_array($code)){
+            $body4log = json_encode(['response'=>['data'=>$code], '_a'=>ENCRYPT_OUTPUT], JSON_UNESCAPED_UNICODE);//保存加密前的数据，写入日志
+            $body = json_encode([
+				'response' => ENCRYPT_OUTPUT ? DES::encodeWithBase64(['data'=>$code]):['data'=>$code],
+				'_a'=> ENCRYPT_OUTPUT,
+				'state'=>true
+			],JSON_UNESCAPED_UNICODE);
+		}else if(is_bool($code)){
+            $body4log = $body = json_encode(['response'=>['data'=>$code], '_a'=>false, 'state'=>true], JSON_UNESCAPED_UNICODE);
         }else{
-            header('content-type:text/html;charset=utf-8', true);
+            if(is_null($msg)){
+                $error = get_var_from_conf('error');
+                if(isset($error[$code])){
+                    $body4log = $body = json_encode(['error'=>['code'=>$code, 'message'=>$error[$code]['message']]], JSON_UNESCAPED_UNICODE);
+                }else{
+                    $body4log = $body = json_encode(['response'=>['data'=>$code], '_a'=>false, 'state'=>true], JSON_UNESCAPED_UNICODE);
+                }
+            }else{
+                $body4log = $body = json_encode(['error'=>['code'=>$code, 'message'=>$msg]], JSON_UNESCAPED_UNICODE);
+            }
         }
-        log_message('all', 'request_id:'.Yaf_Registry::get('request_id')."\n    ".'response:'.$body."\n");
-        exit($body);
+        log_message('all', 'request_id:'.Yaf_Registry::get('request_id')."\tip:". ip_address() ."\n    ".'response:'.$body4log."\n");
+		exit($body);
     }
 }
 
-//方便调试
-if(!function_exists('dd')){
-    function dd($param){
-        var_dump($param);
-        exit;
+if (!function_exists('aExit')) {
+    function aExit(Array $error)
+    {
+        lExit($error['code'], $error['message']);
+    }
+}
+
+if (!function_exists('array_index')) {
+    /**
+     * @param $arr
+     * @param $key
+     * @param bool $group   按照 $key 为索引分组
+     * @param bool|Closure $extra 是否跳过 $Key | 接受闭包对 $item 进行处理
+     * @return array
+     */
+    function array_index($arr, $key, $group=false, $extra=false)
+    {
+        $result = [];
+
+        if (is_array($arr)) {
+            foreach ($arr as $item) {
+                if (array_key_exists($key, $item)) {
+                    $tempItem = $item;
+                    if ($extra) {
+                        if ($extra instanceof Closure) {
+                            $tempItem = $extra($item);
+                        } else {
+                            unset($tempItem[$key]);
+                        }
+                    }
+                    $group ? $result[$item[$key]][] = $tempItem : $result[$item[$key]] = $tempItem;
+                } else {
+                    $parentStack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1];
+                    $parentStack['message'] = 'missing desired key: '.$key;
+                    log_message('error', print_r($parentStack, true));
+                }
+            }
+        }
+
+        return $result;
     }
 }
 
@@ -978,5 +970,317 @@ if(!function_exists('hump2Line')){
             return '_'.strtolower($matches[0]);
         },$str);
         return $str;
+    }
+}
+
+if (!function_exists('checkDateIsValid'))
+{
+    /**
+     * 校验日期格式是否正确
+     *
+     * @param string $date 日期
+     * @param array $formats 需要检验的格式数组
+     * @return boolean
+     */
+    function checkDateIsValid($date, $formats = array("Y-m-d", "Y/m/d"))
+    {
+        $unixTime = strtotime($date);
+        if (!$unixTime) { //strtotime 转换不对，则日期格式不对。
+            return false;
+        }
+        // 校验日期的有效性，只要满足其中一个格式就OK
+        foreach ($formats as $format) {
+            if (date($format, $unixTime) == $date) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('checkWeightUnit')) {
+    /**
+     * 验证单位,若单位不存在默认为g
+     * @param $unit
+     * @return string
+     */
+    function checkWeightUnit($unit) {
+        switch ($unit) {
+            case 'g':
+            case 'ct':
+            case 'mi':
+                break;
+            default:
+                $unit = 'g';
+        }
+
+        return $unit;
+    }
+}
+
+if (!function_exists('checkNumber')) {
+    /**
+     * 截取以数字开头的字符串中的数字
+     * @param $string
+     * @return float
+     */
+    function checkNumber($string) {
+        return Formatter::FormatData($string, 6)*1;
+    }
+}
+
+if (!function_exists('weightTransform')) {
+    /**
+     * 重量转换
+     * @param number $curWeight 待转换重量
+     * @param string $curUnit 待转换重量单位
+     * @param string $tarUnit 目标重量单位
+     * @returns boolean|number
+     */
+    function weightTransform($curWeight, $curUnit, $tarUnit) {
+        $curUnitRadixToG = getWeightUnitRadixToG($curUnit);
+        $tarUnitRadixToG = getWeightUnitRadixToG($tarUnit);
+
+        if (is_numeric($curWeight) && $curUnitRadixToG !== false && $tarUnitRadixToG != false) {
+            return Formatter::FormatData($curWeight*$curUnitRadixToG/$tarUnitRadixToG, Formatter::DECIMAL_WEIGHT);
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('getWeightUnitRadixToG')) {
+    /**
+     * 获得指定单位转换成克的转换率
+     * @param string $needToTsfUnit 单位
+     * @returns boolean|number
+     */
+    function getWeightUnitRadixToG($needToTsfUnit) {
+        $radix = false;
+        switch ($needToTsfUnit) {
+            case 'g': $radix = 1;break;
+            case 'ct': $radix = 0.2;break;
+            case 'mi': $radix = 0.2/100;break;
+        }
+
+        return $radix;
+    }
+}
+
+if (!function_exists('get_attr')) {
+    /**
+     * 递归获取层级菜单
+     * @param $arr
+     * @param $pid
+     * @return array
+     */
+    function get_attr($arr,$pid){
+        $tree = array();                                //每次都声明一个新数组用来放子元素
+        foreach($arr as $v){
+            if($v['pid'] == $pid){                      //匹配子记录
+                $v['children'] = get_attr($arr,$v['id']); //递归获取子记录
+                if($v['children'] == null){
+                    unset($v['children']);             //如果子元素为空则unset()进行删除，说明已经到该分支的最后一个元素了（可选）
+                }
+                $tree[] = $v;                           //将记录存入新数组
+            }
+        }
+        return $tree;                                  //返回新数组
+    }
+}
+
+if (!function_exists('genPrimaryKey')) {
+    // 生成主键
+    function genPrimaryKey()
+    {
+        $m = microtime();
+        $ms = explode(' ', $m);
+        $ms1 = $ms[1];
+
+        // 组合新的key=(UNIX时间戳秒+用户ID中的后三位微妙+当前时间戳的微妙)
+        $ms2 = explode('.', $ms[0]);
+        $ms2 = $ms2[1];
+        $ms2 = substr($ms2, 0, 6);
+
+        // 随机数
+        $rand = mt_rand(0, 999);
+        if ($rand < 100)
+        {
+            if ($rand < 10) {
+                $rand = '00'.$rand;
+            } else {
+                $rand = '0'.$rand;
+            }
+        }
+        // 10位UNIX时间戳(秒)+6位当前时间微妙+3位随机数(共计18位ID)
+        $coder = $ms1.$ms2.$rand;
+
+        return $coder;
+    }
+}
+
+if (!function_exists('checkAndSet')) {
+    /**
+     * 初始化、处理 数据
+     * @param $container
+     * @param array $fields
+     * @param null $default
+     * @param Closure|null|string $func
+     * @return mixed
+     */
+    function checkAndSet(&$container, Array $fields, $default=null, $func=null)
+    {
+        foreach ($fields as $item) {
+            if (isset($container[$item])) {
+                $container[$item] = is_null($func) ? $container[$item] : $func($container[$item]);
+            } else {
+                $container[$item] = $default;
+            }
+        }
+    }
+}
+
+
+if (!function_exists('p')) {
+	/**
+	 * 格式化输出
+	 * @param $arr
+	 */
+	function p($arr,$type=0){
+		echo "<pre>";
+		if($type){
+			var_dump($arr);die;
+		}
+		print_r($arr);die;
+	}
+}
+
+if (!function_exists('failed_and_exit')) {
+    /**
+     * 如果数据库操作是 false 则退出
+     * @param bool $state
+     * @param string|array $error
+     * @param false|Database_Drivers_Pdo_Mysql $db
+     */
+    function failed_and_exit($state, $error, $db)
+    {
+        if ($state===false) {
+            !empty($db) && $db->rollBack();
+            is_array($error) ? lExit($error[0], $error[1]) : lExit($error);
+        }
+    }
+}
+
+if ( ! function_exists('today_is_birthday')){
+    /**
+     * 根据身份证获取生日
+     * @param string $cid
+     * @return bool
+     */
+    function today_is_birthday($cid){
+        if (!is_id_card($cid)){
+            return 'unknown';
+        }
+        return substr($cid,10,4) == date('md');
+    }
+}
+
+if ( ! function_exists('merge_by_keys')) {
+    /**
+     * 将右边的二维数组元素逐个合并到左边的二维数组中
+     * @param array $leftArr
+     * @param array $rightArr
+     * @param string|array $keys 连接两个数组的公共键。 可以指定多个键作为唯一键（多列主键的情况）
+     * @return array
+     * @desc merge_by_keys($l, $r, ['goods_user', 'goods_line']);
+     */
+    function merge_by_keys(Array $leftArr, $rightArr, $keys)
+    {
+        if (empty($rightArr)) {
+            return $leftArr;
+        }
+
+        $result = [];
+        $keys = (array)$keys;
+        $_idx2RightArr = [];
+
+        foreach ($rightArr as $value) {
+            $_idx = '';
+            foreach ($keys as $_k) {
+                $_idx .= $value[$_k].'_';
+            }
+            $_idx2RightArr[$_idx][] = $value;
+        }
+
+        foreach ($leftArr as $item) {
+            $_idx = '';
+            foreach ($keys as $_k) {
+                $_idx .= $item[$_k].'_';
+            }
+            if (isset($_idx2RightArr[$_idx])) {
+                foreach($_idx2RightArr[$_idx] as $_val) {
+                    $result[] = $item + $_val;
+                }
+            } else {
+                $result[] = $item;
+            }
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists('df')) {
+    function df($data, $channel='error', $stack=false)
+    {
+        $pStack = $stack===false ? [] : debug_backtrace()[$stack];
+        log_message($channel, print_r(['stack'=>$pStack, 'data'=>$data], true));
+    }
+}
+
+if (!function_exists('buildSql')) {
+    function buildSql($preparedSql, $bindParams)
+    {
+        $isInsert  = false;
+        $preparedSql = trim($preparedSql);
+        if ($preparedSql{0}==='(') {
+            $preparedSql{0} = $preparedSql{strlen($preparedSql)-1} = ' ';
+        }
+        if (false !== strpos($preparedSql, 'INSERT')) {
+            $isInsert = true;
+        }
+
+        $index = 0;
+        $preparedSql = PHP_EOL. trim($preparedSql) .PHP_EOL;
+        return preg_replace_callback('/(:\w+|\?)/', function ($match) use ($bindParams, &$index, $isInsert) {
+            $paramIndex = $isInsert ? ltrim($match[1], ':') : $match[1];
+            $replacement = is_array($bindParams[$index]) ? $bindParams[$index][$paramIndex] : $bindParams[$index];
+            $index++;
+            return "'$replacement'";
+        }, $preparedSql);
+    }
+}
+
+if (!function_exists('fillingMissedFields')) {
+    /**
+     * 为二位结果数组填充缺失的字段（数据库未返回结果的情形）
+     * @param array $result
+     * @param array $fields
+     * @param mixed $default 默认填充的值
+     * @param array $unsetKeys 要去除的多余数据
+     * @param Closure|null|string $func
+     * @return array
+     */
+    function fillingMissedFields(Array $result, Array $fields, $default='', $unsetKeys = [], $func=null)
+    {
+        foreach ($result as &$_item) {
+            foreach ($unsetKeys as $_key) {
+                unset($_item[$_key]);
+            }
+            checkAndSet($_item, $fields, $default, $func);
+        }
+
+        return $result;
     }
 }
