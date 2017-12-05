@@ -753,7 +753,7 @@ class Database_Drivers_Pdo{
         }
         
         $tmp = Yaf_Registry::get($this->_default_group)->lastInsertId();
-        return is_bool($tmp) ? $tmp : ($tmp===0 ? true : $tmp);//主键非自增id，会返回0
+        return is_bool($tmp) ? $tmp : ($tmp==0 ? true : $tmp);//主键非自增id，会返回0
     }
 
     /**
@@ -966,7 +966,7 @@ class Database_Drivers_Pdo{
         }
                 
         $tmp = Yaf_Registry::get($this->_default_group)->lastInsertId();
-        return is_bool($tmp) ? $tmp : ($tmp===0 ? true : $tmp);//主键非自增id，会返回0
+        return is_bool($tmp) ? $tmp : ($tmp==0 ? true : $tmp);//主键非自增id，会返回0
     }
     
     /**
