@@ -893,7 +893,7 @@ class Database_Drivers_Mysqli{
         }
 
         $tmp = $this->_stmt->insert_id;
-        return intval($tmp) ? $tmp : true;
+        return is_bool($tmp) ? $tmp : ($tmp===0 ? true : $tmp);//主键非自增id，会返回0
     }
 
     /**
@@ -1106,7 +1106,7 @@ class Database_Drivers_Mysqli{
         }
 
         $tmp = $this->_stmt->insert_id;
-        return intval($tmp) ? $tmp : true;
+        return is_bool($tmp) ? $tmp : ($tmp===0 ? true : $tmp);//主键非自增id，会返回0
     }
     
     /**
