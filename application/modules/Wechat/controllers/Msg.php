@@ -95,6 +95,14 @@ class MsgController extends WechatController {
                         continue;
                     }
                 }
+
+                if($_field==='EventKey'){
+                    $msg['EventKey'] = empty($msgXml['EventKey']) ? '' : $msgXml['EventKey'];
+                    continue;
+                }else if($_field==='CreateTime'){
+                    $msg['CreateTime'] = date('Y-m-d H:i:s', $msgXml['CreateTime']);
+                    continue;
+                }
                 $msg[$_field] = isset($msgXml[$_field]) ? $msgXml[$_field] : '';
             }  
             
