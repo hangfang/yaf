@@ -86,7 +86,6 @@ CREATE TABLE `wechat_send_message` (
   `thumb_media_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `title` varchar(255) NOT NULL DEFAULT '',
   `touser` varchar(255) NOT NULL DEFAULT '',
-  `msg_id` tinyint(11) unsigned zerofill DEFAULT NULL COMMENT '消息模板id ',
   PRIMARY KEY (`id`),
   KEY `touser` (`touser`) USING BTREE,
   KEY `msgtype` (`msgtype`) USING BTREE,
