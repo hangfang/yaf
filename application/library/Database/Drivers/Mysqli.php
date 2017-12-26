@@ -652,23 +652,14 @@ class Database_Drivers_Mysqli{
         return $this->_result->fetch_object();
     }
 
-    public function ping(){
-        Yaf_Registry::set('ping_error',1);
-        try{
-            $conn = Yaf_Registry::get($this->_default_group);
-            if(!$conn->ping()){
-                log_message('error', 'mysqli reconnect...');
-                $conn->close();
-                Yaf_Registry::del($this->_default_group);
-                new self($this->_config, $this->_default_group);
-                log_message('error', 'mysqli reconnected!');
-            }
-        }catch (Exception $e){
-            log_message('error', 'mysqli reconnect exception...');
-            Yaf_Registry::get($this->_default_group)->close();
+    private function ping(){
+        $conn = @Yaf_Registry::get($this->_default_group);
+        if(!$conn->ping()){
+            log_message('error', 'mysqli lose connection with mysql server...');
+            $conn->close();
             Yaf_Registry::del($this->_default_group);
-            new self($this->_config);
-            log_message('error', 'mysqli reconnected!');
+            new self($this->_config, $this->_default_group);
+            log_message('error', 'mysqli auto connected!');
         }
     }
     
@@ -715,6 +706,7 @@ class Database_Drivers_Mysqli{
         }
         
         $this->_sql .= ')';
+sleep(2);
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         
@@ -1213,6 +1205,12 @@ class Database_Drivers_Mysqli{
         
         if(!empty($this->_order)){
             $this->_sql .= ' order by ';
+            foreach($this->_order as &$v){
+                list($field, $direction) = explode(' ', $v);
+                
+                $field = strpos($field, '`')===false ? '`'.$field.'`' : $field;
+                $v = $field .' '.$direction;
+            }
             $this->_sql .= implode(',', $this->_order);
         }
         $this->_order = array();
@@ -1418,6 +1416,29 @@ class Database_Drivers_Mysqli{
         }else{
             return $this->_stmt->affected_rows;
         }
+    }
+    
+    /**
+     * 执行一条sql，返回成功或者失败
+     * @param string $sql 需要执行sql语句
+     * @return mixed boolean or int or array
+     */
+    public function exec($sql){
+        $this->freeResult();
+        $this->ping();
+        $this->_last_sql = $sql;
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $sql);
+        }
+
+        $rt = Yaf_Registry::get($this->_default_group)->multi_query($sql);
+        if($rt===false){
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
+            return false;
+        }
+
+        return true;
     }
     
     /**

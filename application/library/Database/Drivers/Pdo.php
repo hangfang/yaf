@@ -578,21 +578,25 @@ class Database_Drivers_Pdo{
         }
         
         $this->_sql .= ')';
-        $this->ping();
 
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
-                
+        $this->_stmt = @Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+
         if(DEBUG){
             log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         }
         
         $this->_last_sql = $this->_sql;
-        $this->_sql = '';
+
         if(!$this->_stmt){
-            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group), $this->_sql);
-            return false;
+            
+            if(!$this->__reprepare($this->_sql)){
+                $this->_sql = '';
+                $this->_condition = $this->_value = array();
+                return false;
+            }
         }
+        $this->_sql = '';
         
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
@@ -669,8 +673,7 @@ class Database_Drivers_Pdo{
         if($this->_error){
             return false;
         }
-
-        $this->ping();
+        
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         
         if(DEBUG){
@@ -678,12 +681,16 @@ class Database_Drivers_Pdo{
         }
         
         $this->_last_sql = $this->_sql;
-        $this->_sql = '';
         if(!$this->_stmt){
-            $this->_condition = $this->_value = array();
-            $this->__log_message(Yaf_Registry::get($this->_default_group));
-            return false;
+            $this->__log_message(Yaf_Registry::get($this->_default_group));    
+            if(!$this->__reprepare($this->_sql)){
+                $this->_sql = '';
+                $this->_condition = $this->_value = array();
+                return false;
+            }
         }
+        $this->_sql = '';
+
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
@@ -731,7 +738,6 @@ class Database_Drivers_Pdo{
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
 
-        $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
@@ -739,12 +745,17 @@ class Database_Drivers_Pdo{
         }
         
         $this->_last_sql = $this->_sql;
-        $this->_sql = '';
         if(!$this->_stmt){
-            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
-            return false;
+            
+            if(!$this->__reprepare($this->_sql)){
+                $this->_sql = '';
+                $this->_condition = $this->_value = array();
+                return false;
+            }
         }
+        $this->_sql = '';
+        
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
@@ -831,7 +842,6 @@ class Database_Drivers_Pdo{
             $this->_sql  = rtrim($this->_sql, ', ');
         }
 
-        $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
 
         if(DEBUG){
@@ -839,12 +849,15 @@ class Database_Drivers_Pdo{
         }
 
         $this->_last_sql = $this->_sql;
-        $this->_sql = '';
         if(!$this->_stmt){
-            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
-            return false;
+            if(!$this->__reprepare($this->_sql)){
+                $this->_sql = '';
+                return false;
+            }
         }
+        $this->_sql = '';
+        
         $this->__bindValue();
         $rt = $this->_stmt->execute();
         if(!$rt){
@@ -884,7 +897,6 @@ class Database_Drivers_Pdo{
             return false;
         }
 
-        $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
@@ -892,12 +904,15 @@ class Database_Drivers_Pdo{
         }
         
         $this->_last_sql = $this->_sql;
-        $this->_sql = '';
         if(!$this->_stmt){
-            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
-            return false;
+            if(!$this->__reprepare($this->_sql)){
+                $this->_sql = '';
+                return false;
+            }
         }
+        $this->_sql = '';
+        
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
@@ -944,7 +959,6 @@ class Database_Drivers_Pdo{
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
 
-        $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
@@ -952,12 +966,15 @@ class Database_Drivers_Pdo{
         }
         
         $this->_last_sql = $this->_sql;
-        $this->_sql = '';
         if(!$this->_stmt){
-            $this->_condition = $this->_value = array();
             $this->__log_message(Yaf_Registry::get($this->_default_group));
-            return false;
+            if(!$this->__reprepare($this->_sql)){
+                $this->_sql = '';
+                return false;
+            }
         }
+        $this->_sql = '';
+        
         $this->__bindValue($this->_stmt);
         $rt = $this->_stmt->execute();
         if(!$rt){
@@ -1075,6 +1092,12 @@ class Database_Drivers_Pdo{
         
         if(!empty($this->_order)){
             $this->_sql .= ' order by ';
+            foreach($this->_order as &$v){
+                list($field, $direction) = explode(' ', $v);
+                
+                $field = strpos($field, '`')===false ? '`'.$field.'`' : $field;
+                $v = $field .' '.$direction;
+            }
             $this->_sql .= implode(',', $this->_order);
         }
         $this->_order = array();
@@ -1242,7 +1265,6 @@ class Database_Drivers_Pdo{
      */
     public function query($sql){
         $this->freeResult();
-        $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($sql);
         $this->_last_sql = $sql;
         
@@ -1252,7 +1274,9 @@ class Database_Drivers_Pdo{
         
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group));
-            return false;
+            if(!$this->__reprepare($sql)){
+                return false;
+            }
         }
 
         $rt = $this->_stmt->execute();
@@ -1271,6 +1295,29 @@ class Database_Drivers_Pdo{
         }else{
             return $this->_stmt->rowCount();
         }
+    }
+    
+    /**
+     * 执行一条sql，返回成功或者失败
+     * @param string $sql 需要执行sql语句
+     * @return mixed boolean or int or array
+     */
+    public function exec($sql){
+        $this->freeResult();
+        static::ping();
+        $this->_last_sql = $sql;
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $sql);
+        }
+
+        $rt = Yaf_Registry::get($this->_default_group)->exec($sql);
+        if($rt===false){
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
+            return false;
+        }
+
+        return true;
     }
     
     /**
@@ -1330,5 +1377,29 @@ class Database_Drivers_Pdo{
      */
     public function lastValue(){
         return $this->_last_value;
+    }
+    
+    /**
+     * 处理断线重连
+     * @param string $sql 要预编译的sql
+     * @return boolean or object
+     */
+    protected function __reprepare($sql){
+        log_message('error', 'pdo mysql lose connection with mysql server...');
+        $conn = Yaf_Registry::get($this->_default_group);
+        $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
+        $conn = null;
+        Yaf_Registry::del($this->_default_group);
+
+        if(preg_match('/([^:]+):/', static::$_config['dsn'], $matches)){
+            $subdriver = isset($matches[1]) ? $matches[1] : 'mysql';
+        }
+        $subdriver = empty($subdriver) ? 'mysql' : strtolower($subdriver);
+        $class = Database_Drivers_Pdo_.ucfirst($subdriver);
+        new $class(static::$_config, $this->_default_group);
+        log_message('error', 'pdo mysql auto connected!');
+        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($sql);
+        
+        return $this->_stmt;
     }
 }

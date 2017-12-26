@@ -6,12 +6,12 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
  */
 class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
 
-    private $_config = array();
+    protected static $_config = array();
     public $_default_group = '';
     private $_options = array();
     public final function __construct($config, $default_group){
         $this->_default_group = $default_group;
-        $this->_config = $config;
+        static::$_config = $config;
 		if (empty($config['dsn'])){
 			$config['dsn'] = 'mysql:host='.(empty($config['hostname']) ? '127.0.0.1' : $config['hostname']);
 
@@ -94,25 +94,14 @@ class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
     }
 
     public function ping(){
-        //sleep(20);
-        Yaf_Registry::set('ping_error',1);
         $conn = Yaf_Registry::get($this->_default_group);
-        try{
-            if(!$conn->query('SELECT 1')){
-                log_message('error', 'pdo mysql reconnect...');
-                $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
-                $conn = null;
-                Yaf_Registry::del($this->_default_group);
-                new self($this->_config, $this->_default_group);
-                log_message('error', 'pdo mysql reconnected!');
-            }
-        }catch (Exception $e){
-            log_message('error', 'pdo mysql reconnect exception...');
+        if(!$conn->query('SELECT 1')){
+            log_message('error', 'pdo mysql lose connection with mysql server...');
             $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
             $conn = null;
             Yaf_Registry::del($this->_default_group);
             new self($this->_config, $this->_default_group);
-            log_message('error', 'pdo mysql reconnected!');
+            log_message('error', 'pdo mysql auto connected!');
         }
     }
 }
