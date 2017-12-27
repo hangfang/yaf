@@ -131,6 +131,10 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Mysqli
      */
     private function __where($where, $value, $connect='AND'){
+        if(empty($where)){
+            return $this;
+        }
+        
         if(is_array($where)){
             foreach($where as $k=>$v){
                 if(is_array($k) || is_object($k)){
@@ -884,7 +888,7 @@ class Database_Drivers_Pdo{
             return false;
         }
         
-        $this->where($where);
+        $where && $this->where($where);
         !empty($limit) && $this->_limit['limit'] = $limit;
         
         $this->_sql = 'DELETE FROM '. $this->_table;
