@@ -593,6 +593,10 @@ class Database_Drivers_Pdo{
 
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group), $this->_sql);
+            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+                return false;
+            }
             
             if(!$this->__reprepare($this->_sql)){
                 $this->_sql = '';
@@ -686,7 +690,12 @@ class Database_Drivers_Pdo{
         
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            $this->__log_message(Yaf_Registry::get($this->_default_group));    
+            $this->__log_message(Yaf_Registry::get($this->_default_group)); 
+            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+                return false;
+            }
+            
             if(!$this->__reprepare($this->_sql)){
                 $this->_sql = '';
                 $this->_condition = $this->_value = array();
@@ -751,6 +760,10 @@ class Database_Drivers_Pdo{
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group));
+            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+                return false;
+            }
             
             if(!$this->__reprepare($this->_sql)){
                 $this->_sql = '';
@@ -855,6 +868,11 @@ class Database_Drivers_Pdo{
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group));
+            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+                return false;
+            }
+            
             if(!$this->__reprepare($this->_sql)){
                 $this->_sql = '';
                 return false;
@@ -910,6 +928,11 @@ class Database_Drivers_Pdo{
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group));
+            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+                return false;
+            }
+            
             if(!$this->__reprepare($this->_sql)){
                 $this->_sql = '';
                 return false;
@@ -972,6 +995,11 @@ class Database_Drivers_Pdo{
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group));
+            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+                return false;
+            }
+            
             if(!$this->__reprepare($this->_sql)){
                 $this->_sql = '';
                 return false;
@@ -1278,6 +1306,11 @@ class Database_Drivers_Pdo{
         
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group));
+            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+                return false;
+            }
+            
             if(!$this->__reprepare($sql)){
                 return false;
             }

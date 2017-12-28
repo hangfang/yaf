@@ -710,7 +710,7 @@ class Database_Drivers_Mysqli{
         }
         
         $this->_sql .= ')';
-sleep(2);
+
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         
