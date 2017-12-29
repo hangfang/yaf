@@ -357,7 +357,7 @@ class Database_Drivers_Pdo{
                 $this->_order[] = $v;
             }
         }else{
-            $this->_order[] = $order;
+            $this->_order = explode(',', $order);
             return $this;
         }
         
@@ -1125,7 +1125,7 @@ class Database_Drivers_Pdo{
         if(!empty($this->_order)){
             $this->_sql .= ' order by ';
             foreach($this->_order as &$v){
-                list($field, $direction) = explode(' ', $v);
+                list($field, $direction) = explode(' ', trim($v));
                 
                 $field = strpos($field, '`')===false ? '`'.$field.'`' : $field;
                 $v = $field .' '.$direction;
