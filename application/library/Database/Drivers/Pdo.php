@@ -594,7 +594,7 @@ class Database_Drivers_Pdo{
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group), $this->_sql);
             $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
-            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+            if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
                 return false;
             }
             
