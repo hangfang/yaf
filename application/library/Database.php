@@ -23,14 +23,6 @@ class Database{
             $client_id = BaseModel::domain2Id();
         }
 
-        $key = $default_group.'_instance_'.(is_null($client_id) ? '' : $client_id);
-        if(self::$_instance = Yaf_Registry::get($key)){
-            if(self::$_instance === false){
-                lExit(1025);
-            }
-            return self::$_instance;
-        }
-
         if(! $config = Yaf_Registry::get('db_config')){
             $config = new Yaf_Config_Ini(APPLICATION_PATH . '/conf/database.ini', ini_get('yaf.environ'));
             $config = $config->toArray();
@@ -44,14 +36,25 @@ class Database{
             }
         }
 
+        $key = 'db_instance';
+        if(self::$_instance = Yaf_Registry::get($key)){
+            if(self::$_instance === false){
+                lExit(1025);
+            }
+
+            self::$_instance->selectDb($config['database']);
+            return self::$_instance;
+        }
+
         $dbdriver = strtolower($config['dbdriver']);
         if($dbdriver==='mysqli'){
             $driverName = ucfirst($config['dbdriver']);
             $driver = 'Database_Drivers_'.$driverName;
             if (class_exists($driver) ){
                 try{
-                    self::$_instance = new $driver($config, $default_group);
+                    self::$_instance = new $driver($config, $key);
                 }catch(Exception $e){
+                    log_message('error', 'mysqli: 数据库连接失败!');
                     self::$_instance = false;
                 }
             }else{
@@ -67,8 +70,9 @@ class Database{
             // Check for a subdriver
             if (class_exists($driver) ){
                 try{
-                    self::$_instance = new $driver($config, $default_group);
+                    self::$_instance = new $driver($config, $key);
                 }catch(Exception $e){
+                    log_message('error', 'pdo: 数据库连接失败!');
                     self::$_instance = false;
                 }
             }else{
@@ -86,6 +90,7 @@ class Database{
             }
         }
 
+        self::$_instance->selectDb($config['database']);
         Yaf_Registry::set($key, self::$_instance);
         return self::$_instance;
     }

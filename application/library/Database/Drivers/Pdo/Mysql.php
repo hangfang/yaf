@@ -7,10 +7,10 @@ defined('APPLICATION_PATH') OR exit('No direct script access allowed');
 class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
 
     protected static $_config = array();
-    public $_default_group = '';
+    protected static $_default_group = '';
     private $_options = array();
     public final function __construct($config, $default_group){
-        $this->_default_group = $default_group;
+        static::$_default_group = $default_group.'_'.__CLASS__;
         static::$_config = $config;
 		if (empty($config['dsn'])){
 			$config['dsn'] = 'mysql:host='.(empty($config['hostname']) ? '127.0.0.1' : $config['hostname']);
@@ -79,7 +79,7 @@ class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
         $this->_options[PDO::ATTR_EMULATE_PREPARES] = false;
 
         $_conn = new PDO($config['dsn'], $config['username'], $config['password'], $this->_options);
-        Yaf_Registry::set($this->_default_group, $_conn);
+        Yaf_Registry::set(static::$_default_group, $_conn);
 
 		if (! empty($ssl)
 			&& version_compare($_conn->getAttribute(PDO::ATTR_CLIENT_VERSION), '5.7.3', '<=')
@@ -87,20 +87,19 @@ class Database_Drivers_Pdo_Mysql extends Database_Drivers_Pdo{
 		){
 			log_message('error', $message = 'PDO_MYSQL was configured for an SSL connection, but got an unencrypted connection instead!');
             throw new Exception($message, '-1');
-			return false;
 		}
         
         $this->_prefix = empty($config['prefix']) ? '' : $config['prefix'];
     }
 
     public function ping(){
-        $conn = Yaf_Registry::get($this->_default_group);
+        $conn = Yaf_Registry::get(static::$_default_group);
         if(!$conn->query('SELECT 1')){
             log_message('error', 'pdo mysql lose connection with mysql server...');
             $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
             $conn = null;
-            Yaf_Registry::del($this->_default_group);
-            new self($this->_config, $this->_default_group);
+            Yaf_Registry::del(static::$_default_group);
+            new self($this->_config, static::$_default_group);
             log_message('error', 'pdo mysql auto connected!');
         }
     }

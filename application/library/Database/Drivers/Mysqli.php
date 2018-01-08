@@ -116,7 +116,7 @@ class Database_Drivers_Mysqli{
     
     public final function __construct($config, $default_group){
         $this->_config = $config;
-        $this->_default_group = $default_group;
+        $this->_default_group = $default_group.'_'.__CLASS__;
         // Do we have a socket path?
 		if ($config['hostname'][0] === '/'){
 			$hostname = NULL;
@@ -1504,5 +1504,28 @@ class Database_Drivers_Mysqli{
      */
     public function lastValue(){
         return $this->_last_value;
+    }
+    
+    /**
+     * 切换数据库
+     * @param string $database 数据库名称
+     * @return mixed boolean or int or array
+     */
+    public function selectDb($database){
+        $this->freeResult();
+        $this->ping();
+        $this->_last_sql = $sql;
+        
+        if(DEBUG){
+            log_message('debug', 'sql: '. $sql);
+        }
+
+        $rt = Yaf_Registry::get($this->_default_group)->select_db($sql);
+        if($rt===false){
+            $this->__log_message(Yaf_Registry::get($this->_default_group));
+            return false;
+        }
+
+        return true;
     }
 }

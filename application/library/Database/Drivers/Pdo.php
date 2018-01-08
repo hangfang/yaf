@@ -95,7 +95,9 @@ class Database_Drivers_Pdo{
      * @var string
      */
     private $_last_value = array();
-    
+    protected static $_default_group = '';
+
+
     /**
      * SQL语句条件分组开始:AND (
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
@@ -583,7 +585,7 @@ class Database_Drivers_Pdo{
         
         $this->_sql .= ')';
 
-        $this->_stmt = @Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        $this->_stmt = @Yaf_Registry::get(static::$_default_group)->prepare($this->_sql);
 
         if(DEBUG){
             log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
@@ -592,8 +594,8 @@ class Database_Drivers_Pdo{
         $this->_last_sql = $this->_sql;
 
         if(!$this->_stmt){
-            $this->__log_message(Yaf_Registry::get($this->_default_group), $this->_sql);
-            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
+            $this->__log_message(Yaf_Registry::get(static::$_default_group), $this->_sql);
+            $errorInfo = Yaf_Registry::get(static::$_default_group)->errorInfo();
             if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
                 return false;
             }
@@ -682,7 +684,7 @@ class Database_Drivers_Pdo{
             return false;
         }
         
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        $this->_stmt = Yaf_Registry::get(static::$_default_group)->prepare($this->_sql);
         
         if(DEBUG){
             log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
@@ -690,9 +692,9 @@ class Database_Drivers_Pdo{
         
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            $this->__log_message(Yaf_Registry::get($this->_default_group)); 
-            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
-            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+            $this->__log_message(Yaf_Registry::get(static::$_default_group)); 
+            $errorInfo = Yaf_Registry::get(static::$_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
                 return false;
             }
             
@@ -751,7 +753,7 @@ class Database_Drivers_Pdo{
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
 
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        $this->_stmt = Yaf_Registry::get(static::$_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
             log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
@@ -759,9 +761,9 @@ class Database_Drivers_Pdo{
         
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            $this->__log_message(Yaf_Registry::get($this->_default_group));
-            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
-            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+            $this->__log_message(Yaf_Registry::get(static::$_default_group));
+            $errorInfo = Yaf_Registry::get(static::$_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
                 return false;
             }
             
@@ -780,7 +782,7 @@ class Database_Drivers_Pdo{
             return false;
         }
         
-        $tmp = Yaf_Registry::get($this->_default_group)->lastInsertId();
+        $tmp = Yaf_Registry::get(static::$_default_group)->lastInsertId();
         return is_bool($tmp) ? $tmp : ($tmp==0 ? true : $tmp);//主键非自增id，会返回0
     }
 
@@ -859,7 +861,7 @@ class Database_Drivers_Pdo{
             $this->_sql  = rtrim($this->_sql, ', ');
         }
 
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        $this->_stmt = Yaf_Registry::get(static::$_default_group)->prepare($this->_sql);
 
         if(DEBUG){
             log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
@@ -867,9 +869,9 @@ class Database_Drivers_Pdo{
 
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            $this->__log_message(Yaf_Registry::get($this->_default_group));
-            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
-            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+            $this->__log_message(Yaf_Registry::get(static::$_default_group));
+            $errorInfo = Yaf_Registry::get(static::$_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
                 return false;
             }
             
@@ -919,7 +921,7 @@ class Database_Drivers_Pdo{
             return false;
         }
 
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        $this->_stmt = Yaf_Registry::get(static::$_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
             log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
@@ -927,9 +929,9 @@ class Database_Drivers_Pdo{
         
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            $this->__log_message(Yaf_Registry::get($this->_default_group));
-            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
-            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+            $this->__log_message(Yaf_Registry::get(static::$_default_group));
+            $errorInfo = Yaf_Registry::get(static::$_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
                 return false;
             }
             
@@ -986,7 +988,7 @@ class Database_Drivers_Pdo{
         $this->_sql = trim($this->_sql, ',');
         $this->_sql .= ')';
 
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
+        $this->_stmt = Yaf_Registry::get(static::$_default_group)->prepare($this->_sql);
                 
         if(DEBUG){
             log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
@@ -994,9 +996,9 @@ class Database_Drivers_Pdo{
         
         $this->_last_sql = $this->_sql;
         if(!$this->_stmt){
-            $this->__log_message(Yaf_Registry::get($this->_default_group));
-            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
-            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+            $this->__log_message(Yaf_Registry::get(static::$_default_group));
+            $errorInfo = Yaf_Registry::get(static::$_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
                 return false;
             }
             
@@ -1014,7 +1016,7 @@ class Database_Drivers_Pdo{
             return false;
         }
                 
-        $tmp = Yaf_Registry::get($this->_default_group)->lastInsertId();
+        $tmp = Yaf_Registry::get(static::$_default_group)->lastInsertId();
         return is_bool($tmp) ? $tmp : ($tmp==0 ? true : $tmp);//主键非自增id，会返回0
     }
     
@@ -1235,12 +1237,12 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function startTransaction(){
-        if(Yaf_Registry::get($this->_default_group)->inTransaction()){
+        if(Yaf_Registry::get(static::$_default_group)->inTransaction()){
             return $this;
         }
-        $rt = Yaf_Registry::get($this->_default_group)->beginTransaction();
+        $rt = Yaf_Registry::get(static::$_default_group)->beginTransaction();
         if(!$rt){
-            log_message('error', 'start transaction error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
+            log_message('error', 'start transaction error, msg: '. json_encode(Yaf_Registry::get(static::$_default_group)->errorInfo()));
             return false;
         }
         
@@ -1252,7 +1254,7 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function inTransaction(){
-        return Yaf_Registry::get($this->_default_group)->inTransaction();
+        return Yaf_Registry::get(static::$_default_group)->inTransaction();
     }
     
     /**
@@ -1260,9 +1262,9 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function rollBack(){
-        $rt = Yaf_Registry::get($this->_default_group)->rollBack();
+        $rt = Yaf_Registry::get(static::$_default_group)->rollBack();
         if(!$rt){
-            log_message('error', 'rollback error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
+            log_message('error', 'rollback error, msg: '. json_encode(Yaf_Registry::get(static::$_default_group)->errorInfo()));
             return false;
         }
         
@@ -1274,19 +1276,19 @@ class Database_Drivers_Pdo{
      * @return mixed boolean || Database_Drivers_Pdo_Mysql
      */
     public function commit(){
-        $rt = Yaf_Registry::get($this->_default_group)->commit();
+        $rt = Yaf_Registry::get(static::$_default_group)->commit();
         if(!$rt){
-            $rt = Yaf_Registry::get($this->_default_group)->rollBack();
+            $rt = Yaf_Registry::get(static::$_default_group)->rollBack();
             if(!$rt){
-                log_message('error', 'rollback error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
+                log_message('error', 'rollback error, msg: '. json_encode(Yaf_Registry::get(static::$_default_group)->errorInfo()));
                 return false;
             }
             
-            log_message('error', 'commit error, msg: '. json_encode(Yaf_Registry::get($this->_default_group)->errorInfo()));
+            log_message('error', 'commit error, msg: '. json_encode(Yaf_Registry::get(static::$_default_group)->errorInfo()));
             return false;
         }
         
-        Yaf_Registry::get($this->_default_group)->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
+        Yaf_Registry::get(static::$_default_group)->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
         return true;
     }
     
@@ -1297,7 +1299,7 @@ class Database_Drivers_Pdo{
      */
     public function query($sql){
         $this->freeResult();
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($sql);
+        $this->_stmt = Yaf_Registry::get(static::$_default_group)->prepare($sql);
         $this->_last_sql = $sql;
         
         if(DEBUG){
@@ -1305,9 +1307,9 @@ class Database_Drivers_Pdo{
         }
         
         if(!$this->_stmt){
-            $this->__log_message(Yaf_Registry::get($this->_default_group));
-            $errorInfo = Yaf_Registry::get($this->_default_group)->errorInfo();
-            if(stripos($errorInfo, 'MySQL server has gone away')!==false && strpos($errorInfo, '2006')!==false){
+            $this->__log_message(Yaf_Registry::get(static::$_default_group));
+            $errorInfo = Yaf_Registry::get(static::$_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
                 return false;
             }
             
@@ -1326,9 +1328,9 @@ class Database_Drivers_Pdo{
         if(strpos($sql, 'select')===0 || strpos($sql, 'desc')===0){
             return $this->_stmt->fetchAll();
         }else if(strpos($sql, 'insert')===0){
-            return Yaf_Registry::get($this->_default_group)->lastInsertId();
+            return Yaf_Registry::get(static::$_default_group)->lastInsertId();
         }else if(strpos($sql, 'replace')===0){
-            return Yaf_Registry::get($this->_default_group)->lastInsertId();
+            return Yaf_Registry::get(static::$_default_group)->lastInsertId();
         }else{
             return $this->_stmt->rowCount();
         }
@@ -1341,16 +1343,35 @@ class Database_Drivers_Pdo{
      */
     public function exec($sql){
         $this->freeResult();
-        static::ping();
         $this->_last_sql = $sql;
         
         if(DEBUG){
             log_message('debug', 'sql: '. $sql);
         }
 
-        $rt = Yaf_Registry::get($this->_default_group)->exec($sql);
+        $rt = Yaf_Registry::get(static::$_default_group)->exec($sql);
         if($rt===false){
-            $this->__log_message(Yaf_Registry::get($this->_default_group));
+            $this->__log_message(Yaf_Registry::get(static::$_default_group));
+            $errorInfo = Yaf_Registry::get(static::$_default_group)->errorInfo();
+            if(stripos($errorInfo, 'MySQL server has gone away')===false && strpos($errorInfo, '2006')===false){
+                
+                log_message('error', 'pdo mysql lose connection with mysql server...');
+                $conn = Yaf_Registry::get(static::$_default_group);
+                $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
+                $conn = null;
+                Yaf_Registry::del(static::$_default_group);
+
+                if(preg_match('/([^:]+):/', static::$_config['dsn'], $matches)){
+                    $subdriver = isset($matches[1]) ? $matches[1] : 'mysql';
+                }
+                $subdriver = empty($subdriver) ? 'mysql' : strtolower($subdriver);
+                $class = Database_Drivers_Pdo_.ucfirst($subdriver);
+                new $class(static::$_config, static::$_default_group);
+                log_message('error', 'pdo mysql auto connected!');
+
+                return Yaf_Registry::get(static::$_default_group)->prepare($sql);
+            }
+            
             return false;
         }
 
@@ -1423,20 +1444,38 @@ class Database_Drivers_Pdo{
      */
     protected function __reprepare($sql){
         log_message('error', 'pdo mysql lose connection with mysql server...');
-        $conn = Yaf_Registry::get($this->_default_group);
+        $conn = Yaf_Registry::get(static::$_default_group);
         $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
         $conn = null;
-        Yaf_Registry::del($this->_default_group);
+        Yaf_Registry::del(static::$_default_group);
 
         if(preg_match('/([^:]+):/', static::$_config['dsn'], $matches)){
             $subdriver = isset($matches[1]) ? $matches[1] : 'mysql';
         }
         $subdriver = empty($subdriver) ? 'mysql' : strtolower($subdriver);
         $class = Database_Drivers_Pdo_.ucfirst($subdriver);
-        new $class(static::$_config, $this->_default_group);
+        new $class(static::$_config, static::$_default_group);
         log_message('error', 'pdo mysql auto connected!');
-        $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($sql);
+        $this->_stmt = Yaf_Registry::get(static::$_default_group)->prepare($sql);
         
         return $this->_stmt;
+    }
+    
+    /**
+     * 切换数据库
+     * @param string $database 数据库名称
+     */
+    public function selectDb($database){
+        $conn = Yaf_Registry::get(static::$_default_group);
+        if(!$conn->query('SELECT 1')){
+            log_message('error', 'pdo mysql lose connection with mysql server...');
+            $conn->setAttribute(PDO::ATTR_PERSISTENT, false);
+            $conn = null;
+            Yaf_Registry::del(static::$_default_group);
+            new self($this->_config, static::$_default_group);
+            log_message('error', 'pdo mysql auto connected!');
+        }
+        
+        return Yaf_Registry::get(static::$_default_group)->exec('use '.$database);
     }
 }
