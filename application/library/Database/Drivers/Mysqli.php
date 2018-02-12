@@ -116,7 +116,7 @@ class Database_Drivers_Mysqli{
     
     public final function __construct($config, $default_group){
         $this->_config = $config;
-        $this->_default_group = $default_group.'_'.__CLASS__;
+        $this->_default_group = $default_group;
         // Do we have a socket path?
 		if ($config['hostname'][0] === '/'){
 			$hostname = NULL;
@@ -263,28 +263,72 @@ class Database_Drivers_Mysqli{
                     return false;
                 }else{
                     $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $k);
-                    $k = preg_replace('/[\s><=!]/i', '', $k);
 
                     if(is_array($v)){
                         $op = (empty($op) || $op==='=') ? 'in' : 'not in';
                     }else{
-                        $op = empty($op) ? '=' : $op;
+                        switch($op){
+                            case '!%':
+                                $tmp = explode('!%', $k);
+                                $side = empty($tmp[0]) ? 'left' : 'right';
+                                $op = 'not like';
+                                break;
+                            case '!%!%':
+                                $op = 'not like';
+                                $side = 'both';
+                                break;
+                            case '%':
+                                $tmp = explode('%', $k);
+                                $side = empty($tmp[0]) ? 'left' : 'right';
+                                $op = 'like';
+                                break;
+                            case '%%':
+                                $op = 'like';
+                                $side = 'both';
+                                break;
+                            case '':
+                                $op = '=';
+                                break;
+                        }
                     }
-
-                    $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>$connect, 'op'=>$op);
+                    
+                    $k = preg_replace('/[\s><=!%]/i', '', $k);
+                    $this->_condition[] = array('key'=>$k, 'value'=>$v, 'connect'=>$connect, 'op'=>$op, 'side'=>$side);
                 }
             }
         }else{
             $op = preg_replace('/[`0-9a-z_\s\.]/i', '', $where);
-            $where = preg_replace('/[\s><=!]/i', '', $where);
 
             if(is_array($value)){
                 $op = (empty($op) || $op==='=') ? 'in' : 'not in';
             }else{
-                $op = empty($op) ? '=' : $op;
+                switch($op){
+                    case '!%':
+                        $tmp = explode('!%', $where);
+                        $side = empty($tmp[0]) ? 'left' : 'right';
+                        $op = 'not like';
+                        break;
+                    case '!%!%':
+                        $op = 'not like';
+                        $side = 'both';
+                        break;
+                    case '%':
+                        $tmp = explode('%', $where);
+                        $side = empty($tmp[0]) ? 'left' : 'right';
+                        $op = 'like';
+                        break;
+                    case '%%':
+                        $op = 'like';
+                        $side = 'both';
+                        break;
+                    case '':
+                        $op = '=';
+                        break;
+                }
             }
 
-            $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>$connect, 'op'=>$op);
+            $where = preg_replace('/[\s><=!%]/i', '', $where);
+            $this->_condition[] = array('key'=>$where, 'value'=>$value, 'connect'=>$connect, 'op'=>$op, 'side'=>$side);
         }
         
         return $this;
@@ -713,10 +757,8 @@ class Database_Drivers_Mysqli{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
-        
-        if(DEBUG){
-            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
-        }
+
+        log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
@@ -809,10 +851,8 @@ class Database_Drivers_Mysqli{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
-        
-        if(DEBUG){
-            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
-        }
+
+        log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
@@ -869,10 +909,8 @@ class Database_Drivers_Mysqli{
 
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
-        
-        if(DEBUG){
-            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
-        }
+
+        log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
@@ -970,9 +1008,7 @@ class Database_Drivers_Mysqli{
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
 
-        if(DEBUG){
-            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
-        }
+        log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
 
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
@@ -1023,9 +1059,7 @@ class Database_Drivers_Mysqli{
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         
-        if(DEBUG){
-            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
-        }
+        log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
@@ -1083,9 +1117,7 @@ class Database_Drivers_Mysqli{
         $this->ping();
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($this->_sql);
         
-        if(DEBUG){
-            log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
-        }
+        log_message('debug', 'sql: '. buildSql($this->_sql, $this->_value));
         
         $this->_last_sql = $this->_sql;
         $this->_sql = '';
@@ -1395,9 +1427,7 @@ class Database_Drivers_Mysqli{
         $this->_stmt = Yaf_Registry::get($this->_default_group)->prepare($sql);
         $this->_last_sql = $sql;
         
-        if(DEBUG){
-            log_message('debug', 'sql: '. $sql);
-        }
+        log_message('debug', 'sql: '. $sql);
         
         if(!$this->_stmt){
             $this->__log_message(Yaf_Registry::get($this->_default_group));
@@ -1432,9 +1462,7 @@ class Database_Drivers_Mysqli{
         $this->ping();
         $this->_last_sql = $sql;
         
-        if(DEBUG){
-            log_message('debug', 'sql: '. $sql);
-        }
+        log_message('debug', 'sql: '. $sql);
 
         $rt = Yaf_Registry::get($this->_default_group)->multi_query($sql);
         if($rt===false){
@@ -1504,28 +1532,5 @@ class Database_Drivers_Mysqli{
      */
     public function lastValue(){
         return $this->_last_value;
-    }
-    
-    /**
-     * 切换数据库
-     * @param string $database 数据库名称
-     * @return mixed boolean or int or array
-     */
-    public function selectDb($database){
-        $this->freeResult();
-        $this->ping();
-        $this->_last_sql = $sql;
-        
-        if(DEBUG){
-            log_message('debug', 'sql: '. $sql);
-        }
-
-        $rt = Yaf_Registry::get($this->_default_group)->select_db($sql);
-        if($rt===false){
-            $this->__log_message(Yaf_Registry::get($this->_default_group));
-            return false;
-        }
-
-        return true;
     }
 }
