@@ -34,7 +34,7 @@ CREATE TABLE `wechat_receive_message` (
   `Location_Y` decimal(13,10) NOT NULL DEFAULT '0.0000000000' COMMENT '地理位置经度',
   `Longitude` decimal(13,10) NOT NULL DEFAULT '0.0000000000' COMMENT '地理位置经度',
   `MediaId` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '图片消息媒体id，可以调用多媒体文件下载接口拉取数据。语音消息媒体id，可以调用多媒体文件下载接口拉取数据。',
-  `MsgId` varchar(255) unsigned NOT NULL DEFAULT '' COMMENT '消息id，64位整型',
+  `MsgId` varchar(255) NOT NULL DEFAULT '' COMMENT '消息id，64位整型',
   `MsgType` varchar(16) NOT NULL DEFAULT '' COMMENT 'MsgType,消息类型,link,location,小视频为shortvideo,视频为video,语音为voice,image,text，event',
   `PicUrl` varchar(255) NOT NULL DEFAULT '' COMMENT '图片链接（由系统生成）',
   `Precision` decimal(9,6) NOT NULL DEFAULT '0.000000' COMMENT '地理位置精度',
@@ -60,7 +60,7 @@ CREATE TABLE `wechat_receive_message` (
   KEY `MsgType` (`MsgType`) USING BTREE,
   KEY `CreateTime` (`CreateTime`) USING BTREE,
   KEY `Format` (`Format`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=2744 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=3381 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of wechat_receive_message
